@@ -1,6 +1,6 @@
 ﻿namespace LVGLSharp.Forms
 {
-    public class KeyPressEventArgs
+    public class KeyPressEventArgs : EventArgs
     {
     }
 }

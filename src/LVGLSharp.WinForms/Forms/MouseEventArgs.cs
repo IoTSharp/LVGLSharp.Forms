@@ -1,6 +1,6 @@
 ﻿namespace LVGLSharp.Forms
 {
-    public class MouseEventArgs
+    public class MouseEventArgs : EventArgs
     {
     }
 }

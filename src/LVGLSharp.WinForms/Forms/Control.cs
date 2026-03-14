@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using LVGLSharp.Darwing;
 using LVGLSharp.Interop;
@@ -14,7 +15,7 @@ namespace LVGLSharp.Forms
         //     settings.
         public Control() : base()
         {
-            Controls = new ControlCollection();
+            Controls = new ControlCollection(this);
         }
         //
         // 摘要:
@@ -192,7 +193,11 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Always)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlWidthDescr")]
-        public int Width { get; set; }
+        public int Width
+        {
+            get => _size.Width;
+            set => Size = new Size(value, _size.Height);
+        }
 #nullable enable
         //
         // 摘要:
@@ -223,7 +228,15 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlPaddingDescr")]
-        public Padding Padding { get; set; }
+        public Padding Padding
+        {
+            get => _padding;
+            set
+            {
+                _padding = value;
+                OnPaddingChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets a value indicating whether to use the wait cursor for the current
@@ -250,7 +263,27 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatBehavior")]
         [SRDescriptionAttribute("ControlVisibleDescr")]
-        public bool Visible { get; set; }
+        public bool Visible
+        {
+            get => _visible;
+            set
+            {
+                if (_visible == value) return;
+                _visible = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null)
+                    {
+                        if (_visible)
+                            lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                        else
+                            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                    }
+                }
+                OnVisibleChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the Input Method Editor (IME) mode of the control.
@@ -291,7 +324,11 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Always)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlHeightDescr")]
-        public int Height { get; set; }
+        public int Height
+        {
+            get => _size.Height;
+            set => Size = new Size(_size.Width, value);
+        }
         //
         // 摘要:
         //     Gets a value indicating whether the control contains one or more child controls.
@@ -325,7 +362,22 @@ namespace LVGLSharp.Forms
         [DispId(-513)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlForeColorDescr")]
-        public virtual Color ForeColor { get; set; }
+        public virtual Color ForeColor
+        {
+            get => _foreColor;
+            set
+            {
+                if (_foreColor == value) return;
+                _foreColor = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null && value != Color.Empty)
+                        lv_obj_set_style_text_color(obj, lv_color_make(value.R, value.G, value.B), 0);
+                }
+                OnForeColorChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the font of the text displayed by the control.
@@ -338,7 +390,16 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlFontDescr")]
-        public virtual Font Font { get; set; }
+        public virtual Font Font
+        {
+            get => _font!;
+            set
+            {
+                if (ReferenceEquals(_font, value)) return;
+                _font = value;
+                OnFontChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets a value indicating whether the caller must call an invoke method when making
@@ -378,7 +439,16 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlTextDescr")]
-        public virtual string Text { get; set; }
+        public virtual string Text
+        {
+            get => _text ?? string.Empty;
+            set
+            {
+                if (_text == value) return;
+                _text = value;
+                OnTextChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets the parent control that is not parented by another Windows Forms control.
@@ -425,7 +495,16 @@ namespace LVGLSharp.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [SRCategoryAttribute("CatBehavior")]
         [SRDescriptionAttribute("ControlParentDescr")]
-        public Control? Parent { get; set; }
+        public Control? Parent
+        {
+            get => _parent;
+            set
+            {
+                if (ReferenceEquals(_parent, value)) return;
+                _parent = value;
+                OnParentChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets the product name of the assembly containing the control.
@@ -472,7 +551,16 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlRegionDescr")]
-        public Region? Region { get; set; }
+        public Region? Region
+        {
+            get => _region;
+            set
+            {
+                if (ReferenceEquals(_region, value)) return;
+                _region = value;
+                OnRegionChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the coordinates of the upper-left corner of the control relative
@@ -484,7 +572,23 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlLocationDescr")]
-        public Point Location { get; set; }
+        public Point Location
+        {
+            get => _location;
+            set
+            {
+                if (_location == value) return;
+                _location = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null && _dock != DockStyle.Fill)
+                        lv_obj_set_pos(obj, value.X, value.Y);
+                }
+                OnLocationChanged(EventArgs.Empty);
+                OnMove(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the distance, in pixels, between the left edge of the control and
@@ -498,7 +602,11 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Always)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlLeftDescr")]
-        public int Left { get; set; }
+        public int Left
+        {
+            get => _location.X;
+            set => Location = new Point(value, _location.Y);
+        }
         //
         // 摘要:
         //     Gets the distance, in pixels, between the right edge of the control and the left
@@ -512,7 +620,7 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlRightDescr")]
-        public int Right { get; }
+        public int Right => _location.X + _size.Width;
         //
         // 摘要:
         //     Gets or sets a value indicating whether control's elements are aligned to support
@@ -529,7 +637,16 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlRightToLeftDescr")]
-        public virtual RightToLeft RightToLeft { get; set; }
+        public virtual RightToLeft RightToLeft
+        {
+            get => _rightToLeft;
+            set
+            {
+                if (_rightToLeft == value) return;
+                _rightToLeft = value;
+                OnRightToLeftChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets a value indicating whether the control is mirrored.
@@ -561,7 +678,28 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlSizeDescr")]
-        public Size Size { get; set; }
+        public Size Size
+        {
+            get => _size;
+            set
+            {
+                if (_size == value) return;
+                _size = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null && _dock != DockStyle.Fill)
+                    {
+                        int w = value.Width > 0 ? value.Width : LV_SIZE_CONTENT;
+                        int h = value.Height > 0 ? value.Height : LV_SIZE_CONTENT;
+                        lv_obj_set_size(obj, w, h);
+                    }
+                }
+                OnSizeChanged(EventArgs.Empty);
+                OnResize(EventArgs.Empty);
+                OnClientSizeChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the tab order of the control within its container.
@@ -573,7 +711,16 @@ namespace LVGLSharp.Forms
         [MergableProperty(false)]
         [SRCategoryAttribute("CatBehavior")]
         [SRDescriptionAttribute("ControlTabIndexDescr")]
-        public int TabIndex { get; set; }
+        public int TabIndex
+        {
+            get => _tabIndex;
+            set
+            {
+                if (_tabIndex == value) return;
+                _tabIndex = value;
+                OnTabIndexChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets a value indicating whether the user can give the focus to this control
@@ -587,7 +734,16 @@ namespace LVGLSharp.Forms
         [DispId(-516)]
         [SRCategoryAttribute("CatBehavior")]
         [SRDescriptionAttribute("ControlTabStopDescr")]
-        public bool TabStop { get; set; }
+        public bool TabStop
+        {
+            get => _tabStop;
+            set
+            {
+                if (_tabStop == value) return;
+                _tabStop = value;
+                OnTabStopChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the object that contains data about the control.
@@ -625,7 +781,11 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Always)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlTopDescr")]
-        public int Top { get; set; }
+        public int Top
+        {
+            get => _location.Y;
+            set => Location = new Point(_location.X, value);
+        }
         //
         // 摘要:
         //     Indicates if one of the Ancestors of this control is sited and that site in DesignMode.
@@ -646,7 +806,27 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatBehavior")]
         [SRDescriptionAttribute("ControlEnabledDescr")]
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get => _enabled;
+            set
+            {
+                if (_enabled == value) return;
+                _enabled = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null)
+                    {
+                        if (_enabled)
+                            lv_obj_remove_state(obj, (ushort)0x0080 /* LV_STATE_DISABLED */);
+                        else
+                            lv_obj_add_state(obj, (ushort)0x0080 /* LV_STATE_DISABLED */);
+                    }
+                }
+                OnEnabledChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets a value indicating whether the control has been disposed of.
@@ -675,7 +855,31 @@ namespace LVGLSharp.Forms
         [RefreshProperties(RefreshProperties.Repaint)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlDockDescr")]
-        public virtual DockStyle Dock { get; set; }
+        public virtual DockStyle Dock
+        {
+            get => _dock;
+            set
+            {
+                if (_dock == value) return;
+                _dock = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null)
+                    {
+                        if (_dock == DockStyle.Fill)
+                            lv_obj_set_size(obj, LvPct(100), LvPct(100));
+                        else if (_size.Width > 0 || _size.Height > 0)
+                        {
+                            int w = _size.Width > 0 ? _size.Width : LV_SIZE_CONTENT;
+                            int h = _size.Height > 0 ? _size.Height : LV_SIZE_CONTENT;
+                            lv_obj_set_size(obj, w, h);
+                        }
+                    }
+                }
+                OnDockChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets a value indicating whether the control can receive focus.
@@ -715,7 +919,7 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlBottomDescr")]
-        public int Bottom { get; }
+        public int Bottom => _location.Y + _size.Height;
         //
         // 摘要:
         //     Gets or sets the System.Windows.Forms.BindingContext for the control.
@@ -726,7 +930,16 @@ namespace LVGLSharp.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         [SRDescriptionAttribute("ControlBindingContextDescr")]
-        public virtual BindingContext? BindingContext { get; set; }
+        public virtual BindingContext? BindingContext
+        {
+            get => _bindingContext;
+            set
+            {
+                if (ReferenceEquals(_bindingContext, value)) return;
+                _bindingContext = value;
+                OnBindingContextChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the background image layout as defined in the System.Windows.Forms.ImageLayout
@@ -768,7 +981,22 @@ namespace LVGLSharp.Forms
         [DispId(-501)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlBackColorDescr")]
-        public virtual Color BackColor { get; set; }
+        public virtual Color BackColor
+        {
+            get => _backColor;
+            set
+            {
+                if (_backColor == value) return;
+                _backColor = value;
+                unsafe
+                {
+                    var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+                    if (obj != null && value != Color.Empty)
+                        lv_obj_set_style_bg_color(obj, lv_color_make(value.R, value.G, value.B), 0);
+                }
+                OnBackColorChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the data context for the purpose of data binding. This is an ambient
@@ -776,7 +1004,16 @@ namespace LVGLSharp.Forms
         [Bindable(true)]
         [Browsable(false)]
         [SRCategoryAttribute("CatData")]
-        public virtual object? DataContext { get; set; }
+        public virtual object? DataContext
+        {
+            get => _dataContext;
+            set
+            {
+                if (ReferenceEquals(_dataContext, value)) return;
+                _dataContext = value;
+                OnDataContextChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets a value indicating whether the control can be selected.
@@ -812,7 +1049,16 @@ namespace LVGLSharp.Forms
         [RefreshProperties(RefreshProperties.All)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlAutoSizeDescr")]
-        public virtual bool AutoSize { get; set; }
+        public virtual bool AutoSize
+        {
+            get => _autoSize;
+            set
+            {
+                if (_autoSize == value) return;
+                _autoSize = value;
+                OnAutoSizeChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the edges of the container to which a control is bound and determines
@@ -826,7 +1072,16 @@ namespace LVGLSharp.Forms
         [RefreshProperties(RefreshProperties.Repaint)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlAnchorDescr")]
-        public virtual AnchorStyles Anchor { get; set; }
+        public virtual AnchorStyles Anchor
+        {
+            get => _anchor;
+            set
+            {
+                if (_anchor == value) return;
+                _anchor = value;
+                // Anchor doesn't have its own event in WinForms
+            }
+        }
         //
         // 摘要:
         //     Gets or sets a value indicating whether the control can accept data that the
@@ -916,7 +1171,16 @@ namespace LVGLSharp.Forms
         [DefaultValue(true)]
         [SRCategoryAttribute("CatFocus")]
         [SRDescriptionAttribute("ControlCausesValidationDescr")]
-        public bool CausesValidation { get; set; }
+        public bool CausesValidation
+        {
+            get => _causesValidation;
+            set
+            {
+                if (_causesValidation == value) return;
+                _causesValidation = value;
+                OnCausesValidationChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the space between controls.
@@ -926,7 +1190,15 @@ namespace LVGLSharp.Forms
         [Localizable(true)]
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlMarginDescr")]
-        public Padding Margin { get; set; }
+        public Padding Margin
+        {
+            get => _margin;
+            set
+            {
+                _margin = value;
+                OnMarginChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets or sets the height and width of the client area of the control.
@@ -989,7 +1261,16 @@ namespace LVGLSharp.Forms
         [DefaultValue(null)]
         [SRCategoryAttribute("CatBehavior")]
         [SRDescriptionAttribute("ControlContextMenuDescr")]
-        public virtual ContextMenuStrip? ContextMenuStrip { get; set; }
+        public virtual ContextMenuStrip? ContextMenuStrip
+        {
+            get => _contextMenuStrip;
+            set
+            {
+                if (ReferenceEquals(_contextMenuStrip, value)) return;
+                _contextMenuStrip = value;
+                OnContextMenuStripChanged(EventArgs.Empty);
+            }
+        }
 
         
         //
@@ -1038,7 +1319,16 @@ namespace LVGLSharp.Forms
         [AmbientValue(null)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlCursorDescr")]
-        public virtual Cursor Cursor { get; set; }
+        public virtual Cursor Cursor
+        {
+            get => _cursor!;
+            set
+            {
+                if (ReferenceEquals(_cursor, value)) return;
+                _cursor = value;
+                OnCursorChanged(EventArgs.Empty);
+            }
+        }
         //
         // 摘要:
         //     Gets the data bindings for the control.
@@ -1225,7 +1515,6 @@ namespace LVGLSharp.Forms
         [Obsolete("This property has been deprecated. Please use RightToLeft instead. https://go.microsoft.com/fwlink/?linkid=14202")]
         protected internal bool RenderRightToLeft { get; }
 
-#pragma warning disable CS0067
         //
         // 摘要:
         //     Occurs when the system colors change.
@@ -1276,7 +1565,9 @@ namespace LVGLSharp.Forms
         //     Occurs when the control is redrawn.
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlOnPaintDescr")]
+#pragma warning disable CS0067
         public event PaintEventHandler? Paint;
+#pragma warning restore CS0067
 
         //
         // 摘要:
@@ -1297,7 +1588,9 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         [SRCategoryAttribute("CatAppearance")]
         [SRDescriptionAttribute("ControlOnInvalidateDescr")]
+#pragma warning disable CS0067
         public event InvalidateEventHandler? Invalidated;
+#pragma warning restore CS0067
         //
         // 摘要:
         //     Occurs when the control is double-clicked.
@@ -1349,7 +1642,9 @@ namespace LVGLSharp.Forms
         //     a DPI change event for its parent control or form has occurred.
         [SRCategoryAttribute("CatLayout")]
         [SRDescriptionAttribute("ControlOnDpiChangedBeforeParentDescr")]
+#pragma warning disable CS0067
         public event EventHandler? DpiChangedBeforeParent;
+#pragma warning restore CS0067
         //
         // 摘要:
         //     Occurs when the mouse pointer is moved over the control.
@@ -1582,7 +1877,9 @@ namespace LVGLSharp.Forms
         //     Occurs when an object is dragged out of the control's bounds.
         [SRCategoryAttribute("CatDragDrop")]
         [SRDescriptionAttribute("ControlOnDragLeaveDescr")]
+#pragma warning disable CS0067
         public event EventHandler? DragLeave;
+#pragma warning restore CS0067
         //
         // 摘要:
         //     Occurs when a handle is created for the control.
@@ -1593,7 +1890,9 @@ namespace LVGLSharp.Forms
         // 摘要:
         //     Occurs when the DPI setting for a control is changed programmatically after the
         //     DPI of its parent control or form has changed.
+#pragma warning disable CS0067
         public event EventHandler? DpiChangedAfterParent;
+#pragma warning restore CS0067
         //
         // 摘要:
         //     Occurs when the mouse pointer rests on the control.
@@ -1619,11 +1918,14 @@ namespace LVGLSharp.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("`ContextMenu` is provided for binary compatibility with .NET Framework and is not intended to be used directly from your code. Use `ContextMenuStrip` instead.", false, DiagnosticId = "WFDEV006", UrlFormat = "https://aka.ms/winforms-warnings/{0}")]
+#pragma warning disable CS0067
         public event EventHandler ContextMenuChanged;
+#pragma warning restore CS0067
 #nullable enable
         //
         // 摘要:
         //     Occurs when the System.Windows.Forms.Control.ImeMode property has changed.
+#pragma warning disable CS0067
         public event EventHandler ImeModeChanged;
 #pragma warning restore CS0067
 
@@ -2033,7 +2335,7 @@ namespace LVGLSharp.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected virtual ControlCollection CreateControlsInstance()
         {
-            return new ControlCollection();
+            return new ControlCollection(this);
         }
         //
         // 摘要:
@@ -2078,6 +2380,12 @@ namespace LVGLSharp.Forms
         //     resources.
         protected override void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                OnHandleDestroyed(EventArgs.Empty);
+                if (_lvglEventGcHandle.IsAllocated)
+                    _lvglEventGcHandle.Free();
+            }
             base.Dispose(disposing);
         }
 
@@ -2279,10 +2587,7 @@ namespace LVGLSharp.Forms
         // 参数:
         //   e:
         //     An System.EventArgs that contains the event data.
-        protected virtual void OnAutoSizeChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnAutoSizeChanged(EventArgs e) { AutoSizeChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.BackColorChanged event.
@@ -2291,10 +2596,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBackColorChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnBackColorChanged(EventArgs e) { BackColorChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.BackgroundImageChanged event.
@@ -2303,10 +2605,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBackgroundImageChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnBackgroundImageChanged(EventArgs e) { BackgroundImageChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.BackgroundImageLayoutChanged event.
@@ -2315,10 +2614,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBackgroundImageLayoutChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnBackgroundImageLayoutChanged(EventArgs e) { BackgroundImageLayoutChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.BindingContextChanged event.
@@ -2327,10 +2623,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBindingContextChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnBindingContextChanged(EventArgs e) { BindingContextChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.CausesValidationChanged event.
@@ -2339,10 +2632,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnCausesValidationChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnCausesValidationChanged(EventArgs e) { CausesValidationChanged?.Invoke(this, e); }
 
         //
         // 摘要:
@@ -2352,11 +2642,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnClick(EventArgs e)
-        {
-
-
-        }
+        protected virtual void OnClick(EventArgs e) { Click?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.ClientSizeChanged event.
@@ -2365,10 +2651,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnClientSizeChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnClientSizeChanged(EventArgs e) { ClientSizeChanged?.Invoke(this, e); }
 
         //
         // 摘要:
@@ -2378,10 +2661,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnContextMenuStripChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnContextMenuStripChanged(EventArgs e) { ContextMenuStripChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.ControlAdded event.
@@ -2390,10 +2670,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.ControlEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnControlAdded(ControlEventArgs e)
-        {
-
-        }
+        protected virtual void OnControlAdded(ControlEventArgs e) { ControlAdded?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.ControlRemoved event.
@@ -2402,10 +2679,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.ControlEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnControlRemoved(ControlEventArgs e)
-        {
-
-        }
+        protected virtual void OnControlRemoved(ControlEventArgs e) { ControlRemoved?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.CreateControl method.
@@ -2422,18 +2696,12 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnCursorChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnCursorChanged(EventArgs e) { CursorChanged?.Invoke(this, e); }
         //
         // 参数:
         //   e:
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnDataContextChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnDataContextChanged(EventArgs e) { DataContextChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.DockChanged event.
@@ -2442,10 +2710,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnDockChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnDockChanged(EventArgs e) { DockChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.DoubleClick event.
@@ -2454,9 +2719,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnDoubleClick(EventArgs e)
-        {
-        }
+        protected virtual void OnDoubleClick(EventArgs e) { DoubleClick?.Invoke(this, e); }
 
         //
         // 摘要:
@@ -2466,10 +2729,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnEnabledChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnEnabledChanged(EventArgs e) { EnabledChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.FontChanged event.
@@ -2478,10 +2738,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnFontChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnFontChanged(EventArgs e) { FontChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.ForeColorChanged event.
@@ -2490,10 +2747,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnForeColorChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnForeColorChanged(EventArgs e) { ForeColorChanged?.Invoke(this, e); }
 
         //
         // 摘要:
@@ -2503,10 +2757,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnGotFocus(EventArgs e)
-        {
-
-        }
+        protected virtual void OnGotFocus(EventArgs e) { GotFocus?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.HandleCreated event.
@@ -2515,10 +2766,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnHandleCreated(EventArgs e)
-        {
-
-        }
+        protected virtual void OnHandleCreated(EventArgs e) { HandleCreated?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.HandleDestroyed event.
@@ -2527,10 +2775,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnHandleDestroyed(EventArgs e)
-        {
-
-        }
+        protected virtual void OnHandleDestroyed(EventArgs e) { HandleDestroyed?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.HelpRequested event.
@@ -2550,10 +2795,7 @@ namespace LVGLSharp.Forms
         // 参数:
         //   e:
         //     An System.EventArgs that contains the event data.
-        protected virtual void OnImeModeChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnImeModeChanged(EventArgs e) { ImeModeChanged?.Invoke(this, e); }
 
         //
         // 摘要:
@@ -2563,10 +2805,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.KeyEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnKeyDown(KeyEventArgs e)
-        {
-
-        }
+        protected virtual void OnKeyDown(KeyEventArgs e) { KeyDown?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.KeyPress event.
@@ -2575,10 +2814,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.KeyPressEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnKeyPress(KeyPressEventArgs e)
-        {
-
-        }
+        protected virtual void OnKeyPress(KeyPressEventArgs e) { KeyPress?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.KeyUp event.
@@ -2587,10 +2823,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.KeyEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnKeyUp(KeyEventArgs e)
-        {
-
-        }
+        protected virtual void OnKeyUp(KeyEventArgs e) { KeyUp?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Layout event.
@@ -2599,10 +2832,7 @@ namespace LVGLSharp.Forms
         //   levent:
         //     A System.Windows.Forms.LayoutEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnLayout(LayoutEventArgs levent)
-        {
-
-        }
+        protected virtual void OnLayout(LayoutEventArgs levent) { Layout?.Invoke(this, levent); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.LocationChanged event.
@@ -2611,10 +2841,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnLocationChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnLocationChanged(EventArgs e) { LocationChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.LostFocus event.
@@ -2623,10 +2850,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnLostFocus(EventArgs e)
-        {
-
-        }
+        protected virtual void OnLostFocus(EventArgs e) { LostFocus?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MarginChanged event.
@@ -2634,10 +2858,7 @@ namespace LVGLSharp.Forms
         // 参数:
         //   e:
         //     A System.EventArgs that contains the event data.
-        protected virtual void OnMarginChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnMarginChanged(EventArgs e) { MarginChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseCaptureChanged event.
@@ -2646,10 +2867,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseCaptureChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseCaptureChanged(EventArgs e) { MouseCaptureChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseClick event.
@@ -2658,10 +2876,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.Windows.Forms.MouseEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseClick(MouseEventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseClick(MouseEventArgs e) { MouseClick?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseDoubleClick event.
@@ -2670,10 +2885,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.Windows.Forms.MouseEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseDoubleClick(MouseEventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseDoubleClick(MouseEventArgs e) { MouseDoubleClick?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseDown event.
@@ -2682,10 +2894,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.MouseEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseDown(MouseEventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseDown(MouseEventArgs e) { MouseDown?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseEnter event.
@@ -2694,10 +2903,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseEnter(EventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseEnter(EventArgs e) { MouseEnter?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseHover event.
@@ -2706,10 +2912,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseHover(EventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseHover(EventArgs e) { MouseHover?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseLeave event.
@@ -2718,10 +2921,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseLeave(EventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseLeave(EventArgs e) { MouseLeave?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseMove event.
@@ -2730,10 +2930,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.MouseEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseMove(MouseEventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseMove(MouseEventArgs e) { MouseMove?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseUp event.
@@ -2742,10 +2939,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.MouseEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseUp(MouseEventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseUp(MouseEventArgs e) { MouseUp?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.MouseWheel event.
@@ -2754,10 +2948,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.Windows.Forms.MouseEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseWheel(MouseEventArgs e)
-        {
-
-        }
+        protected virtual void OnMouseWheel(MouseEventArgs e) { MouseWheel?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Move event.
@@ -2766,10 +2957,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMove(EventArgs e)
-        {
-
-        }
+        protected virtual void OnMove(EventArgs e) { Move?.Invoke(this, e); }
         //
         // 摘要:
         //     Notifies the control of Windows messages.
@@ -2789,10 +2977,7 @@ namespace LVGLSharp.Forms
         // 参数:
         //   e:
         //     A System.EventArgs that contains the event data.
-        protected virtual void OnPaddingChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnPaddingChanged(EventArgs e) { PaddingChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Paint event.
@@ -2867,10 +3052,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnParentChanged(EventArgs e) { ParentChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.CursorChanged event.
@@ -2993,10 +3175,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnRegionChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnRegionChanged(EventArgs e) { RegionChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Resize event.
@@ -3005,10 +3184,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnResize(EventArgs e)
-        {
-
-        }
+        protected virtual void OnResize(EventArgs e) { Resize?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.RightToLeftChanged event.
@@ -3017,10 +3193,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnRightToLeftChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnRightToLeftChanged(EventArgs e) { RightToLeftChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.SizeChanged event.
@@ -3029,10 +3202,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnSizeChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnSizeChanged(EventArgs e) { SizeChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.StyleChanged event.
@@ -3041,10 +3211,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnStyleChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnStyleChanged(EventArgs e) { StyleChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.SystemColorsChanged event.
@@ -3053,10 +3220,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnSystemColorsChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnSystemColorsChanged(EventArgs e) { SystemColorsChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.TabIndexChanged event.
@@ -3065,10 +3229,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnTabIndexChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnTabIndexChanged(EventArgs e) { TabIndexChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.TabStopChanged event.
@@ -3077,10 +3238,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnTabStopChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnTabStopChanged(EventArgs e) { TabStopChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.TextChanged event.
@@ -3089,10 +3247,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnTextChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnTextChanged(EventArgs e) { TextChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Validated event.
@@ -3101,10 +3256,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnValidated(EventArgs e)
-        {
-
-        }
+        protected virtual void OnValidated(EventArgs e) { Validated?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Validating event.
@@ -3113,10 +3265,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     A System.ComponentModel.CancelEventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnValidating(CancelEventArgs e)
-        {
-
-        }
+        protected virtual void OnValidating(CancelEventArgs e) { Validating?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.VisibleChanged event.
@@ -3125,10 +3274,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnVisibleChanged(EventArgs e)
-        {
-
-        }
+        protected virtual void OnVisibleChanged(EventArgs e) { VisibleChanged?.Invoke(this, e); }
         //
         // 摘要:
         //     Processes a command key.
@@ -3515,10 +3661,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected internal virtual void OnEnter(EventArgs e)
-        {
-
-        }
+        protected internal virtual void OnEnter(EventArgs e) { Enter?.Invoke(this, e); }
         //
         // 摘要:
         //     Raises the System.Windows.Forms.Control.Leave event.
@@ -3527,10 +3670,7 @@ namespace LVGLSharp.Forms
         //   e:
         //     An System.EventArgs that contains the event data.
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected internal virtual void OnLeave(EventArgs e)
-        {
-
-        }
+        protected internal virtual void OnLeave(EventArgs e) { Leave?.Invoke(this, e); }
         //
         // 摘要:
         //     Processes a keyboard message.
@@ -3571,10 +3711,138 @@ namespace LVGLSharp.Forms
 
         }
 
+        internal void RaiseControlAdded(Control child) => OnControlAdded(new ControlEventArgs(child));
+        internal void RaiseControlRemoved(Control child) => OnControlRemoved(new ControlEventArgs(child));
+
+        // Backing fields for tracked properties
+        private bool _visible = true;
+        private bool _enabled = true;
+        private string? _text;
+        private Size _size;
+        private Point _location;
+        private Color _backColor;
+        private Color _foreColor;
+        private Font? _font;
+        private Padding _padding = new Padding();
+        private Padding _margin = new Padding();
+        private DockStyle _dock;
+        private Control? _parent;
+        private int _tabIndex;
+        private bool _tabStop = true;
+        private bool _causesValidation = true;
+        private Cursor? _cursor;
+        private ContextMenuStrip? _contextMenuStrip;
+        private Region? _region;
+        private RightToLeft _rightToLeft = RightToLeft.Inherit;
+        private BindingContext? _bindingContext;
+        private object? _dataContext;
+        private bool _autoSize;
+        private AnchorStyles _anchor = AnchorStyles.Top | AnchorStyles.Left;
+
         // --- LVGL Integration ---
 
         /// <summary>LVGL object handle (lv_obj_t*) stored as nint.</summary>
         internal nint _lvglObjectHandle;
+
+        /// <summary>GCHandle used to bridge this managed Control to the unmanaged LVGL event callback.</summary>
+        private GCHandle _lvglEventGcHandle;
+
+        /// <summary>
+        /// Registers a single LVGL event callback on the current LVGL object that routes
+        /// all LVGL events to the managed On* virtual methods.
+        /// </summary>
+        protected unsafe void RegisterLvglEvents()
+        {
+            if (_lvglObjectHandle == 0) return;
+            if (_lvglEventGcHandle.IsAllocated) _lvglEventGcHandle.Free();
+            _lvglEventGcHandle = GCHandle.Alloc(this);
+            lv_obj_add_event_cb(
+                (Interop.lv_obj_t*)_lvglObjectHandle,
+                &LvglEventCallback,
+                LV_EVENT_ALL,
+                (void*)GCHandle.ToIntPtr(_lvglEventGcHandle));
+            OnHandleCreated(EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Static LVGL event callback — routes events to the owning <see cref="Control"/>'s
+        /// <see cref="DispatchLvglEvent"/> method via a stored <see cref="GCHandle"/>.
+        /// </summary>
+        [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+        private static unsafe void LvglEventCallback(Interop.lv_event_t* e)
+        {
+            void* userData = lv_event_get_user_data(e);
+            if (userData == null) return;
+            var gcHandle = GCHandle.FromIntPtr(new IntPtr(userData));
+            if (gcHandle.IsAllocated && gcHandle.Target is Control ctrl)
+                ctrl.DispatchLvglEvent(lv_event_get_code(e));
+        }
+
+        /// <summary>Dispatches an LVGL event code to the appropriate On* method(s).</summary>
+        private void DispatchLvglEvent(Interop.lv_event_code_t code)
+        {
+            switch (code)
+            {
+                case LV_EVENT_CLICKED:
+                    OnClick(EventArgs.Empty);
+                    OnMouseClick(new MouseEventArgs());
+                    break;
+                case LV_EVENT_DOUBLE_CLICKED:
+                    OnDoubleClick(EventArgs.Empty);
+                    OnMouseDoubleClick(new MouseEventArgs());
+                    break;
+                case LV_EVENT_PRESSED:
+                    OnMouseDown(new MouseEventArgs());
+                    break;
+                case LV_EVENT_RELEASED:
+                    OnMouseUp(new MouseEventArgs());
+                    break;
+                case LV_EVENT_PRESSING:
+                    OnMouseMove(new MouseEventArgs());
+                    break;
+                case LV_EVENT_FOCUSED:
+                    OnGotFocus(EventArgs.Empty);
+                    OnEnter(EventArgs.Empty);
+                    break;
+                case LV_EVENT_DEFOCUSED:
+                case LV_EVENT_LEAVE:
+                    OnLostFocus(EventArgs.Empty);
+                    OnLeave(EventArgs.Empty);
+                    break;
+                case LV_EVENT_KEY:
+                    OnKeyDown(new KeyEventArgs());
+                    OnKeyPress(new KeyPressEventArgs());
+                    OnKeyUp(new KeyEventArgs());
+                    break;
+                case LV_EVENT_SIZE_CHANGED:
+                    OnResize(EventArgs.Empty);
+                    OnSizeChanged(EventArgs.Empty);
+                    OnClientSizeChanged(EventArgs.Empty);
+                    break;
+                case LV_EVENT_LAYOUT_CHANGED:
+                    OnLayout(new LayoutEventArgs(null, null));
+                    break;
+                case LV_EVENT_STYLE_CHANGED:
+                    OnStyleChanged(EventArgs.Empty);
+                    break;
+                case LV_EVENT_HOVER_OVER:
+                    OnMouseEnter(EventArgs.Empty);
+                    OnMouseHover(EventArgs.Empty);
+                    break;
+                case LV_EVENT_HOVER_LEAVE:
+                    OnMouseLeave(EventArgs.Empty);
+                    break;
+                case LV_EVENT_SCROLL:
+                    OnMouseWheel(new MouseEventArgs());
+                    break;
+                case LV_EVENT_DELETE:
+                    OnHandleDestroyed(EventArgs.Empty);
+                    break;
+                case LV_EVENT_VALUE_CHANGED:
+                    OnTextChanged(EventArgs.Empty);
+                    break;
+            }
+        }
 
         /// <summary>Converts a percentage value to an LVGL LV_PCT coordinate.
         /// LVGL identifies percentage coordinates by setting bit 29 (LV_COORD_TYPE_SPEC flag).
@@ -3627,6 +3895,8 @@ namespace LVGLSharp.Forms
 
             if (!Visible)
                 lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+
+            RegisterLvglEvents();
         }
 
         /// <summary>Recursively creates LVGL objects for all WinForms child controls.</summary>
