@@ -29,7 +29,6 @@ namespace LVGLSharp.Forms
 
         static uint g_bufSize = 1024 * 1024 * 4;
         static bool g_running = true;
-        static lv_obj_t* label;
         static int startTick;
         static int mouseX = 0, mouseY = 0;
         static bool mousePressed = false;

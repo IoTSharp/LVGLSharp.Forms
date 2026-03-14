@@ -1225,6 +1225,7 @@ namespace LVGLSharp.Forms
         [Obsolete("This property has been deprecated. Please use RightToLeft instead. https://go.microsoft.com/fwlink/?linkid=14202")]
         protected internal bool RenderRightToLeft { get; }
 
+#pragma warning disable CS0067
         //
         // 摘要:
         //     Occurs when the system colors change.
@@ -1624,6 +1625,7 @@ namespace LVGLSharp.Forms
         // 摘要:
         //     Occurs when the System.Windows.Forms.Control.ImeMode property has changed.
         public event EventHandler ImeModeChanged;
+#pragma warning restore CS0067
 
 
 
