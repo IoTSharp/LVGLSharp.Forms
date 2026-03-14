@@ -6,6 +6,7 @@ namespace LVGLSharp.Forms
     public class PictureBox : Control
     {
         public PictureBoxSizeMode SizeMode { get; set; } = PictureBoxSizeMode.Normal;
+        /// <remarks>Image loading from a file path is not yet implemented.</remarks>
         public string? ImageLocation { get; set; }
 
         internal override unsafe void CreateLvglObject(nint parentHandle)

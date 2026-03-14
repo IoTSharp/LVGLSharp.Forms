@@ -60,9 +60,9 @@ namespace LVGLSharp.Forms
     }
     public enum AutoSizeMode
     {
+        None = -1,
         GrowAndShrink = 0,
-        GrowOnly = 1,
-        None = -1
+        GrowOnly = 1
     }
     [Flags]
     public enum MouseButtons

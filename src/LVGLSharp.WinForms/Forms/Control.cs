@@ -3574,8 +3574,10 @@ namespace LVGLSharp.Forms
         /// <summary>LVGL object handle (lv_obj_t*) stored as nint.</summary>
         internal nint _lvglObjectHandle;
 
-        /// <summary>Converts a percentage value to an LVGL LV_PCT coordinate.</summary>
-        protected static int LvPct(int percent) => percent | (1 << 29);
+        /// <summary>Converts a percentage value to an LVGL LV_PCT coordinate.
+        /// LVGL identifies percentage coordinates by setting bit 29 (LV_COORD_TYPE_SPEC flag).
+        /// </summary>
+        protected static int LvPct(int percent) => percent | (1 << 29); // bit 29 = LV_COORD_TYPE_SPEC
 
         /// <summary>Converts a C# string to a null-terminated UTF-8 byte array for LVGL.</summary>
         protected static byte[] ToUtf8(string? text)
@@ -3614,8 +3616,9 @@ namespace LVGLSharp.Forms
             }
             else
             {
-                int w = Size.Width > 0 ? Size.Width : LV_SIZE_CONTENT;
-                int h = Size.Height > 0 ? Size.Height : LV_SIZE_CONTENT;
+                // Use explicit size when set (non-negative); fall back to LV_SIZE_CONTENT.
+                int w = Size.Width >= 0 ? Size.Width : LV_SIZE_CONTENT;
+                int h = Size.Height >= 0 ? Size.Height : LV_SIZE_CONTENT;
                 lv_obj_set_size(obj, w, h);
                 lv_obj_set_pos(obj, Location.X, Location.Y);
             }

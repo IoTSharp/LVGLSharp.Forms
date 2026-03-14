@@ -6,7 +6,9 @@ namespace LVGLSharp.Forms
     {
         public SelectionMode SelectionMode { get; set; } = SelectionMode.One;
         public DrawMode DrawMode { get; set; } = DrawMode.Normal;
+        /// <remarks>Item height customization is not yet applied to the LVGL list widget.</remarks>
         public bool IntegralHeight { get; set; } = true;
+        /// <remarks>Item height customization is not yet applied to the LVGL list widget.</remarks>
         public int ItemHeight { get; set; }
 
         internal override unsafe void CreateLvglObject(nint parentHandle)

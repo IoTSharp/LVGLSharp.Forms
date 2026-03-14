@@ -9,7 +9,9 @@ namespace LVGLSharp.Forms
         public bool WordWrap { get; set; } = true;
         public bool ReadOnly { get; set; }
         public bool DetectUrls { get; set; }
+        /// <remarks>RTF content is not supported; only plain text from the <see cref="Control.Text"/> property is displayed.</remarks>
         public string? Rtf { get; set; }
+        /// <remarks>Scrollbar visibility is not directly configurable; LVGL textarea manages its own scrollbars.</remarks>
         public ScrollBars ScrollBars { get; set; } = ScrollBars.Both;
 
         internal override unsafe void CreateLvglObject(nint parentHandle)

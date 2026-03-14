@@ -35,7 +35,9 @@ namespace LVGLSharp.Forms
         }
 
         public decimal Increment { get; set; } = 1;
+        /// <remarks>Thousands separator formatting is not applied to the LVGL spinbox widget.</remarks>
         public bool ThousandsSeparator { get; set; }
+        /// <remarks>Text alignment is not applied to the LVGL spinbox widget.</remarks>
         public HorizontalAlignment TextAlign { get; set; } = HorizontalAlignment.Right;
 
         internal override unsafe void CreateLvglObject(nint parentHandle)

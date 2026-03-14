@@ -6,6 +6,7 @@ namespace LVGLSharp.Forms
     {
         public bool UseVisualStyleBackColor { get; set; }
         public bool Checked { get; set; }
+        /// <remarks>Check alignment is not applied; LVGL checkbox always places the indicator to the left of the label.</remarks>
         public ContentAlignment CheckAlign { get; set; }
 
         internal override unsafe void CreateLvglObject(nint parentHandle)

@@ -7,6 +7,7 @@ namespace LVGLSharp.Forms
     /// </summary>
     public class Panel : Control
     {
+        /// <remarks>Border styling is not currently applied to the underlying LVGL object; the panel is rendered as a transparent container.</remarks>
         public BorderStyle BorderStyle { get; set; }
 
         internal override unsafe void CreateLvglObject(nint parentHandle)
