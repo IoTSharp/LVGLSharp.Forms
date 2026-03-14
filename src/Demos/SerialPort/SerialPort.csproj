@@ -32,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.IO.Ports" Version="9.0.6" />
+		<PackageReference Include="System.IO.Ports" Version="10.0.5" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(PublishPlatform)' == 'Windows'">

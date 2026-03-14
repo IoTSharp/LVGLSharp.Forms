@@ -4,7 +4,14 @@ namespace LVGLSharp.Forms
 {
     public class CheckBox : Control
     {
-        public bool UseVisualStyleBackColor { get; set; }
+        private bool? _useVisualStyleBackColor;
+
+        public bool UseVisualStyleBackColor
+        {
+            get => _useVisualStyleBackColor ?? Application.VisualStylesEnabled;
+            set => _useVisualStyleBackColor = value;
+        }
+
         public bool Checked { get; set; }
 
         internal override unsafe void CreateLvglObject(nint parentHandle)
@@ -18,6 +25,7 @@ namespace LVGLSharp.Forms
             }
             if (Checked)
                 lv_obj_add_state(obj, LV_STATE_CHECKED);
+            Application.GetStyleSet(UseVisualStyleBackColor).CheckBox.Apply(obj);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }

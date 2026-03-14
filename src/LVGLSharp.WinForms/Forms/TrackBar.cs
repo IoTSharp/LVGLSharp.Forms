@@ -67,6 +67,7 @@ namespace LVGLSharp.Forms
                 ? lv_slider_orientation_t.LV_SLIDER_ORIENTATION_VERTICAL
                 : lv_slider_orientation_t.LV_SLIDER_ORIENTATION_HORIZONTAL;
             lv_slider_set_orientation(obj, orient);
+            Application.CurrentStyleSet.TrackBar.Apply(obj);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }

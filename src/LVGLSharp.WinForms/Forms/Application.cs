@@ -6,7 +6,7 @@ namespace LVGLSharp.Forms
     public static class Application
     {
         private static bool _messageLoopRunning;
-        private static bool _visualStylesEnabled;
+        private static ApplicationStyleMode _styleMode = ApplicationStyleMode.WinForms;
         private static bool _compatibleTextRenderingDefault;
         private static HighDpiMode _highDpiMode = HighDpiMode.SystemAware;
         private static readonly List<Form> _openForms = new List<Form>();
@@ -38,9 +38,20 @@ namespace LVGLSharp.Forms
             }
         }
 
+        /// <summary>
+        /// Uses the WinForms-compatible control styling mode for newly created controls.
+        /// </summary>
         public static void EnableVisualStyles()
         {
-            _visualStylesEnabled = true;
+            _styleMode = ApplicationStyleMode.WinForms;
+        }
+
+        /// <summary>
+        /// Uses the native LVGL control styling mode for newly created controls.
+        /// </summary>
+        public static void EnableLvglStyles()
+        {
+            _styleMode = ApplicationStyleMode.Lvgl;
         }
 
         public static void SetCompatibleTextRenderingDefault(bool value)
@@ -87,6 +98,15 @@ namespace LVGLSharp.Forms
             ArgumentNullException.ThrowIfNull(form);
 
             _openForms.Remove(form);
+        }
+
+        internal static bool VisualStylesEnabled => _styleMode == ApplicationStyleMode.WinForms;
+
+        internal static ApplicationStyleSet CurrentStyleSet => ApplicationStyleCatalog.Get(_styleMode);
+
+        internal static ApplicationStyleSet GetStyleSet(bool useVisualStyles)
+        {
+            return ApplicationStyleCatalog.Get(useVisualStyles ? ApplicationStyleMode.WinForms : ApplicationStyleMode.Lvgl);
         }
     }
 }

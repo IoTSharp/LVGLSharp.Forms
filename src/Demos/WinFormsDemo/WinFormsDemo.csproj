@@ -5,28 +5,31 @@
 		<TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<InvariantGlobalization>true</InvariantGlobalization>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<PublishAot>true</PublishAot>
+
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
 		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+		<Using Include="System.Windows.Forms" />
+	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
 		<ProjectReference Include="..\..\LVGLSharp.WinForms\LVGLSharp.Forms.csproj" />
 		<Using Include="LVGLSharp.Forms" />
 		<Using Include="LVGLSharp.Darwing" />
 	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
-		<Using Include="System.Windows.Forms" />
-	</ItemGroup>
-
 	<ItemGroup>
-	  <None Update="lvgl.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<None Update="lvgl.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>
- 
-		
-		
+
+
+

@@ -4,7 +4,14 @@ namespace LVGLSharp.Forms
 {
     public class RadioButton : Control
     {
-        public bool UseVisualStyleBackColor { get; set; }
+        private bool? _useVisualStyleBackColor;
+
+        public bool UseVisualStyleBackColor
+        {
+            get => _useVisualStyleBackColor ?? Application.VisualStylesEnabled;
+            set => _useVisualStyleBackColor = value;
+        }
+
         public bool Checked { get; set; }
         /// <remarks>Check alignment is not applied; LVGL checkbox always places the indicator to the left of the label.</remarks>
         public ContentAlignment CheckAlign { get; set; }
@@ -21,6 +28,7 @@ namespace LVGLSharp.Forms
             }
             if (Checked)
                 lv_obj_add_state(obj, LV_STATE_CHECKED);
+            Application.GetStyleSet(UseVisualStyleBackColor).RadioButton.Apply(obj);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }

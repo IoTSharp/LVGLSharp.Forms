@@ -22,6 +22,7 @@ namespace LVGLSharp.Forms
                 fixed (byte* ptr = ToUtf8(PlaceholderText))
                     lv_textarea_set_placeholder_text(obj, ptr);
             }
+            Application.CurrentStyleSet.TextBox.Apply(obj);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }

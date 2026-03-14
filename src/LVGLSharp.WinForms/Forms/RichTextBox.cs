@@ -24,6 +24,7 @@ namespace LVGLSharp.Forms
                 fixed (byte* ptr = ToUtf8(Text))
                     lv_textarea_set_text(obj, ptr);
             }
+            Application.CurrentStyleSet.RichTextBox.Apply(obj);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }

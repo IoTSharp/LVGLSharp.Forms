@@ -14,6 +14,7 @@ namespace LVGLSharp.Forms
         internal override unsafe void CreateLvglObject(nint parentHandle)
         {
             _lvglObjectHandle = (nint)lv_list_create((lv_obj_t*)parentHandle);
+            Application.CurrentStyleSet.ListBox.Apply((lv_obj_t*)_lvglObjectHandle);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }

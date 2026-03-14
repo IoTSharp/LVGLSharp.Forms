@@ -54,6 +54,7 @@ namespace LVGLSharp.Forms
             var obj = (lv_obj_t*)_lvglObjectHandle;
             lv_bar_set_range(obj, _minimum, _maximum);
             lv_bar_set_value(obj, _value, LV_ANIM_OFF);
+            Application.CurrentStyleSet.ProgressBar.Apply(obj);
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }
