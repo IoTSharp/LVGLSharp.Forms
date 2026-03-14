@@ -3768,7 +3768,7 @@ namespace LVGLSharp.Forms
         /// Static LVGL event callback — routes events to the owning <see cref="Control"/>'s
         /// <see cref="DispatchLvglEvent"/> method via a stored <see cref="GCHandle"/>.
         /// </summary>
-        [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+        [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         private static unsafe void LvglEventCallback(Interop.lv_event_t* e)
         {
             void* userData = lv_event_get_user_data(e);
@@ -3779,7 +3779,7 @@ namespace LVGLSharp.Forms
         }
 
         /// <summary>Dispatches an LVGL event code to the appropriate On* method(s).</summary>
-        private void DispatchLvglEvent(Interop.lv_event_code_t code)
+        protected virtual void DispatchLvglEvent(Interop.lv_event_code_t code)
         {
             switch (code)
             {
@@ -3801,18 +3801,21 @@ namespace LVGLSharp.Forms
                     OnMouseMove(new MouseEventArgs());
                     break;
                 case LV_EVENT_FOCUSED:
-                    OnGotFocus(EventArgs.Empty);
                     OnEnter(EventArgs.Empty);
+                    OnGotFocus(EventArgs.Empty);
                     break;
                 case LV_EVENT_DEFOCUSED:
-                case LV_EVENT_LEAVE:
+                    // Object has lost keyboard focus — fire LostFocus
                     OnLostFocus(EventArgs.Empty);
+                    break;
+                case LV_EVENT_LEAVE:
+                    // Group navigation moved away from this object — fire Leave
                     OnLeave(EventArgs.Empty);
                     break;
                 case LV_EVENT_KEY:
+                    // LVGL fires LV_EVENT_KEY on key press; no separate key-up event is available
                     OnKeyDown(new KeyEventArgs());
                     OnKeyPress(new KeyPressEventArgs());
-                    OnKeyUp(new KeyEventArgs());
                     break;
                 case LV_EVENT_SIZE_CHANGED:
                     OnResize(EventArgs.Empty);
