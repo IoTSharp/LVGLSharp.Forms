@@ -1,22 +1,21 @@
-﻿
-
-
 namespace LVGLSharp.Forms
 {
-    public class RowStyle
+    public class RowStyle : TableLayoutStyle
     {
-        private SizeType absolute;
-        private float v;
+        private SizeType _sizeType;
+        private float _height;
 
-        public RowStyle(SizeType absolute, float v)
+        public RowStyle()
         {
-            this.absolute = absolute;
-            this.v = v;
         }
 
-        public void Add(RowStyle rowStyle)
+        public RowStyle(SizeType sizeType, float height)
         {
-            throw new NotImplementedException();
+            _sizeType = sizeType;
+            _height = height;
+            SizeType = sizeType;
         }
+
+        public float Height => _height;
     }
 }

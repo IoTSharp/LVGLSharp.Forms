@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using LVGLSharp.Darwing;
+using LVGLSharp.Interop;
 namespace LVGLSharp.Forms
 {
     public class Control : Component, IComponent, IDisposable
@@ -3568,7 +3569,69 @@ namespace LVGLSharp.Forms
 
         }
 
+        // --- LVGL Integration ---
 
+        /// <summary>LVGL object handle (lv_obj_t*) stored as nint.</summary>
+        internal nint _lvglObjectHandle;
+
+        /// <summary>Converts a percentage value to an LVGL LV_PCT coordinate.</summary>
+        protected static int LvPct(int percent) => percent | (1 << 29);
+
+        /// <summary>Converts a C# string to a null-terminated UTF-8 byte array for LVGL.</summary>
+        protected static byte[] ToUtf8(string? text)
+        {
+            if (string.IsNullOrEmpty(text)) return new byte[] { 0 };
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            var result = new byte[bytes.Length + 1];
+            bytes.CopyTo(result, 0);
+            return result;
+        }
+
+        /// <summary>
+        /// Creates the LVGL widget for this control under the given parent LVGL object.
+        /// Overrides should call <see cref="ApplyLvglProperties"/> and
+        /// <see cref="CreateChildrenLvglObjects"/> after creating the widget.
+        /// </summary>
+        internal virtual unsafe void CreateLvglObject(nint parentHandle)
+        {
+            var parent = (Interop.lv_obj_t*)parentHandle;
+            _lvglObjectHandle = (nint)lv_obj_create(parent);
+            // Remove default padding so child positioning is exact
+            lv_obj_set_style_pad_all((Interop.lv_obj_t*)_lvglObjectHandle, 0, 0);
+            ApplyLvglProperties();
+            CreateChildrenLvglObjects();
+        }
+
+        /// <summary>Applies WinForms layout properties (size, position, visibility) to the LVGL object.</summary>
+        protected virtual unsafe void ApplyLvglProperties()
+        {
+            var obj = (Interop.lv_obj_t*)_lvglObjectHandle;
+            if (obj == null) return;
+
+            if (Dock == DockStyle.Fill)
+            {
+                lv_obj_set_size(obj, LvPct(100), LvPct(100));
+            }
+            else
+            {
+                int w = Size.Width > 0 ? Size.Width : LV_SIZE_CONTENT;
+                int h = Size.Height > 0 ? Size.Height : LV_SIZE_CONTENT;
+                lv_obj_set_size(obj, w, h);
+                lv_obj_set_pos(obj, Location.X, Location.Y);
+            }
+
+            if (!Visible)
+                lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+        }
+
+        /// <summary>Recursively creates LVGL objects for all WinForms child controls.</summary>
+        protected unsafe void CreateChildrenLvglObjects()
+        {
+            foreach (var child in Controls)
+            {
+                child.CreateLvglObject(_lvglObjectHandle);
+            }
+        }
 
     }
 }

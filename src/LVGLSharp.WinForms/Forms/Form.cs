@@ -20,7 +20,7 @@ namespace LVGLSharp.Forms
         {
         }
 
-        public event EventHandler Load;
+        public event EventHandler? Load;
 
         static MSG msg;
         static IntPtr g_hwnd;
@@ -339,8 +339,8 @@ namespace LVGLSharp.Forms
             lv_display_set_flush_cb(g_display, &FlushCb);
 
             root = lv_scr_act();
-            lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
-            lv_obj_set_style_pad_all(root, 10, 0);
+            // Use absolute positioning by default; do not impose flex layout on root
+            lv_obj_set_style_pad_all(root, 0, 0);
 
             _fallbackFont = lv_obj_get_style_text_font(root, LV_PART_MAIN);
 
@@ -360,6 +360,13 @@ namespace LVGLSharp.Forms
             lv_style_set_text_font(_defaultFontStyle, _defaultFont);
 
             lv_obj_add_style(root, _defaultFontStyle, 0);
+
+            // Store root as this Form's LVGL handle, then create child controls
+            _lvglObjectHandle = (nint)root;
+            CreateChildrenLvglObjects();
+
+            // Raise the Load event
+            Load?.Invoke(this, EventArgs.Empty);
         }
 
       

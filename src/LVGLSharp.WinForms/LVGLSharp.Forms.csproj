@@ -56,10 +56,52 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Forms\Button.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
 	  <Compile Update="Forms\CheckBox.cs">
 	    <SubType>Component</SubType>
 	  </Compile>
+	  <Compile Update="Forms\ComboBox.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
 	  <Compile Update="Forms\FlowLayoutPanel.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\GroupBox.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\Label.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\ListBox.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\NumericUpDown.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\Panel.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\PictureBox.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\ProgressBar.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\RadioButton.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\RichTextBox.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\TableLayoutPanel.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\TextBox.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Forms\TrackBar.cs">
 	    <SubType>Component</SubType>
 	  </Compile>
 	</ItemGroup>
