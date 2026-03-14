@@ -25,6 +25,10 @@ namespace LVGLSharp.Runtime.Linux
         public static lv_group_t* key_inputGroup { get; set; } = null;
         public static delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCb { get; set; } = null;
 
+        public lv_obj_t* Root => root;
+        public lv_group_t* KeyInputGroup => key_inputGroup;
+        public delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCallback => SendTextAreaFocusCb;
+
         private lv_font_t* _fallbackFont;
         private lv_font_t* _defaultFont;
         private lv_style_t* _defaultFontStyle;
@@ -87,10 +91,20 @@ namespace LVGLSharp.Runtime.Linux
         {
             while (g_running)
             {
-                lv_timer_handler();
+                ProcessEvents();
                 handle?.Invoke();
                 Thread.Sleep(5);
             }
+        }
+
+        public void ProcessEvents()
+        {
+            lv_timer_handler();
+        }
+
+        public void Stop()
+        {
+            g_running = false;
         }
     }
 }

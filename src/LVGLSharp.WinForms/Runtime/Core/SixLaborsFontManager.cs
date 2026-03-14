@@ -10,6 +10,12 @@ using SixLabors.ImageSharp.Processing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using ImageSharpColor = SixLabors.ImageSharp.Color;
+using ImageSharpPointF = SixLabors.ImageSharp.PointF;
+using SixLaborsFont = SixLabors.Fonts.Font;
+using SixLaborsFontFamily = SixLabors.Fonts.FontFamily;
+using SixLaborsFontStyle = SixLabors.Fonts.FontStyle;
+using SixLaborsHorizontalAlignment = SixLabors.Fonts.HorizontalAlignment;
 
 namespace LVGLSharp
 {
@@ -21,7 +27,7 @@ namespace LVGLSharp
 
     public unsafe class SixLaborsFontManager : IDisposable
     {
-        private Font _font = null!;
+        private SixLaborsFont _font = null!;
         private float _lineHeight;
         private lv_font_t* _nativeLvFont;
         private HashSet<uint> _fallbackFOntUnicodeLetterRange = null!;
@@ -37,22 +43,22 @@ namespace LVGLSharp
         public SixLaborsFontManager(string fontPath, float size, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
         {
             FontCollection collection = new();
-            FontFamily family = collection.Add(fontPath);
-            var font = family.CreateFont(size, FontStyle.Regular);
+            SixLaborsFontFamily family = collection.Add(fontPath);
+            var font = family.CreateFont(size, SixLaborsFontStyle.Regular);
             Init(font, dpi, fallback, fallbackFOntUnicodeLetterRange);
         }
 
-        public SixLaborsFontManager(Font font, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
+        public SixLaborsFontManager(SixLaborsFont font, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
         {
             Init(font, dpi, fallback, fallbackFOntUnicodeLetterRange);
         }
 
-        public SixLaborsFontManager(FontFamily fontFamily, float size, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
+        public SixLaborsFontManager(SixLaborsFontFamily fontFamily, float size, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
         {
-            Init(new Font(fontFamily, size), dpi, fallback, fallbackFOntUnicodeLetterRange);
+            Init(new SixLaborsFont(fontFamily, size), dpi, fallback, fallbackFOntUnicodeLetterRange);
         }
 
-        private void Init(Font font, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
+        private void Init(SixLaborsFont font, float dpi = 72f, lv_font_t* fallback = null, HashSet<uint>? fallbackFOntUnicodeLetterRange = null)
         {
             Configuration.Default.MemoryAllocator = MemoryAllocator.Create(new MemoryAllocatorOptions()
             {
@@ -134,7 +140,7 @@ namespace LVGLSharp
             var options = new TextOptions(slFont)
             {
                 Dpi = manager._dpi,
-                Origin = new PointF(0, 0)
+                Origin = new ImageSharpPointF(0, 0)
             };
             var paths = TextBuilder.GenerateGlyphs(characterToDraw, options);
 
@@ -188,11 +194,11 @@ namespace LVGLSharp
             using var image = new Image<A8>(manager._configuration, dsc->box_w, dsc->box_h);
             image.Mutate(x => x.DrawText(new RichTextOptions(slFont)
             {
-                Origin = new PointF(0, 0),
-                HorizontalAlignment = HorizontalAlignment.Left,
+                Origin = new ImageSharpPointF(0, 0),
+                HorizontalAlignment = SixLaborsHorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
                 Dpi = manager._dpi
-            }, characterToDraw, Color.Black));
+            }, characterToDraw, ImageSharpColor.Black));
 
             int bufferSize = dsc->box_w * dsc->box_h;
             if (draw_buf->data_size < bufferSize)

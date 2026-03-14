@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static LVGLSharp.Runtime.Windows.Win32Api;
+using SixLaborsSystemFonts = SixLabors.Fonts.SystemFonts;
 
 namespace LVGLSharp.Runtime.Windows
 {
@@ -41,6 +42,10 @@ namespace LVGLSharp.Runtime.Windows
         public static lv_obj_t* root { get; set; }
         public static lv_group_t* key_inputGroup { get; set; }
         public static delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCb { get; set; } = &HandleSendTextAreaFocusCb;
+
+        public lv_obj_t* Root => root;
+        public lv_group_t* KeyInputGroup => key_inputGroup;
+        public delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCallback => SendTextAreaFocusCb;
 
         static BITMAPINFO _bmi = new BITMAPINFO
         {
@@ -340,7 +345,7 @@ namespace LVGLSharp.Runtime.Windows
 
             _fallbackFont = lv_obj_get_style_text_font(root, LV_PART_MAIN);
 
-            _fontManager = new SixLaborsFontManager(SystemFonts.Get("Microsoft YaHei"), 12, GetDPI(), _fallbackFont, [
+            _fontManager = new SixLaborsFontManager(SixLaborsSystemFonts.Get("Microsoft YaHei"), 12, GetDPI(), _fallbackFont, [
                 61441, 61448, 61451, 61452, 61453, 61457, 61459, 61461, 61465, 61468,
                 61473, 61478, 61479, 61480, 61502, 61507, 61512, 61515, 61516, 61517,
                 61521, 61522, 61523, 61524, 61543, 61544, 61550, 61552, 61553, 61556,
@@ -362,21 +367,40 @@ namespace LVGLSharp.Runtime.Windows
         {
             while (g_running)
             {
-                lv_timer_handler();
+                ProcessEvents();
                 handle?.Invoke();
-                if (PeekMessage(out msg, IntPtr.Zero, 0, 0, 1))
-                {
-                    if (msg.message == 0x0012)
-                        break;
-                    TranslateMessage(ref msg);
-                    DispatchMessage(ref msg);
-                }
-
                 Thread.Sleep(5);
             }
 
             g_running = false;
             Marshal.FreeHGlobal(g_lvbuf);
+        }
+
+        public void ProcessEvents()
+        {
+            lv_timer_handler();
+
+            if (PeekMessage(out msg, IntPtr.Zero, 0, 0, 1))
+            {
+                if (msg.message == 0x0012)
+                {
+                    g_running = false;
+                    return;
+                }
+
+                TranslateMessage(ref msg);
+                DispatchMessage(ref msg);
+            }
+        }
+
+        public void Stop()
+        {
+            g_running = false;
+
+            if (g_hwnd != IntPtr.Zero)
+            {
+                DestroyWindow(g_hwnd);
+            }
         }
     }
 }

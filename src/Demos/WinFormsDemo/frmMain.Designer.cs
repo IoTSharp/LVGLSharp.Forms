@@ -1,8 +1,6 @@
-Ôªø
 
 
-
-using System.Drawing;
+ 
 
 namespace WinFormsDemo
 {
@@ -49,6 +47,11 @@ namespace WinFormsDemo
             recv_textarea = new TextBox();
             clear_btn = new Button();
             hex_switch = new CheckBox();
+            button1 = new Button();
+            button2 = new Button();
+            checkBox1 = new CheckBox();
+            pictureBox1 = new PictureBox();
+            radioButton1 = new RadioButton();
             toolbar.SuspendLayout();
             tpMain.SuspendLayout();
             flowLayoutPanel1.SuspendLayout();
@@ -65,7 +68,7 @@ namespace WinFormsDemo
             toolbar.Controls.Add(open_btn);
             toolbar.Location = new Point(3, 3);
             toolbar.Name = "toolbar";
-            toolbar.Size = new Size(670, 49);
+            toolbar.Size = new Size(771, 49);
             toolbar.TabIndex = 0;
             // 
             // port_label
@@ -74,7 +77,7 @@ namespace WinFormsDemo
             port_label.Name = "port_label";
             port_label.Size = new Size(100, 50);
             port_label.TabIndex = 0;
-            port_label.Text = "‰∏≤Âè£";
+            port_label.Text = "¥Æø⁄";
             port_label.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // port_dropdown
@@ -94,36 +97,36 @@ namespace WinFormsDemo
             // 
             ref_btn.Location = new Point(265, 3);
             ref_btn.Name = "ref_btn";
-            ref_btn.Size = new Size(87, 46);
+            ref_btn.Size = new Size(111, 46);
             ref_btn.TabIndex = 1;
-            ref_btn.Text = "Âà∑Êñ∞‰∏≤Âè£";
+            ref_btn.Text = "À¢–¬¥Æø⁄";
             ref_btn.UseVisualStyleBackColor = true;
             // 
             // baud_label
             // 
-            baud_label.Location = new Point(358, 0);
+            baud_label.Location = new Point(382, 0);
             baud_label.Name = "baud_label";
             baud_label.Size = new Size(100, 49);
             baud_label.TabIndex = 3;
-            baud_label.Text = "Ê≥¢ÁâπÁéá";
+            baud_label.Text = "≤®Ãÿ¬ ";
             baud_label.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // baud_dropdown
             // 
             baud_dropdown.Font = new Font("Microsoft YaHei UI", 9F);
             baud_dropdown.FormattingEnabled = true;
-            baud_dropdown.Location = new Point(464, 3);
+            baud_dropdown.Location = new Point(488, 3);
             baud_dropdown.Name = "baud_dropdown";
             baud_dropdown.Size = new Size(121, 25);
             baud_dropdown.TabIndex = 4;
             // 
             // open_btn
             // 
-            open_btn.Location = new Point(591, 3);
+            open_btn.Location = new Point(615, 3);
             open_btn.Name = "open_btn";
-            open_btn.Size = new Size(75, 46);
+            open_btn.Size = new Size(75, 49);
             open_btn.TabIndex = 5;
-            open_btn.Text = "ÊâìÂºÄ‰∏≤Âè£";
+            open_btn.Text = "¥Úø™¥Æø⁄";
             open_btn.UseVisualStyleBackColor = true;
             // 
             // tpMain
@@ -140,17 +143,22 @@ namespace WinFormsDemo
             tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 55F));
             tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 185F));
             tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 150F));
-            tpMain.Size = new Size(687, 299);
+            tpMain.Size = new Size(800, 441);
             tpMain.TabIndex = 1;
             // 
             // flowLayoutPanel1
             // 
             flowLayoutPanel1.Controls.Add(textBox1);
             flowLayoutPanel1.Controls.Add(send_btn);
+            flowLayoutPanel1.Controls.Add(button1);
+            flowLayoutPanel1.Controls.Add(button2);
+            flowLayoutPanel1.Controls.Add(checkBox1);
+            flowLayoutPanel1.Controls.Add(pictureBox1);
+            flowLayoutPanel1.Controls.Add(radioButton1);
             flowLayoutPanel1.Dock = DockStyle.Fill;
             flowLayoutPanel1.Location = new Point(3, 243);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(681, 144);
+            flowLayoutPanel1.Size = new Size(794, 195);
             flowLayoutPanel1.TabIndex = 2;
             // 
             // textBox1
@@ -158,7 +166,7 @@ namespace WinFormsDemo
             textBox1.Location = new Point(3, 3);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
-            textBox1.PlaceholderText = "ËæìÂÖ•ÁöÑÊï∞ÊçÆ";
+            textBox1.PlaceholderText = " ‰»Îµƒ ˝æ›";
             textBox1.Size = new Size(570, 50);
             textBox1.TabIndex = 0;
             // 
@@ -166,9 +174,9 @@ namespace WinFormsDemo
             // 
             send_btn.Location = new Point(579, 3);
             send_btn.Name = "send_btn";
-            send_btn.Size = new Size(75, 37);
+            send_btn.Size = new Size(106, 50);
             send_btn.TabIndex = 2;
-            send_btn.Text = "ÂèëÈÄÅ";
+            send_btn.Text = "∑¢ÀÕ";
             send_btn.UseVisualStyleBackColor = true;
             // 
             // recv_container
@@ -180,7 +188,7 @@ namespace WinFormsDemo
             recv_container.Dock = DockStyle.Fill;
             recv_container.Location = new Point(3, 58);
             recv_container.Name = "recv_container";
-            recv_container.Size = new Size(681, 179);
+            recv_container.Size = new Size(794, 179);
             recv_container.TabIndex = 1;
             // 
             // recv_textarea
@@ -190,7 +198,7 @@ namespace WinFormsDemo
             recv_textarea.Name = "recv_textarea";
             recv_textarea.Size = new Size(504, 183);
             recv_textarea.TabIndex = 0;
-            recv_textarea.Text = "Êé•Êî∂ÁöÑÊï∞ÊçÆ...";
+            recv_textarea.Text = "Ω” ’µƒ ˝æ›...";
             // 
             // clear_btn
             // 
@@ -198,24 +206,71 @@ namespace WinFormsDemo
             clear_btn.Name = "clear_btn";
             clear_btn.Size = new Size(75, 41);
             clear_btn.TabIndex = 2;
-            clear_btn.Text = "Ê∏ÖÁ©∫";
+            clear_btn.Text = "«Âø’";
             clear_btn.UseVisualStyleBackColor = true;
             clear_btn.Click += button1_Click;
             // 
             // hex_switch
             // 
-            hex_switch.Location = new Point(3, 192);
+            hex_switch.Location = new Point(594, 3);
             hex_switch.Name = "hex_switch";
             hex_switch.Size = new Size(91, 41);
             hex_switch.TabIndex = 3;
-            hex_switch.Text = "HEXÊ®°Âºè";
+            hex_switch.Text = "HEXƒ£ Ω";
             hex_switch.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(691, 3);
+            button1.Name = "button1";
+            button1.Size = new Size(75, 23);
+            button1.TabIndex = 3;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            button2.Location = new Point(3, 59);
+            button2.Name = "button2";
+            button2.Size = new Size(75, 23);
+            button2.TabIndex = 4;
+            button2.Text = "button2";
+            button2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(84, 59);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(89, 21);
+            checkBox1.TabIndex = 5;
+            checkBox1.Text = "checkBox1";
+            checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Location = new Point(179, 59);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(100, 50);
+            pictureBox1.TabIndex = 6;
+            pictureBox1.TabStop = false;
+            // 
+            // radioButton1
+            // 
+            radioButton1.AutoSize = true;
+            radioButton1.Location = new Point(285, 59);
+            radioButton1.Name = "radioButton1";
+            radioButton1.Size = new Size(102, 21);
+            radioButton1.TabIndex = 7;
+            radioButton1.TabStop = true;
+            radioButton1.Text = "radioButton1";
+            radioButton1.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(687, 299);
+            ClientSize = new Size(800, 441);
             Controls.Add(tpMain);
             Name = "frmMain";
             Text = "LVGLSharp";
@@ -246,8 +301,15 @@ namespace WinFormsDemo
         private FlowLayoutPanel flowLayoutPanel1;
         private TextBox textBox1;
         private Button send_btn;
-
+        private Button button1;
+        private Button button2;
+        private CheckBox checkBox1;
+        private PictureBox pictureBox1;
+        private RadioButton radioButton1;
     }
 
  
 }
+
+
+
