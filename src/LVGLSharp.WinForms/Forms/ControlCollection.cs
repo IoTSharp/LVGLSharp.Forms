@@ -36,6 +36,7 @@ namespace LVGLSharp.Forms
         public bool IsSynchronized => false;
 
         public object SyncRoot => _ctls;
+
         public void Add(Control item)
         {
             ArgumentNullException.ThrowIfNull(item);
@@ -68,8 +69,6 @@ namespace LVGLSharp.Forms
 
             _ctls.Clear();
         }
-
-
 
         public bool Contains(Control item)
         {
