@@ -1,4 +1,4 @@
-﻿using LVGLSharp;
+using LVGLSharp;
 using LVGLSharp.Darwing;
 using LVGLSharp.Interop;
 using System;
