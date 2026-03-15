@@ -37,6 +37,7 @@ namespace LVGLSharp.Runtime.Windows
         static bool ignore_next_wmchar = false;
         static volatile int mouseWheelDelta = 0;
         static ConcurrentQueue<uint> key_queue = new ConcurrentQueue<uint>();
+        static ConcurrentQueue<string> ime_commit_queue = new ConcurrentQueue<string>();
 
         public static lv_obj_t* root { get; set; }
         public static lv_group_t* key_inputGroup { get; set; }
@@ -118,7 +119,11 @@ namespace LVGLSharp.Runtime.Windows
         static void KeyboardReadCb(lv_indev_t* indev, lv_indev_data_t* data)
         {
             if (ignore_next_wmchar)
+            {
+                data->key = 0;
+                data->state = LV_INDEV_STATE_REL;
                 return;
+            }
 
             if (last_key_state_processed == LV_INDEV_STATE_PR)
             {
@@ -168,6 +173,29 @@ namespace LVGLSharp.Runtime.Windows
 
                 ImmSetCompositionWindow(hIMC, ref compForm);
                 ImmReleaseContext(g_hwnd, hIMC);
+            }
+        }
+
+        static unsafe void DrainImeCommitQueue()
+        {
+            while (ime_commit_queue.TryDequeue(out var text))
+            {
+                if (string.IsNullOrEmpty(text) || key_inputGroup == null)
+                {
+                    continue;
+                }
+
+                var inputObj = lv_group_get_focused(key_inputGroup);
+                if (inputObj == null)
+                {
+                    continue;
+                }
+
+                var utf8 = Encoding.UTF8.GetBytes(text + "\0");
+                fixed (byte* utf8Ptr = utf8)
+                {
+                    lv_textarea_add_text(inputObj, utf8Ptr);
+                }
             }
         }
 
@@ -235,12 +263,9 @@ namespace LVGLSharp.Runtime.Windows
                                     ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, buffer, size);
                                     string result = Encoding.Unicode.GetString(buffer);
                                     ime_content = result;
-                                    unsafe
+                                    if (!string.IsNullOrEmpty(result))
                                     {
-                                        byte[] utf8 = Encoding.UTF8.GetBytes(result + "\0");
-                                        var inputObj = lv_group_get_focused(key_inputGroup);
-                                        fixed (byte* utf8Ptr = utf8)
-                                            lv_textarea_add_text(inputObj, utf8Ptr);
+                                        ime_commit_queue.Enqueue(result);
                                     }
                                     ignore_next_wmchar = true;
                                 }
@@ -362,6 +387,7 @@ namespace LVGLSharp.Runtime.Windows
         {
             while (g_running)
             {
+                DrainImeCommitQueue();
                 lv_timer_handler();
                 handle?.Invoke();
                 if (PeekMessage(out msg, IntPtr.Zero, 0, 0, 1))
