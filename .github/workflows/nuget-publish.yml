@@ -172,7 +172,8 @@ jobs:
           dotnet nuget push nupkgs/*.nupkg \
             --source https://api.nuget.org/v3/index.json \
             --api-key "$NUGET_API_KEY" \
-            --skip-duplicate
+            --skip-duplicate \
+            --timeout 600
 
       # ── 发布到 GitHub Packages ────────────────────────────────────────────
       - name: 发布到 GitHub Packages
@@ -190,4 +191,6 @@ jobs:
             --store-password-in-clear-text
           dotnet nuget push nupkgs/*.nupkg \
             --source github \
-            --skip-duplicate
+            --api-key "$GITHUB_TOKEN" \
+            --skip-duplicate \
+            --timeout 600
