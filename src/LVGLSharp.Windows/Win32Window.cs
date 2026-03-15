@@ -21,6 +21,7 @@ namespace LVGLSharp.Runtime.Windows
         static IntPtr g_hwnd;
         static lv_display_t* g_display;
         static IntPtr g_lvbuf;
+        static lv_obj_t* g_focusSink;
 
         static uint g_bufSize = 1024 * 1024 * 4;
         static bool g_running = true;
@@ -34,7 +35,8 @@ namespace LVGLSharp.Runtime.Windows
         static uint last_key_processed;
         static lv_indev_state_t last_key_state_processed = LV_INDEV_STATE_REL;
         static string ime_content = "";
-        static bool ignore_next_wmchar = false;
+        static bool ime_composing = false;
+        static int pending_ime_char_skips = 0;
         static volatile int mouseWheelDelta = 0;
         static ConcurrentQueue<uint> key_queue = new ConcurrentQueue<uint>();
         static ConcurrentQueue<string> ime_commit_queue = new ConcurrentQueue<string>();
@@ -118,13 +120,6 @@ namespace LVGLSharp.Runtime.Windows
         [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
         static void KeyboardReadCb(lv_indev_t* indev, lv_indev_data_t* data)
         {
-            if (ignore_next_wmchar)
-            {
-                data->key = 0;
-                data->state = LV_INDEV_STATE_REL;
-                return;
-            }
-
             if (last_key_state_processed == LV_INDEV_STATE_PR)
             {
                 data->key = last_key_processed;
@@ -153,14 +148,42 @@ namespace LVGLSharp.Runtime.Windows
         static unsafe void HandleSendTextAreaFocusCb(lv_event_t* e)
         {
             lv_obj_t* target = (lv_obj_t*)lv_event_get_target(e);
+            UpdateImeCompositionWindow(target);
+        }
 
-            // 获取 TextArea 坐标
-            lv_area_t area;
-            lv_obj_get_coords(target, &area);
+        static unsafe lv_obj_t* GetFocusedTextInput()
+        {
+            if (key_inputGroup == null)
+            {
+                return null;
+            }
 
-            // TextArea 屏幕坐标
-            int ime_x = area.x1;
-            int ime_y = area.y2;
+            var inputObj = lv_group_get_focused(key_inputGroup);
+            return inputObj == g_focusSink ? null : inputObj;
+        }
+
+        static unsafe void UpdateImeCompositionWindow(lv_obj_t* target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            var labelObj = lv_textarea_get_label(target);
+            if (labelObj == null)
+            {
+                return;
+            }
+
+            lv_area_t labelArea;
+            lv_obj_get_coords(labelObj, &labelArea);
+
+            lv_point_t cursorPoint;
+            lv_label_get_letter_pos(labelObj, lv_textarea_get_cursor_pos(target), &cursorPoint);
+
+            var font = lv_obj_get_style_text_font(target, LV_PART_MAIN);
+            int ime_x = labelArea.x1 + cursorPoint.x;
+            int ime_y = labelArea.y1 + cursorPoint.y + (font != null ? font->line_height : 0);
 
             // 设置 IME 候选框位置
             IntPtr hIMC = ImmGetContext(g_hwnd);
@@ -199,6 +222,36 @@ namespace LVGLSharp.Runtime.Windows
             }
         }
 
+        static unsafe bool IsPointInsideObject(lv_obj_t* obj, int x, int y)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            lv_area_t area;
+            lv_obj_get_coords(obj, &area);
+            return x >= area.x1 && x <= area.x2 && y >= area.y1 && y <= area.y2;
+        }
+
+        static unsafe void ResetTextInputFocus(int x, int y)
+        {
+            if (key_inputGroup == null || g_focusSink == null)
+            {
+                return;
+            }
+
+            var focusedObj = lv_group_get_focused(key_inputGroup);
+            if (focusedObj == null || focusedObj == g_focusSink || IsPointInsideObject(focusedObj, x, y))
+            {
+                return;
+            }
+
+            lv_textarea_clear_selection(focusedObj);
+            lv_obj_clear_state(focusedObj, (ushort)(LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY));
+            lv_group_focus_obj(g_focusSink);
+        }
+
         static IntPtr MyWndProc(IntPtr hWnd, uint msg, UIntPtr wParam, IntPtr lParam)
         {
             switch (msg)
@@ -222,6 +275,7 @@ namespace LVGLSharp.Runtime.Windows
                     mousePressed = true;
                     mouseX = (short)(lParam.ToInt32() & 0xFFFF);
                     mouseY = (short)((lParam.ToInt32() >> 16) & 0xFFFF);
+                    ResetTextInputFocus(mouseX, mouseY);
                     break;
                 case 0x0202: // WM_LBUTTONUP
                     mousePressed = false;
@@ -233,24 +287,30 @@ namespace LVGLSharp.Runtime.Windows
                     mouseY = (short)((lParam.ToInt32() >> 16) & 0xFFFF);
                     break;
                 case WM_IME_STARTCOMPOSITION:
-                    ignore_next_wmchar = true;
+                    UpdateImeCompositionWindow(GetFocusedTextInput());
+                    ime_composing = true;
                     break;
                 case 0x0102: // WM_CHAR
-                    if (ignore_next_wmchar)
-                        break;
-
-                    key_queue.Enqueue((uint)wParam);
-                    break;
-                case 0x0101: // WM_KEYUP
-                    if (ignore_next_wmchar)
+                    if (ime_composing)
                     {
-                        ignore_next_wmchar = false;
                         break;
                     }
 
+                    if (pending_ime_char_skips > 0)
+                    {
+                        pending_ime_char_skips--;
+                        break;
+                    }
+
+                    key_queue.Enqueue((uint)wParam);
+                    break;
+                case WM_IME_ENDCOMPOSITION:
+                    ime_composing = false;
                     break;
                 case WM_IME_COMPOSITION:
                     {
+                        UpdateImeCompositionWindow(GetFocusedTextInput());
+
                         if (((int)lParam & GCS_RESULTSTR) != 0)
                         {
                             IntPtr hIMC = ImmGetContext(hWnd);
@@ -266,8 +326,9 @@ namespace LVGLSharp.Runtime.Windows
                                     if (!string.IsNullOrEmpty(result))
                                     {
                                         ime_commit_queue.Enqueue(result);
+                                        pending_ime_char_skips = Math.Max(pending_ime_char_skips, result.Length);
                                     }
-                                    ignore_next_wmchar = true;
+                                    ime_composing = false;
                                 }
                                 ImmReleaseContext(hWnd, hIMC);
                             }
@@ -362,6 +423,9 @@ namespace LVGLSharp.Runtime.Windows
             root = lv_scr_act();
             lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
             lv_obj_set_style_pad_all(root, 10, 0);
+            g_focusSink = lv_obj_create(root);
+            lv_obj_set_size(g_focusSink, 1, 1);
+            lv_obj_add_flag(g_focusSink, lv_obj_flag_t.LV_OBJ_FLAG_HIDDEN | lv_obj_flag_t.LV_OBJ_FLAG_IGNORE_LAYOUT);
 
             _fallbackFont = lv_obj_get_style_text_font(root, LV_PART_MAIN);
 

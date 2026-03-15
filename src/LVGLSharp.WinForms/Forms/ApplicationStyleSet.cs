@@ -273,8 +273,10 @@ namespace LVGLSharp.Forms
                 return;
             }
 
-            var cursorSelector = LvglStyleSelector.ForPart(LV_PART_CURSOR);
+            var cursorSelector = LvglStyleSelector.ForPartAndState(LV_PART_CURSOR, LV_STATE_FOCUSED);
             var selectedSelector = LvglStyleSelector.ForPart(LV_PART_SELECTED);
+            var focusedSelector = LvglStyleSelector.ForPartAndState(0, LV_STATE_FOCUSED);
+            var unfocusedCursorSelector = LvglStyleSelector.ForPart(LV_PART_CURSOR);
 
             lv_obj_set_style_bg_opa(obj, BackgroundOpacity, 0);
             lv_obj_set_style_bg_color(obj, LvglStyleColorConverter.ToLvColor(BackgroundColor), 0);
@@ -285,6 +287,8 @@ namespace LVGLSharp.Forms
             lv_obj_set_style_pad_ver(obj, VerticalPadding, 0);
             lv_obj_set_style_text_color(obj, LvglStyleColorConverter.ToLvColor(TextColor), 0);
 
+            lv_obj_set_style_bg_opa(obj, (byte)LV_OPA_TRANSP, unfocusedCursorSelector);
+            lv_obj_set_style_width(obj, 0, unfocusedCursorSelector);
             lv_obj_set_style_bg_opa(obj, (byte)LV_OPA_COVER, cursorSelector);
             lv_obj_set_style_bg_color(obj, LvglStyleColorConverter.ToLvColor(CursorColor), cursorSelector);
             lv_obj_set_style_width(obj, CursorWidth, cursorSelector);
@@ -292,6 +296,11 @@ namespace LVGLSharp.Forms
             lv_obj_set_style_bg_opa(obj, SelectionBackgroundOpacity, selectedSelector);
             lv_obj_set_style_bg_color(obj, LvglStyleColorConverter.ToLvColor(SelectionBackgroundColor), selectedSelector);
             lv_obj_set_style_text_color(obj, LvglStyleColorConverter.ToLvColor(SelectionTextColor), selectedSelector);
+
+            lv_obj_set_style_outline_width(obj, 0, focusedSelector);
+            lv_obj_set_style_outline_pad(obj, 0, focusedSelector);
+            lv_obj_set_style_shadow_width(obj, 0, focusedSelector);
+            lv_obj_set_style_shadow_opa(obj, (byte)LV_OPA_TRANSP, focusedSelector);
         }
     }
 
