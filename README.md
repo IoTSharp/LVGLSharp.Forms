@@ -23,9 +23,7 @@
 
 以下为经过 NativeAOT 发布的 win-x64 / linux-arm 应用程序预览（无任何额外依赖）：
 
-![预览图 1](./preview/1.png)
-
-![预览图 2](./preview/2.png)
+<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=116237182962589&bvid=BV12Fwjz5EuZ&cid=36733586714&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 
 ---
 
@@ -92,6 +90,16 @@ libs/
 - **[ClangSharpPInvokeGenerator](https://github.com/dotnet/ClangSharp)**：用于自动生成 LVGL 全量 P/Invoke 绑定。
 - **[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp)**：跨平台图像处理库。
 - **[SixLabors.Fonts](https://github.com/SixLabors/Fonts)**：跨平台字体解析库。
+
+---
+
+## 💬 交流
+
+欢迎加入微信群，与我们交流项目使用、跨平台适配、控件实现与问题排查经验。
+
+如果你对 LVGLSharp.Forms 感兴趣，欢迎扫码加入微信群交流。
+
+![LVGLSharp 微信交流群](./preview/wechat-group.png)
 
 ---
 

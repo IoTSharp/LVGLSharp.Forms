@@ -23,10 +23,7 @@
 
 The following screenshots show an application published with NativeAOT for win-x64 / linux-arm (no external dependencies required):
 
-![Preview 1](./preview/1.png)
-
-![Preview 2](./preview/2.png)
-
+<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=116237182962589&bvid=BV12Fwjz5EuZ&cid=36733586714&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 ---
 
 ## 📦 NuGet Packages
@@ -92,6 +89,16 @@ libs/
 - **[ClangSharpPInvokeGenerator](https://github.com/dotnet/ClangSharp)**: Used to auto-generate the complete LVGL P/Invoke bindings.
 - **[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp)**: Cross-platform image processing library.
 - **[SixLabors.Fonts](https://github.com/SixLabors/Fonts)**: Cross-platform font parsing library.
+
+---
+
+## 💬 Community
+
+You are welcome to join our WeChat group to discuss project usage, cross-platform adaptation, control implementation, and troubleshooting.
+
+If you are interested in LVGLSharp.Forms, scan the QR code below to join the WeChat group.
+
+![LVGLSharp WeChat Group](./preview/wechat-group.png)
 
 ---
 
