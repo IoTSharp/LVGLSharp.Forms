@@ -1,32 +1,26 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<TargetFramework>net10.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<PublishAot>true</PublishAot>
-		<InvariantGlobalization>true</InvariantGlobalization>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
+<PropertyGroup>
+<OutputType>WinExe</OutputType>
+<TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
+<ImplicitUsings>enable</ImplicitUsings>
+<Nullable>enable</Nullable>
+<InvariantGlobalization>true</InvariantGlobalization>
+<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+</PropertyGroup>
 
+<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+<PublishAot>true</PublishAot>
+</PropertyGroup>
 
+<ItemGroup>
+<PackageReference Include="LVGLSharp.Native" Version="0.0.3" />
+<PackageReference Include="System.IO.Ports" Version="10.0.5" />
+</ItemGroup>
+ 
 
-	<ItemGroup>
-		<PackageReference Include="LVGLSharp.Native" Version="0.0.3" />
-		<PackageReference Include="System.IO.Ports" Version="10.0.5" />
-	</ItemGroup>
-
-   <ItemGroup Condition="'$(PublishPlatform)' == 'Windows' Or ('$(PublishPlatform)' == '' And '$(OS)' == 'Windows_NT')">
-		<ProjectReference Include="..\..\LVGLSharp.Windows\LVGLSharp.Runtime.Windows.csproj" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(PublishPlatform)' == 'Linux'">
-		<ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
-	</ItemGroup>
+<ItemGroup>
+<ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
+</ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using LVGLSharp;
+using LVGLSharp;
 using LVGLSharp.Interop;
 using System;
 using System.Collections.Generic;
@@ -75,6 +75,18 @@ namespace LVGLSharp.Runtime.Linux
                 LvglHostDefaults.CreateDefaultFontFallbackGlyphs());
 
             _defaultFontStyle = LvglHostDefaults.ApplyDefaultFontStyle(root, _fontManager.GetLvFontPtr());
+        }
+
+        public void AttachTextInput(lv_obj_t* textArea)
+        {
+            if (textArea == null)
+            {
+                return;
+            }
+
+            lv_obj_t* keyboard = lv_keyboard_create(lv_scr_act());
+            lv_obj_set_size(keyboard, 670, 200);
+            lv_keyboard_set_textarea(keyboard, textArea);
         }
 
         public void StartLoop(Action handle)

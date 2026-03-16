@@ -1,19 +1,23 @@
-﻿using LVGLSharp.Interop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LVGLSharp.Interop;
 
 namespace LVGLSharp
 {
     public unsafe interface IWindow
     {
-        public static lv_obj_t* root { get; set; }
-        public static lv_group_t* key_inputGroup { get; set; }
-        public static delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCb { get; set; }
+        lv_obj_t* Root { get; }
 
-        public void Init();
-        public void StartLoop(Action handle);
+        lv_group_t* KeyInputGroup { get; }
+
+        delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCallback { get; }
+
+        void Init();
+
+        void ProcessEvents();
+
+        void StartLoop(Action handle);
+
+        void Stop();
+
+        void AttachTextInput(lv_obj_t* textArea);
     }
 }

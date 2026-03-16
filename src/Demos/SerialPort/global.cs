@@ -1,4 +1,4 @@
-﻿global using static LVGLSharp.Interop.lv_align_t;
+global using static LVGLSharp.Interop.lv_align_t;
 global using static LVGLSharp.Interop.lv_animimg_part_t;
 global using static LVGLSharp.Interop.lv_arc_mode_t;
 global using static LVGLSharp.Interop.lv_bar_mode_t;

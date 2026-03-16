@@ -1,4 +1,4 @@
-﻿using LVGLSharp;
+using LVGLSharp;
 using LVGLSharp.Interop;
 using SixLabors.Fonts;
 using System;
@@ -43,6 +43,10 @@ namespace LVGLSharp.Runtime.Windows
         public static lv_obj_t* root { get; set; }
         public static lv_group_t* key_inputGroup { get; set; }
         public static delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCb { get; set; } = &HandleSendTextAreaFocusCb;
+        public lv_obj_t* Root => root;
+        public lv_group_t* KeyInputGroup => key_inputGroup;
+        public delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCallback => SendTextAreaFocusCb;
+
 
         static BITMAPINFO _bmi = new BITMAPINFO
         {
@@ -278,6 +282,13 @@ namespace LVGLSharp.Runtime.Windows
             return hadMessages;
         }
 
+        bool ProcessEventsCore()
+        {
+            bool hadMessages = PumpPendingMessages();
+            lv_timer_handler();
+            return hadMessages;
+        }
+
         static unsafe bool IsPointInsideObject(lv_obj_t* obj, int x, int y)
         {
             if (obj == null)
@@ -502,13 +513,11 @@ namespace LVGLSharp.Runtime.Windows
 
             lv_obj_add_style(root, _defaultFontStyle, 0);
         }
-
         public void StartLoop(Action handle)
         {
             while (g_running)
             {
-                bool hadMessages = PumpPendingMessages();
-                lv_timer_handler();
+                bool hadMessages = ProcessEventsCore();
                 handle?.Invoke();
 
                 if (!hadMessages)
@@ -519,6 +528,25 @@ namespace LVGLSharp.Runtime.Windows
 
             g_running = false;
             Marshal.FreeHGlobal(g_lvbuf);
+        }
+
+        public void ProcessEvents()
+        {
+            ProcessEventsCore();
+        }
+
+        public void Stop()
+        {
+            g_running = false;
+
+            if (g_hwnd != IntPtr.Zero)
+            {
+             //   DestroyWindow(g_hwnd);
+            }
+        }
+
+        public void AttachTextInput(lv_obj_t* textArea)
+        {
         }
     }
 }

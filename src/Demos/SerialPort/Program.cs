@@ -1,14 +1,7 @@
-﻿using LVGLSharp;
+using LVGLSharp;
 using LVGLSharp.Interop;
-#if LINUX
-using LVGLSharp.Runtime.Linux;
-#else
-using LVGLSharp.Runtime.Windows;
-#endif
-using SixLabors.Fonts;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -24,9 +17,9 @@ unsafe class Program
     static lv_obj_t* send_btn;
     static lv_obj_t* clear_btn;
     static lv_obj_t* hex_switch;
-    static IWindow window;
-    static SerialPort serialPort;
-    static List<string> serialPorts;
+    static IWindow? window;
+    static SerialPort? serialPort;
+    static List<string> serialPorts = [];
     static List<string> bauds = ["9600", "19200", "38400", "57600", "115200"];
 
     static lv_obj_t* root;
@@ -35,22 +28,12 @@ unsafe class Program
 
     static void Main(string[] args)
     {
-#if LINUX
-        window = new LinuxView(dpi: 96f);
-#else
-        window = new Win32Window("LVGLSharp", 710, 470);
-#endif
+        window = PlatformWindowFactory.Create();
         window.Init();
 
-#if LINUX
-        root = LinuxView.root;
-        key_inputGroup = LinuxView.key_inputGroup;
-        SendTextAreaFocusCb = LinuxView.SendTextAreaFocusCb;
-#else
-        root = Win32Window.root;
-        key_inputGroup = Win32Window.key_inputGroup;
-        SendTextAreaFocusCb = Win32Window.SendTextAreaFocusCb;
-#endif
+        root = window.Root;
+        key_inputGroup = window.KeyInputGroup;
+        SendTextAreaFocusCb = window.SendTextAreaFocusCallback;
 
         InitUI();
 
@@ -278,11 +261,7 @@ unsafe class Program
             lv_group_add_obj(key_inputGroup, send_textarea);
         lv_obj_set_height(send_textarea, 50);
 
-#if LINUX
-        lv_obj_t* kb = lv_keyboard_create(lv_scr_act());
-        lv_obj_set_size(kb, 670, 200);
-        lv_keyboard_set_textarea(kb, send_textarea);
-#endif
+        window?.AttachTextInput(send_textarea);
 
         // 发送按钮
         send_btn = lv_btn_create(send_container);
