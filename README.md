@@ -13,7 +13,7 @@
 - 🖥️ **WinForms API 兼容**：使用与 `System.Windows.Forms` 高度相似的 API，轻松迁移现有代码。
 - 🔤 **LVGL 全 API 互操作**：基于 ClangSharpPInvokeGenerator 自动生成的 P/Invoke 绑定，覆盖 LVGL 全部 C API。
 - 🚀 **NativeAOT 支持**：支持发布为无依赖的原生可执行文件（已验证 win-x64 / linux-arm）。
-- 🌍 **跨平台**：支持 Windows（x64）、Linux（x64 / arm / arm64）。
+- 🌍 **跨平台**：支持 Windows（x86 / x64 / arm64）、Linux（x64 / arm / arm64）。
 - 🧩 **内置常用控件**：Button、Label、TextBox、CheckBox、RadioButton、ComboBox、ListBox、ProgressBar、TrackBar、NumericUpDown、PictureBox、Panel、GroupBox、FlowLayoutPanel、TableLayoutPanel、RichTextBox 等。
 - 🎨 **自定义绘图类型**：提供 `LVGLSharp.Darwing` 命名空间下的 `Size`、`Point`、`Color` 等类型，无需依赖 `System.Drawing`，天然跨平台。
 
@@ -35,7 +35,7 @@
 |------|------|
 | `LVGLSharp.Forms` | WinForms API 兼容层（核心包） |
 | `LVGLSharp.Interop` | LVGL P/Invoke 绑定（自动生成） |
-| `LVGLSharp.Native` | 各平台 LVGL 原生库（win-x64、linux-arm 等） |
+| `LVGLSharp.Native` | 各平台 LVGL 原生库（win-x86 / win-x64 / win-arm64、linux-arm 等） |
 
 ---
 
@@ -43,7 +43,7 @@
 
 ### 1. 创建项目
 
-使用 Visual Studio 创建 Windows Forms 应用程序（.NET），然后将 `System.Windows.Forms` 的引用替换为 `LVGLSharp.Forms`。
+ 推荐按仓库中的示例采用多目标框架的方式：使用 Visual Studio 创建 Windows Forms 应用程序（.NET），以 `net10.0-windows` 目标启用设计器（`UseWindowsForms=true`），再增加一个纯 `net10.0` 目标用于跨平台运行并在该目标下引用 `LVGLSharp.Forms`。可参考示例工程的配置：[`src/Demos/WinFormsDemo/WinFormsDemo.csproj`](./src/Demos/WinFormsDemo/WinFormsDemo.csproj)。
 
 ### 2. 入口程序
 
