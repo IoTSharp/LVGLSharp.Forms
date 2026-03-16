@@ -1,5 +1,8 @@
 using LVGLSharp;
 using LVGLSharp.Interop;
+using LVGLSharp.Runtime.Windows;
+using LVGLSharp.Runtime.Linux;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
@@ -28,7 +31,7 @@ unsafe class Program
 
     static void Main(string[] args)
     {
-        window = PlatformWindowFactory.Create();
+        window = CreateWindow();
         window.Init();
 
         root = window.Root;
@@ -38,6 +41,18 @@ unsafe class Program
         InitUI();
 
         window.StartLoop(() => { });
+    }
+
+    static IWindow CreateWindow()
+    {
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            return new Win32Window("SerialPort", 700, 360);
+        }
+        else
+        {
+            return new LinuxView();
+        }
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]

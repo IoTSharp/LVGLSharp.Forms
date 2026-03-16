@@ -2,15 +2,12 @@
 
 <PropertyGroup>
 <OutputType>WinExe</OutputType>
-<TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
+<TargetFramework>net10.0</TargetFramework>
 <ImplicitUsings>enable</ImplicitUsings>
 <Nullable>enable</Nullable>
 <InvariantGlobalization>true</InvariantGlobalization>
 <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-</PropertyGroup>
-
-<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-<PublishAot>true</PublishAot>
+	<PublishAot>true</PublishAot>
 </PropertyGroup>
 
 <ItemGroup>
@@ -21,6 +18,8 @@
 
 <ItemGroup>
 <ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Windows\LVGLSharp.Runtime.Windows.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
 </ItemGroup>
 
 </Project>
