@@ -8,6 +8,23 @@
 
 ---
 
+## 📢 Current Release
+
+- **Version**: `9.3.0.5`
+- **Release Tag**: `v9.3.0.5`
+- **Release Positioning**: the first fully documented release derived from the initial project baseline, consolidating the current capabilities, package layout, and release notes.
+
+### 9.3.0.5 Highlights
+
+- Continues the initial LVGL-backed WinForms compatibility direction and documents the now-available controls, runtime hosts, and packaging layout.
+- Clarifies the responsibilities of `LVGLSharp.Forms`, `LVGLSharp.Core`, the platform runtime packages, and `LVGLSharp.Native`.
+- Documents `Application.Run(Form)` lifecycle support, the LVGL event bridge, and NativeAOT publishing readiness.
+- Synchronizes the release summary with [`CHANGELOG.md`](./CHANGELOG.md) so future releases can build on top of tag-based release records.
+
+For the complete release history starting from the initial version, see [`CHANGELOG.md`](./CHANGELOG.md).
+
+---
+
 ## ✨ Features
 
 - 🖥️ **WinForms API Compatibility**: An API surface closely mirroring `System.Windows.Forms`, making it easy to migrate existing code.

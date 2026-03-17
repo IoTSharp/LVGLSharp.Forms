@@ -8,6 +8,23 @@
 
 ---
 
+## 📢 当前发布版本
+
+- **版本号**：`9.3.0.5`
+- **发布 Tag**：`v9.3.0.5`
+- **发布定位**：自初始版本演进而来的首个完整文档化发布，统一整理当前能力、包结构与发布说明。
+
+### 9.3.0.5 发布摘要
+
+- 延续初始版本中基于 LVGL 的 WinForms API 兼容层方向，补齐核心控件、运行时宿主与打包说明。
+- 明确 `LVGLSharp.Forms`、`LVGLSharp.Core`、平台运行时包与 `LVGLSharp.Native` 的职责划分。
+- 补充 `Application.Run(Form)` 生命周期支持、LVGL 事件桥接与 NativeAOT 发布能力说明。
+- 将当前稳定可对外说明的能力同步到 [`CHANGELOG.md`](./CHANGELOG.md)，便于后续基于 tag 自动生成发布记录。
+
+如需查看从初始版本开始的完整发布记录，请参考 [`CHANGELOG.md`](./CHANGELOG.md)。
+
+---
+
 ## ✨ 特性
 
 - 🖥️ **WinForms API 兼容**：使用与 `System.Windows.Forms` 高度相似的 API，轻松迁移现有代码。
