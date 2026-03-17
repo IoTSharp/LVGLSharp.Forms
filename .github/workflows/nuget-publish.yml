@@ -243,9 +243,12 @@ jobs:
             "$api_url")
 
           if [ "$http_status" = "200" ]; then
-            gh release upload "$RELEASE_TAG" nupkgs/*.nupkg --clobber
+            gh release upload "$RELEASE_TAG" nupkgs/*.nupkg \
+              --repo "${{ github.repository }}" \
+              --clobber
           elif [ "$http_status" = "404" ]; then
             gh release create "$RELEASE_TAG" nupkgs/*.nupkg \
+              --repo "${{ github.repository }}" \
               --title "$RELEASE_TAG" \
               --generate-notes
           else
