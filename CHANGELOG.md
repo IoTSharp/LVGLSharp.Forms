@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [未发布 / Unreleased]
 
 ### 新增 / Added
+- 无。
+
+### 变更 / Changed
+- 无。
+
+### 修复 / Fixed
+- 无。
+
+---
+
+## [9.3.0.5] - 2026-03-17
+
+### 发布说明 / Release Notes
+- 这是基于初始版本持续整理后的正式发布说明版本，用于统一对外描述当前阶段能力，并匹配 `v9.3.0.5` 发布 tag。
+- 本版本重点在于沉淀已经完成的功能边界、运行时结构、包职责以及发布路径，便于后续按 tag 进行持续发布。
+
+### 新增 / Added
 - WinForms API 兼容层核心框架，基于 LVGL 渲染引擎。
 - 支持控件：`Button`、`Label`、`TextBox`、`CheckBox`、`RadioButton`、`ComboBox`、`ListBox`、`ProgressBar`、`TrackBar`、`NumericUpDown`、`PictureBox`、`Panel`、`GroupBox`、`FlowLayoutPanel`、`TableLayoutPanel`、`RichTextBox`。
 - `LVGLSharp.Darwing` 命名空间：跨平台绘图类型 `Size`、`Point`、`Color` 等，不依赖 `System.Drawing`。
@@ -22,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - WinFormsDemo 演示项目。
 
 ### 变更 / Changed
-- 无。
+- README 中补充当前发布版本、发布定位与自初始版本开始的发布记录入口说明。
+- 统一发布工作流示例版本、README 与 CHANGELOG 中的发布标识为 `9.3.0.5` / `v9.3.0.5`。
 
 ### 修复 / Fixed
 - 无。

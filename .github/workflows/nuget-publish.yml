@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "包版本号（如 9.3.0.4 或 v9.3.0.4）"
+        description: "包版本号（如 9.3.0.5 或 v9.3.0.5）"
         required: true
-        default: "9.3.0.4"
+        default: "9.3.0.5"
       publish_nuget:
         description: "发布到 NuGet.org"
         type: boolean
@@ -21,7 +21,7 @@ on:
 
 env:
   # 版本来源：优先使用 workflow_dispatch 输入，其次使用 tag 名称。
-  # 注意：tag/输入值可能含有 'v' 前缀（如 v9.3.0.4），会在 prepare 步骤中去除。
+  # 注意：tag/输入值可能含有 'v' 前缀（如 v9.3.0.5），会在 prepare 步骤中去除。
   PACKAGE_VERSION: ${{ github.event.inputs.version || github.ref_name }}
 
 jobs:
@@ -47,9 +47,9 @@ jobs:
           fi
 
           VERSION="${RAW_VERSION#v}"
-          # 按仓库当前 tag 约定，仅支持 4 段数字版本号，例如 9.3.0.4。
+          # 按仓库当前 tag 约定，仅支持 4 段数字版本号，例如 9.3.0.5。
           if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
-            echo "错误：版本号 '$RAW_VERSION' 不符合要求，必须为四段版本号，如 v9.3.0.4 或 9.3.0.4。"
+            echo "错误：版本号 '$RAW_VERSION' 不符合要求，必须为四段版本号，如 v9.3.0.5 或 9.3.0.5。"
             exit 1
           fi
 
