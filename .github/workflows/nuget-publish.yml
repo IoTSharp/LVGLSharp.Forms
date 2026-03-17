@@ -27,6 +27,8 @@ env:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       package_version: ${{ steps.ver.outputs.version }}
       release_tag: ${{ steps.ver.outputs.tag }}
@@ -45,12 +47,13 @@ jobs:
           fi
 
           VERSION="${RAW_VERSION#v}"
-          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){2,3}$ ]]; then
-            echo "错误：版本号 '$RAW_VERSION' 不符合要求，应为 v9.3.0.4 / 9.3.0.4 / v9.3.0 / 9.3.0。"
+          # 按仓库当前 tag 约定，仅支持 4 段数字版本号，例如 9.3.0.4。
+          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
+            echo "错误：版本号 '$RAW_VERSION' 不符合要求，必须为四段版本号，如 v9.3.0.4 或 9.3.0.4。"
             exit 1
           fi
 
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          if [[ "${GITHUB_REF}" =~ ^refs/tags/ ]]; then
             RAW_TAG="${GITHUB_REF_NAME}"
           fi
 
@@ -233,12 +236,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
         run: |
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+          api_url="https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}"
+          http_status=$(curl -sS -o /tmp/release_lookup.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "$api_url")
+
+          if [ "$http_status" = "200" ]; then
             gh release upload "$RELEASE_TAG" nupkgs/*.nupkg --clobber
-          else
+          elif [ "$http_status" = "404" ]; then
             gh release create "$RELEASE_TAG" nupkgs/*.nupkg \
               --title "$RELEASE_TAG" \
               --generate-notes
+          else
+            echo "查询 GitHub Release 失败，HTTP 状态码：$http_status（请检查令牌权限、API 限流或网络连接）。"
+            cat /tmp/release_lookup.json
+            exit 1
           fi
 
       # ── 发布到 NuGet.org ──────────────────────────────────────────────────
