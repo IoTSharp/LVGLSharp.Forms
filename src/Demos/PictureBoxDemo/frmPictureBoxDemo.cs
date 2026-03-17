@@ -15,6 +15,12 @@ namespace PictureBoxDemo
         private void frmPictureBoxDemo_Load(object? sender, EventArgs e)
         {
             InitializePictureBox();
+            ApplyWinFormsDemoLayout();
+        }
+
+        private void frmPictureBoxDemo_SizeChanged(object? sender, EventArgs e)
+        {
+            ApplyWinFormsDemoLayout();
         }
 
         private void InitializePictureBox()
@@ -32,6 +38,24 @@ namespace PictureBoxDemo
             cmbSizeMode.SelectedIndex = 4;
             
             lblStatus.Text = "¾ÍÐ÷";
+        }
+
+        private void ApplyWinFormsDemoLayout()
+        {
+            const int topRowHeight = 60;
+            const int bottomRowHeight = 60;
+            const int statusRowHeight = 30;
+            const int minimumContentHeight = 180;
+            const int minimumContentWidth = 180;
+
+            int contentHeight = Math.Max(minimumContentHeight, ClientSize.Height - topRowHeight - bottomRowHeight - statusRowHeight);
+            tpMain.RowStyles[1] = new RowStyle(SizeType.Absolute, contentHeight);
+            tpMain.PerformLayout();
+
+            int previewWidth = Math.Max(minimumContentWidth, pnlContent.ClientSize.Width - 6);
+            int previewHeight = Math.Max(minimumContentHeight, pnlContent.ClientSize.Height - 6);
+            picMain.Size = new Size(previewWidth, previewHeight);
+            lblStatus.Size = new Size(Math.Max(120, pnlStatus.ClientSize.Width - 6), lblStatus.Height);
         }
 
         private void btnLoadImage_Click(object? sender, EventArgs e)

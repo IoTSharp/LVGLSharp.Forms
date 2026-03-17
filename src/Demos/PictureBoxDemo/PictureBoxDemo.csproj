@@ -1,32 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
-<PropertyGroup>
-<OutputType>WinExe</OutputType>
-<TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
-<Nullable>enable</Nullable>
-<ImplicitUsings>enable</ImplicitUsings>
-<InvariantGlobalization>true</InvariantGlobalization>
-</PropertyGroup>
-<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-<PublishAot>true</PublishAot>
-</PropertyGroup>
-<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
-<UseWindowsForms>true</UseWindowsForms>
-</PropertyGroup>
-<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
-<Using Include="System.Windows.Forms" />
-</ItemGroup>
-<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-<ProjectReference Include="..\..\LVGLSharp.WinForms\LVGLSharp.Forms.csproj" />
-<Using Include="LVGLSharp.Forms" />
-<Using Include="LVGLSharp.Darwing" />
-</ItemGroup>
-<ItemGroup>
-  <Content Include="lvgl.png">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </Content>
-</ItemGroup>
-<ItemGroup>
-  <PackageReference Include="LVGLSharp.Native" Version="0.0.3" />
-</ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<InvariantGlobalization>true</InvariantGlobalization>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<PublishAot>true</PublishAot>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+		<UseWindowsForms>true</UseWindowsForms>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+		<Using Include="System.Windows.Forms" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<ProjectReference Include="..\..\LVGLSharp.WinForms\LVGLSharp.Forms.csproj" />
+		<Using Include="LVGLSharp.Forms" />
+		<Using Include="LVGLSharp.Darwing" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="lvgl.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LVGLSharp.Native" Version="0.0.3" />
+	</ItemGroup>
 
 </Project>

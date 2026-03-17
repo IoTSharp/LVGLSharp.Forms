@@ -36,6 +36,7 @@ namespace PictureBoxDemo
             lblSizeMode = new Label();
             cmbSizeMode = new ComboBox();
             chkAntiAlias = new CheckBox();
+            pnlContent = new FlowLayoutPanel();
             picMain = new PictureBox();
             pnlBottom = new FlowLayoutPanel();
             btnRotateLeft = new Button();
@@ -43,27 +44,30 @@ namespace PictureBoxDemo
             btnZoomIn = new Button();
             btnZoomOut = new Button();
             btnReset = new Button();
+            pnlStatus = new FlowLayoutPanel();
             lblStatus = new Label();
             tpMain.SuspendLayout();
             pnlTop.SuspendLayout();
+            pnlContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picMain).BeginInit();
             pnlBottom.SuspendLayout();
+            pnlStatus.SuspendLayout();
             SuspendLayout();
             // 
             // tpMain
             // 
             tpMain.ColumnCount = 1;
-            tpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tpMain.ColumnStyles.Add(new ColumnStyle());
             tpMain.Controls.Add(pnlTop, 0, 0);
-            tpMain.Controls.Add(picMain, 0, 1);
+            tpMain.Controls.Add(pnlContent, 0, 1);
             tpMain.Controls.Add(pnlBottom, 0, 2);
-            tpMain.Controls.Add(lblStatus, 0, 3);
+            tpMain.Controls.Add(pnlStatus, 0, 3);
             tpMain.Dock = DockStyle.Fill;
             tpMain.Location = new Point(0, 0);
             tpMain.Name = "tpMain";
             tpMain.RowCount = 4;
             tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
-            tpMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 450F));
             tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
             tpMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tpMain.Size = new Size(800, 600);
@@ -142,12 +146,20 @@ namespace PictureBoxDemo
             chkAntiAlias.UseVisualStyleBackColor = true;
             chkAntiAlias.CheckedChanged += chkAntiAlias_CheckedChanged;
             // 
+            // pnlContent
+            // 
+            pnlContent.Controls.Add(picMain);
+            pnlContent.Dock = DockStyle.Fill;
+            pnlContent.Location = new Point(3, 63);
+            pnlContent.Name = "pnlContent";
+            pnlContent.Size = new Size(794, 444);
+            pnlContent.TabIndex = 1;
+            // 
             // picMain
             // 
-            picMain.Dock = DockStyle.Fill;
-            picMain.Location = new Point(3, 63);
+            picMain.Location = new Point(3, 3);
             picMain.Name = "picMain";
-            picMain.Size = new Size(794, 444);
+            picMain.Size = new Size(788, 438);
             picMain.SizeMode = PictureBoxSizeMode.Zoom;
             picMain.TabIndex = 1;
             picMain.TabStop = false;
@@ -215,12 +227,20 @@ namespace PictureBoxDemo
             btnReset.UseVisualStyleBackColor = true;
             btnReset.Click += btnReset_Click;
             // 
+            // pnlStatus
+            // 
+            pnlStatus.Controls.Add(lblStatus);
+            pnlStatus.Dock = DockStyle.Fill;
+            pnlStatus.Location = new Point(3, 573);
+            pnlStatus.Name = "pnlStatus";
+            pnlStatus.Size = new Size(794, 24);
+            pnlStatus.TabIndex = 3;
+            // 
             // lblStatus
             // 
-            lblStatus.Dock = DockStyle.Fill;
-            lblStatus.Location = new Point(3, 570);
+            lblStatus.Location = new Point(3, 0);
             lblStatus.Name = "lblStatus";
-            lblStatus.Size = new Size(794, 30);
+            lblStatus.Size = new Size(780, 24);
             lblStatus.TabIndex = 3;
             lblStatus.Text = "就绪";
             lblStatus.TextAlign = ContentAlignment.MiddleLeft;
@@ -234,11 +254,14 @@ namespace PictureBoxDemo
             Name = "frmPictureBoxDemo";
             Text = "PictureBox 演示程序 - LVGLSharp";
             Load += frmPictureBoxDemo_Load;
+            SizeChanged += frmPictureBoxDemo_SizeChanged;
             tpMain.ResumeLayout(false);
             pnlTop.ResumeLayout(false);
             pnlTop.PerformLayout();
+            pnlContent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)picMain).EndInit();
             pnlBottom.ResumeLayout(false);
+            pnlStatus.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -252,6 +275,7 @@ namespace PictureBoxDemo
         private Label lblSizeMode;
         private ComboBox cmbSizeMode;
         private CheckBox chkAntiAlias;
+        private FlowLayoutPanel pnlContent;
         private PictureBox picMain;
         private FlowLayoutPanel pnlBottom;
         private Button btnRotateLeft;
@@ -259,6 +283,7 @@ namespace PictureBoxDemo
         private Button btnZoomIn;
         private Button btnZoomOut;
         private Button btnReset;
+        private FlowLayoutPanel pnlStatus;
         private Label lblStatus;
     }
 }

@@ -1,25 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PublishAot>true</PublishAot>
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<PublishTrimmed>true</PublishTrimmed>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+	</PropertyGroup>
 
-<PropertyGroup>
-<OutputType>WinExe</OutputType>
-<TargetFramework>net10.0</TargetFramework>
-<ImplicitUsings>enable</ImplicitUsings>
-<Nullable>enable</Nullable>
-<InvariantGlobalization>true</InvariantGlobalization>
-<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<PublishAot>true</PublishAot>
-</PropertyGroup>
-
-<ItemGroup>
-<PackageReference Include="LVGLSharp.Native" Version="0.0.3" />
-<PackageReference Include="System.IO.Ports" Version="10.0.5" />
-</ItemGroup>
- 
-
-<ItemGroup>
-<ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
-    <ProjectReference Include="..\..\LVGLSharp.Windows\LVGLSharp.Runtime.Windows.csproj" />
-    <ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
-</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LVGLSharp.Native" Version="9.3.0.1" />
+		<PackageReference Include="System.IO.Ports" Version="10.0.5" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
+		<ProjectReference Include="..\..\LVGLSharp.Windows\LVGLSharp.Runtime.Windows.csproj" />
+		<ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
+	</ItemGroup>
 
 </Project>
