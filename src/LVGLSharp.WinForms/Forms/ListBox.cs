@@ -4,6 +4,8 @@ namespace LVGLSharp.Forms
 {
     public class ListBox : Control
     {
+        protected override bool AllowsNativeScrolling => true;
+
         public SelectionMode SelectionMode { get; set; } = SelectionMode.One;
         public DrawMode DrawMode { get; set; } = DrawMode.Normal;
         /// <remarks>Item height customization is not yet applied to the LVGL list widget.</remarks>

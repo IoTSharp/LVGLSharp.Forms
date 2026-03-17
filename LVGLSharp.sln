@@ -21,6 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Forms", "src\LVGL
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{34EF8BC5-CA73-4729-8C30-9D6541AAC6BB}"
 	ProjectSection(SolutionItems) = preProject
+		.github\copilot-instructions.md = .github\copilot-instructions.md
 		LICENSE.txt = LICENSE.txt
 		.github\workflows\nuget-publish.yml = .github\workflows\nuget-publish.yml
 		README.md = README.md

@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using LVGLSharp.Darwing;
+using LVGLSharp.Drawing;
 using LVGLSharp.Interop;
 namespace LVGLSharp.Forms
 {
@@ -4105,11 +4105,19 @@ namespace LVGLSharp.Forms
             lv_obj_set_size(obj, w, h);
             lv_obj_set_pos(obj, Location.X, Location.Y);
 
+            if (!AllowsNativeScrolling)
+            {
+                lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
+                lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+            }
+
             if (!Visible)
                 lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
 
             RegisterLvglEvents();
         }
+
+        protected virtual bool AllowsNativeScrolling => false;
 
         /// <summary>Recursively creates LVGL objects for all WinForms child controls.</summary>
         protected unsafe void CreateChildrenLvglObjects()

@@ -11,8 +11,13 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
 		<UseWindowsForms>true</UseWindowsForms>
+        <DefineConstants>$(DefineConstants);PICTUREBOXDEMO_WINFORMS</DefineConstants>
 	</PropertyGroup>
+   <ItemGroup>
+		<Compile Remove="PictureBoxExtensions.cs" />
+	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+        <Compile Include="PictureBoxExtensions.cs" />
 		<Using Include="System.Windows.Forms" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
@@ -20,10 +25,8 @@
      <ProjectReference Include="..\..\LVGLSharp.Windows\LVGLSharp.Runtime.Windows.csproj" />
 		<ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
         <Compile Include="..\DemoRuntimeConfiguration.cs" Link="DemoRuntimeConfiguration.cs" />
-     <Compile Include="..\..\LVGLSharp.Windows\buildTransitive\LVGLSharp.Runtime.Windows.ApplicationExtensions.g.cs" Link="Generated\LVGLSharp.Runtime.Windows.ApplicationExtensions.g.cs" Visible="false" />
-		<Compile Include="..\..\LVGLSharp.Runtime.Linux\buildTransitive\LVGLSharp.Runtime.Linux.ApplicationExtensions.g.cs" Link="Generated\LVGLSharp.Runtime.Linux.ApplicationExtensions.g.cs" Visible="false" />
 		<Using Include="LVGLSharp.Forms" />
-		<Using Include="LVGLSharp.Darwing" />
+       <Using Include="LVGLSharp.Drawing" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

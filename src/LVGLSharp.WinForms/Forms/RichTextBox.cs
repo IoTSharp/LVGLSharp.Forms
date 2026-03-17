@@ -5,6 +5,8 @@ namespace LVGLSharp.Forms
     /// <summary>Rich text editor backed by an LVGL textarea widget.</summary>
     public class RichTextBox : Control
     {
+        protected override bool AllowsNativeScrolling => true;
+
         public bool Multiline { get; set; } = true;
         public bool WordWrap { get; set; } = true;
         public bool ReadOnly { get; set; }

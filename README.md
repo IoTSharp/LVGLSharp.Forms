@@ -15,7 +15,7 @@
 - 🚀 **NativeAOT 支持**：支持发布为无依赖的原生可执行文件（已验证 win-x64 / linux-arm）。
 - 🌍 **跨平台**：支持 Windows（x86 / x64 / arm64）、Linux（x64 / arm / arm64）。
 - 🧩 **内置常用控件**：Button、Label、TextBox、CheckBox、RadioButton、ComboBox、ListBox、ProgressBar、TrackBar、NumericUpDown、PictureBox、Panel、GroupBox、FlowLayoutPanel、TableLayoutPanel、RichTextBox 等。
-- 🎨 **自定义绘图类型**：提供 `LVGLSharp.Darwing` 命名空间下的 `Size`、`Point`、`Color` 等类型，无需依赖 `System.Drawing`，天然跨平台。
+- 🎨 **自定义绘图类型**：提供 `LVGLSharp.Drawing` 命名空间下的 `Size`、`Point`、`Color` 等类型，无需依赖 `System.Drawing`，天然跨平台。
 
 ---
 
@@ -102,7 +102,7 @@ dotnet publish -r linux-arm64 -c Release
 src/
 ├── LVGLSharp.WinForms/     # WinForms API 兼容层（核心）
 │   ├── Forms/              # 控件实现（Control、Form、Button 等）
-│   ├── Darwing/            # 跨平台绘图类型（Size、Point、Color 等）
+│   ├── Drawing/            # 跨平台绘图类型（Size、Point、Color 等）
 │   └── Runtime/            # 公共运行时注册入口与共享胶水代码
 ├── LVGLSharp.Core/         # 公共核心库
 ├── LVGLSharp.Windows/      # Windows 平台运行时

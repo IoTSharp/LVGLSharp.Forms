@@ -1,5 +1,5 @@
 using LVGLSharp.Interop;
-using LVGLSharp.Darwing;
+using LVGLSharp.Drawing;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
@@ -220,7 +220,7 @@ namespace LVGLSharp.Forms
             }
             else
             {
-                // Regular file paths are loaded into `LVGLSharp.Darwing.Image` and then converted to an LVGL image descriptor.
+                // Regular file paths are loaded into `LVGLSharp.Drawing.Image` and then converted to an LVGL image descriptor.
                 ReleaseOwnedImage();
                 _image = Image.Load(path);
                 _ownsImage = true;

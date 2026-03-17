@@ -11,7 +11,7 @@
 	<PropertyGroup>
 		<PackageId>LVGLSharp.Runtime.Windows</PackageId>
 		<Title>LVGLSharp Windows Runtime</Title>
-		<Description>Windows host runtime for LVGLSharp.Forms.</Description>
+        <Description>Windows host runtime for LVGLSharp.</Description>
         <DefaultItemExcludes>$(DefaultItemExcludes);buildTransitive\**\*.cs</DefaultItemExcludes>
 	</PropertyGroup>
 
@@ -20,14 +20,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="buildTransitive\LVGLSharp.Runtime.Windows.targets"
-			  Pack="true"
-			  PackagePath="buildTransitive\"
-			  Visible="false" />
-		<None Include="buildTransitive\LVGLSharp.Runtime.Windows.ApplicationExtensions.g.cs"
-			  Pack="true"
-			  PackagePath="buildTransitive\"
-			  Visible="false" />
+		<PackageReference Include="System.Drawing.Common" Version="10.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="buildTransitive\" />
 	</ItemGroup>
 
 </Project>

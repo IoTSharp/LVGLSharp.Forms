@@ -11,7 +11,7 @@
 	<PropertyGroup>
 		<PackageId>LVGLSharp.Runtime.Linux</PackageId>
 		<Title>LVGLSharp Linux Runtime</Title>
-		<Description>Linux host runtime for LVGLSharp.Forms.</Description>
+      <Description>Linux host runtime for LVGLSharp.</Description>
         <DefaultItemExcludes>$(DefaultItemExcludes);buildTransitive\**\*.cs</DefaultItemExcludes>
 	</PropertyGroup>
 
@@ -20,14 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="buildTransitive\LVGLSharp.Runtime.Linux.targets"
-			  Pack="true"
-			  PackagePath="buildTransitive\"
-			  Visible="false" />
-		<None Include="buildTransitive\LVGLSharp.Runtime.Linux.ApplicationExtensions.g.cs"
-			  Pack="true"
-			  PackagePath="buildTransitive\"
-			  Visible="false" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -37,6 +30,10 @@
 		<PackagePath>contentFiles/any/any/</PackagePath>
 		<PackageCopyToOutput>true</PackageCopyToOutput>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="buildTransitive\" />
 	</ItemGroup>
 
 </Project>

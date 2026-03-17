@@ -473,10 +473,23 @@ namespace LVGLSharp.Runtime.Windows
             };
             RegisterClassEx(ref wc);
 
+            var windowRect = new RECT
+            {
+                left = 0,
+                top = 0,
+                right = Width,
+                bottom = Height,
+            };
+
+            AdjustWindowRect(ref windowRect, WS_OVERLAPPEDWINDOW, false);
+
             g_hwnd = CreateWindowExW(
                 0, "LVGLSharpWin", _title,
                 WS_OVERLAPPEDWINDOW,
-                100, 100, Width, Height,
+                100,
+                100,
+                windowRect.right - windowRect.left,
+                windowRect.bottom - windowRect.top,
                 IntPtr.Zero, IntPtr.Zero, GetModuleHandle(null), IntPtr.Zero
             );
 
@@ -508,6 +521,8 @@ namespace LVGLSharp.Runtime.Windows
             root = lv_scr_act();
             lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
             lv_obj_set_style_pad_all(root, 10, 0);
+            lv_obj_remove_flag(root, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
+            lv_obj_set_scrollbar_mode(root, LV_SCROLLBAR_MODE_OFF);
             g_focusSink = lv_obj_create(root);
             lv_obj_set_size(g_focusSink, 1, 1);
             lv_obj_add_flag(g_focusSink, lv_obj_flag_t.LV_OBJ_FLAG_HIDDEN | lv_obj_flag_t.LV_OBJ_FLAG_IGNORE_LAYOUT);

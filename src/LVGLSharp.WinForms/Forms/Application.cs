@@ -26,9 +26,27 @@ namespace LVGLSharp.Forms
             RuntimeInputState.RegisterCurrentMouseButtonProvider(currentMouseButtonProvider);
         }
 
+        /// <summary>
+        /// Registers the Windows runtime for <see cref="Run(Form)"/>.
+        /// </summary>
+        public static void UseWindowsRuntime()
+        {
+            PlatformRuntimeRegistration.RegisterWindowsRuntime();
+        }
+
+        /// <summary>
+        /// Registers the Linux runtime for <see cref="Run(Form)"/>.
+        /// </summary>
+        public static void UseLinuxRuntime()
+        {
+            PlatformRuntimeRegistration.RegisterLinuxRuntime();
+        }
+
         public static void Run(Form main)
         {
             ArgumentNullException.ThrowIfNull(main);
+
+            PlatformRuntimeRegistration.EnsureCurrentPlatformRegistered();
 
             if (_messageLoopRunning)
             {

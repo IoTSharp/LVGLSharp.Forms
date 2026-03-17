@@ -118,6 +118,9 @@ namespace LVGLSharp.Runtime.Windows
             IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
 
         [DllImport("user32.dll")]
+        public static extern bool AdjustWindowRect(ref RECT lpRect, int dwStyle, bool bMenu);
+
+        [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         [DllImport("user32.dll")]

@@ -1,11 +1,21 @@
 using LVGLSharp.Forms;
 
+#if PICTUREBOXDEMO_WINFORMS
+using System.Drawing;
+using System.Drawing.Drawing2D;
+#endif
+
 namespace PictureBoxDemo
 {
     public partial class frmPictureBoxDemo : Form
     {
-        private int _currentRotationAngle = 0;
-        private uint _currentZoom = 256; // 256 = 100%
+        private int _currentRotationAngle;
+        private uint _currentZoom = 256;
+        private bool _antiAliasEnabled = true;
+
+#if PICTUREBOXDEMO_WINFORMS
+        private Image? _winFormsOriginalImage;
+#endif
 
         public frmPictureBoxDemo()
         {
@@ -15,47 +25,48 @@ namespace PictureBoxDemo
         private void frmPictureBoxDemo_Load(object? sender, EventArgs e)
         {
             InitializePictureBox();
-            ApplyWinFormsDemoLayout();
+            ApplyLvglSharpLayout();
         }
 
         private void frmPictureBoxDemo_SizeChanged(object? sender, EventArgs e)
         {
-            ApplyWinFormsDemoLayout();
+            ApplyLvglSharpLayout();
         }
 
         private void InitializePictureBox()
         {
             picMain.SizeMode = PictureBoxSizeMode.Zoom;
-            picMain.SetAntiAlias(true);
+            ApplyPictureBoxAntiAlias(true);
             _currentZoom = 256;
             _currentRotationAngle = 0;
-            
+
             cmbSizeMode.Items.Add("Normal");
             cmbSizeMode.Items.Add("StretchImage");
             cmbSizeMode.Items.Add("AutoSize");
             cmbSizeMode.Items.Add("CenterImage");
             cmbSizeMode.Items.Add("Zoom");
             cmbSizeMode.SelectedIndex = 4;
-            
+
             lblStatus.Text = "就绪";
         }
 
-        private void ApplyWinFormsDemoLayout()
+        private void ApplyLvglSharpLayout()
         {
-            const int topRowHeight = 60;
-            const int bottomRowHeight = 60;
-            const int statusRowHeight = 30;
+            const int topRowHeight = 54;
+            const int bottomRowHeight = 52;
+            const int statusRowHeight = 24;
             const int minimumContentHeight = 180;
             const int minimumContentWidth = 180;
+            const int contentPadding = 8;
 
             int contentHeight = Math.Max(minimumContentHeight, ClientSize.Height - topRowHeight - bottomRowHeight - statusRowHeight);
             tpMain.RowStyles[1] = new RowStyle(SizeType.Absolute, contentHeight);
             tpMain.PerformLayout();
 
-            int previewWidth = Math.Max(minimumContentWidth, pnlContent.ClientSize.Width - 6);
-            int previewHeight = Math.Max(minimumContentHeight, pnlContent.ClientSize.Height - 6);
+            int previewWidth = Math.Max(minimumContentWidth, pnlContent.ClientSize.Width - (contentPadding * 2));
+            int previewHeight = Math.Max(minimumContentHeight, pnlContent.ClientSize.Height - (contentPadding * 2));
             picMain.Size = new Size(previewWidth, previewHeight);
-            lblStatus.Size = new Size(Math.Max(120, pnlStatus.ClientSize.Width - 6), lblStatus.Height);
+            lblStatus.Size = new Size(Math.Max(120, pnlStatus.ClientSize.Width - 12), lblStatus.Height);
         }
 
         private void btnLoadImage_Click(object? sender, EventArgs e)
@@ -70,15 +81,19 @@ namespace PictureBoxDemo
                 }
 
                 lblStatus.Text = "正在加载图像...";
-                
+
 #if NET10_0
                 picMain.Load(imagePath);
 #else
                 if (File.Exists(imagePath))
                 {
-                    picMain.Image?.Dispose();
+                    var previousImage = picMain.Image;
                     picMain.Image = Image.FromFile(imagePath);
-                    picMain.UpdateOriginalImage();
+
+                    if (previousImage is not null)
+                    {
+                        previousImage.Dispose();
+                    }
                 }
                 else
                 {
@@ -86,12 +101,12 @@ namespace PictureBoxDemo
                     return;
                 }
 #endif
-                
+
                 _currentRotationAngle = 0;
                 _currentZoom = 256;
-                picMain.SetRotation(_currentRotationAngle);
-                picMain.SetZoom(_currentZoom);
-                
+                CapturePictureBoxSourceImage();
+                ApplyPictureBoxTransforms();
+
                 lblStatus.Text = $"图像已加载: {imagePath}";
             }
             catch (Exception ex)
@@ -103,30 +118,38 @@ namespace PictureBoxDemo
         private void btnRotateLeft_Click(object? sender, EventArgs e)
         {
             _currentRotationAngle = (_currentRotationAngle - 90 + 360) % 360;
-            picMain.SetRotation(_currentRotationAngle);
+            ApplyPictureBoxTransforms();
             UpdateStatusLabel();
         }
 
         private void btnRotateRight_Click(object? sender, EventArgs e)
         {
             _currentRotationAngle = (_currentRotationAngle + 90) % 360;
-            picMain.SetRotation(_currentRotationAngle);
+            ApplyPictureBoxTransforms();
             UpdateStatusLabel();
         }
 
         private void btnZoomIn_Click(object? sender, EventArgs e)
         {
             _currentZoom = (uint)(_currentZoom * 1.2);
-            if (_currentZoom > 2048) _currentZoom = 2048;
-            picMain.SetZoom(_currentZoom);
+            if (_currentZoom > 2048)
+            {
+                _currentZoom = 2048;
+            }
+
+            ApplyPictureBoxTransforms();
             UpdateStatusLabel();
         }
 
         private void btnZoomOut_Click(object? sender, EventArgs e)
         {
             _currentZoom = (uint)(_currentZoom * 0.8);
-            if (_currentZoom < 64) _currentZoom = 64;
-            picMain.SetZoom(_currentZoom);
+            if (_currentZoom < 64)
+            {
+                _currentZoom = 64;
+            }
+
+            ApplyPictureBoxTransforms();
             UpdateStatusLabel();
         }
 
@@ -134,9 +157,8 @@ namespace PictureBoxDemo
         {
             _currentRotationAngle = 0;
             _currentZoom = 256;
-            picMain.SetRotation(_currentRotationAngle);
-            picMain.SetZoom(_currentZoom);
             picMain.SizeMode = PictureBoxSizeMode.Zoom;
+            ApplyPictureBoxTransforms();
             UpdateStatusLabel();
         }
 
@@ -150,16 +172,105 @@ namespace PictureBoxDemo
                 2 => PictureBoxSizeMode.AutoSize,
                 3 => PictureBoxSizeMode.CenterImage,
                 4 => PictureBoxSizeMode.Zoom,
-                _ => PictureBoxSizeMode.Zoom
+                _ => PictureBoxSizeMode.Zoom,
             };
+
             UpdateStatusLabel();
         }
 
         private void chkAntiAlias_CheckedChanged(object? sender, EventArgs e)
         {
-            picMain.SetAntiAlias(chkAntiAlias.Checked);
+            ApplyPictureBoxAntiAlias(chkAntiAlias.Checked);
             lblStatus.Text = $"抗锯齿: {(chkAntiAlias.Checked ? "开启" : "关闭")}";
         }
+
+        private void ApplyPictureBoxAntiAlias(bool enabled)
+        {
+            _antiAliasEnabled = enabled;
+            ApplyPictureBoxTransforms();
+        }
+
+        private void ApplyPictureBoxTransforms()
+        {
+#if PICTUREBOXDEMO_WINFORMS
+            if (_winFormsOriginalImage is null)
+            {
+                return;
+            }
+
+            if (_currentRotationAngle == 0 && _currentZoom == 256)
+            {
+                if (!ReferenceEquals(picMain.Image, _winFormsOriginalImage))
+                {
+                    var previousImage = picMain.Image;
+                    picMain.Image = _winFormsOriginalImage;
+
+                    if (previousImage is not null && !ReferenceEquals(previousImage, _winFormsOriginalImage))
+                    {
+                        previousImage.Dispose();
+                    }
+                }
+
+                return;
+            }
+
+            var transformedImage = CreateWinFormsTransformedImage(_winFormsOriginalImage, _currentRotationAngle, _currentZoom / 256f, _antiAliasEnabled);
+            var oldImage = picMain.Image;
+            picMain.Image = transformedImage;
+
+            if (oldImage is not null && !ReferenceEquals(oldImage, _winFormsOriginalImage))
+            {
+                oldImage.Dispose();
+            }
+#else
+            picMain.SetRotation(_currentRotationAngle);
+            picMain.SetZoom(_currentZoom);
+            picMain.SetAntiAlias(_antiAliasEnabled);
+#endif
+        }
+
+        private void CapturePictureBoxSourceImage()
+        {
+#if PICTUREBOXDEMO_WINFORMS
+            _winFormsOriginalImage?.Dispose();
+            _winFormsOriginalImage = picMain.Image is null ? null : (Image)picMain.Image.Clone();
+#endif
+        }
+
+#if PICTUREBOXDEMO_WINFORMS
+        private static Image CreateWinFormsTransformedImage(Image originalImage, int rotation, float zoom, bool antiAlias)
+        {
+            double angleRad = rotation * Math.PI / 180.0;
+            double cos = Math.Abs(Math.Cos(angleRad));
+            double sin = Math.Abs(Math.Sin(angleRad));
+
+            int newWidth = Math.Max(1, (int)Math.Ceiling((originalImage.Width * cos + originalImage.Height * sin) * zoom));
+            int newHeight = Math.Max(1, (int)Math.Ceiling((originalImage.Width * sin + originalImage.Height * cos) * zoom));
+            var bitmap = new Bitmap(newWidth, newHeight);
+
+            using var graphics = Graphics.FromImage(bitmap);
+            if (antiAlias)
+            {
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            }
+            else
+            {
+                graphics.SmoothingMode = SmoothingMode.None;
+                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                graphics.PixelOffsetMode = PixelOffsetMode.Half;
+            }
+
+            graphics.Clear(Color.Transparent);
+            graphics.TranslateTransform(newWidth / 2f, newHeight / 2f);
+            graphics.RotateTransform(rotation);
+            graphics.ScaleTransform(zoom, zoom);
+            graphics.DrawImage(originalImage, -originalImage.Width / 2f, -originalImage.Height / 2f, originalImage.Width, originalImage.Height);
+
+            return bitmap;
+        }
+#endif
 
         private void UpdateStatusLabel()
         {

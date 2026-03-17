@@ -14,6 +14,8 @@ namespace LVGLSharp.Forms
         private UndoRedoStack _undoRedoStack = new();
         private bool _isUpdatingText;
 
+        protected override bool AllowsNativeScrolling => Multiline;
+
         public bool Multiline { get; set; }
         public string? PlaceholderText { get; set; }
 
