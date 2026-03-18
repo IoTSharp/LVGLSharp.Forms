@@ -32,7 +32,7 @@
 		<ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="LVGLSharp.Native" Version="9.3.0.1" />
+		<PackageReference Include="LVGLSharp.Native" Version="9.3.0.5" />
 	</ItemGroup>
 
 </Project>

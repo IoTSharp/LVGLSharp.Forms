@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
@@ -15,16 +15,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="LVGLSharp.Native" Version="9.3.0.1" />
+		<PackageReference Include="LVGLSharp.Native" Version="9.3.0.5" />
 		<PackageReference Include="System.IO.Ports" Version="10.0.5" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
 		<ProjectReference Include="..\..\LVGLSharp.Windows\LVGLSharp.Runtime.Windows.csproj" />
 		<ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
-		<ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj"
-						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 </Project>
