@@ -5,3 +5,6 @@
 	path = libs/lv_port_linux
 	url = https://github.com/lvgl/lv_port_linux
 	branch = master
+[submodule "libs/lvgl_host_x11"]
+	path = libs/lvgl_host_x11
+	url = https://github.com/maikebing/lvgl_host_x11.git
