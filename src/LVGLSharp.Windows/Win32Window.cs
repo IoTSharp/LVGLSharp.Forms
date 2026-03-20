@@ -430,6 +430,7 @@ namespace LVGLSharp.Runtime.Windows
         }
 
         private string _title;
+        private readonly bool _borderless;
         private lv_font_t* _fallbackFont;
         private lv_font_t* _defaultFont;
         private lv_style_t* _defaultFontStyle;
@@ -440,12 +441,13 @@ namespace LVGLSharp.Runtime.Windows
         private IntPtr wndProcPtr;
         private WndProcDelegate wndProcDelegate;
 
-        public Win32Window(string title, uint width, uint height)
+        public Win32Window(string title, uint width, uint height, bool borderless = false)
         {
             bgraBuf = new byte[g_bufSize];
             _title = title;
             Width = (int)width;
             Height = (int)height;
+            _borderless = borderless;
         }
 
         public void Init()
@@ -481,11 +483,15 @@ namespace LVGLSharp.Runtime.Windows
                 bottom = Height,
             };
 
-            AdjustWindowRect(ref windowRect, WS_OVERLAPPEDWINDOW, false);
+            int windowStyle = _borderless ? WS_POPUP : WS_OVERLAPPEDWINDOW;
+            if (!_borderless)
+            {
+                AdjustWindowRect(ref windowRect, windowStyle, false);
+            }
 
             g_hwnd = CreateWindowExW(
                 0, "LVGLSharpWin", _title,
-                WS_OVERLAPPEDWINDOW,
+                windowStyle,
                 100,
                 100,
                 windowRect.right - windowRect.left,

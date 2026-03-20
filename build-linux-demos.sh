@@ -25,6 +25,7 @@ Demos:
   SerialPort
   WinFormsDemo
   PictureBoxDemo
+  MusicDemo
 
 If no demo is specified, all demos are published.
 EOF
@@ -50,6 +51,9 @@ normalize_demo() {
             ;;
         pictureboxdemo|PictureBoxDemo)
             printf 'PictureBoxDemo'
+            ;;
+        musicdemo|MusicDemo)
+            printf 'MusicDemo'
             ;;
         *)
             return 1
@@ -91,7 +95,7 @@ while (($# > 0)); do
 done
 
 if ((${#DEMO_NAMES[@]} == 0)); then
-    DEMO_NAMES=(SerialPort WinFormsDemo PictureBoxDemo)
+    DEMO_NAMES=(SerialPort WinFormsDemo PictureBoxDemo MusicDemo)
 fi
 
 require_cmd cmake

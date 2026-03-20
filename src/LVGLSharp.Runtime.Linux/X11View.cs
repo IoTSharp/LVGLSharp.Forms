@@ -18,6 +18,7 @@ public unsafe partial class X11View : IWindow
     private const int ZPixmap = 2;
     private const int PropModeReplace = 0;
     private const int XUtf8StringStyle = 4;
+    private const int MotifHintsDecorations = 1 << 1;
 
     private const int Button1 = 1;
     private const int Button4 = 4;
@@ -65,6 +66,16 @@ public unsafe partial class X11View : IWindow
         public nuint encoding;
         public int format;
         public nuint nitems;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MotifWmHints
+    {
+        public uint flags;
+        public uint functions;
+        public uint decorations;
+        public int inputMode;
+        public uint status;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -322,6 +333,7 @@ public unsafe partial class X11View : IWindow
     private readonly int _height;
     private readonly float _dpi;
     private readonly string? _requestedDisplayName;
+    private readonly bool _borderless;
 
     private IntPtr _display;
     private int _screen;
@@ -352,13 +364,14 @@ public unsafe partial class X11View : IWindow
     private lv_style_t* _defaultFontStyle;
     private SixLaborsFontManager? _fontManager;
 
-    public X11View(string title = "LVGLSharp X11", int width = 800, int height = 600, float dpi = 96f, string? displayName = null)
+    public X11View(string title = "LVGLSharp X11", int width = 800, int height = 600, float dpi = 96f, string? displayName = null, bool borderless = false)
     {
         _title = title;
         _width = width;
         _height = height;
         _dpi = dpi;
         _requestedDisplayName = displayName;
+        _borderless = borderless;
     }
 
     public static lv_obj_t* root { get; private set; }
@@ -607,7 +620,7 @@ public unsafe partial class X11View : IWindow
 
         _screen = XDefaultScreen(_display);
         var rootWindow = XRootWindow(_display, _screen);
-        _window = XCreateSimpleWindow(_display, rootWindow, 10, 10, (uint)_width, (uint)_height, 1, 0, 0);
+        _window = XCreateSimpleWindow(_display, rootWindow, 10, 10, (uint)_width, (uint)_height, _borderless ? 0u : 1u, 0, 0);
         if (_window == 0)
         {
             throw new InvalidOperationException("X11 窗口创建失败。");
@@ -615,6 +628,7 @@ public unsafe partial class X11View : IWindow
 
         _wmDeleteWindow = XInternAtom(_display, "WM_DELETE_WINDOW", False);
         SetWindowTitleUtf8(_title);
+        ApplyWindowChrome();
         XSetWMProtocols(_display, _window, ref _wmDeleteWindow, 1);
         XSelectInput(
             _display,
@@ -656,6 +670,42 @@ public unsafe partial class X11View : IWindow
 
         XMapWindow(_display, _window);
         XFlush(_display);
+    }
+
+    private void ApplyWindowChrome()
+    {
+        if (!_borderless || _display == IntPtr.Zero || _window == 0)
+        {
+            return;
+        }
+
+        var motifHintsAtom = XInternAtom(_display, "_MOTIF_WM_HINTS", False);
+        if (motifHintsAtom == 0)
+        {
+            return;
+        }
+
+        var hints = new MotifWmHints
+        {
+            flags = MotifHintsDecorations,
+            functions = 0,
+            decorations = 0,
+            inputMode = 0,
+            status = 0,
+        };
+
+        unsafe
+        {
+            XChangeProperty(
+                _display,
+                _window,
+                motifHintsAtom,
+                motifHintsAtom,
+                32,
+                PropModeReplace,
+                (IntPtr)(&hints),
+                5);
+        }
     }
 
     private void InitializeLvgl()

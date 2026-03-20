@@ -10,14 +10,16 @@ internal static class DemoRuntimeConfiguration
     {
         if (OperatingSystem.IsWindows())
         {
-            Application.UseRuntime(static (title, width, height) => new Win32Window(title, (uint)width, (uint)height), static () => Win32Window.CurrentMouseButton);
+            Application.UseRuntime(
+                static options => new Win32Window(options.Title, (uint)options.Width, (uint)options.Height, options.Borderless),
+                static () => Win32Window.CurrentMouseButton);
             Image.RegisterFactory(static path => new WindowsImageSource(path));
             return;
         }
 
         if (OperatingSystem.IsLinux())
         {
-            Application.UseRuntime(static (title, width, height) => new LinuxView(title, width, height));
+            Application.UseRuntime(static options => new LinuxView(options.Title, options.Width, options.Height, borderless: options.Borderless));
             Image.RegisterFactory(static path => new LinuxImageSource(path));
             return;
         }

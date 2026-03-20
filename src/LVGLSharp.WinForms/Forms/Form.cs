@@ -17,6 +17,8 @@ namespace LVGLSharp.Forms
 
         public event EventHandler? Load;
 
+        public FormBorderStyle FormBorderStyle { get; set; } = FormBorderStyle.Sizable;
+
         public static lv_obj_t* root { get; set; }
         public static lv_group_t* key_inputGroup { get; set; }
         public static delegate* unmanaged[Cdecl]<lv_event_t*, void> SendTextAreaFocusCb { get; set; } = null;
@@ -53,7 +55,8 @@ namespace LVGLSharp.Forms
             Height = displayHeight;
             Size = new Size(displayWidth, displayHeight);
 
-            _window = WindowHostFactory.Create(Text, displayWidth, displayHeight);
+            var windowOptions = new WindowCreateOptions(Text, displayWidth, displayHeight, FormBorderStyle == FormBorderStyle.None);
+            _window = WindowHostFactory.Create(windowOptions);
             _window.Init();
 
             root = _window.Root;
@@ -146,7 +149,6 @@ namespace LVGLSharp.Forms
         public AutoScaleMode AutoScaleMode { get; set; }
     }
 }
-
 
 
 

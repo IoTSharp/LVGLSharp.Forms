@@ -90,9 +90,10 @@ namespace LVGLSharp.Runtime.Windows
     {
         public const int WM_MOUSEWHEEL = 0x020A;
         public const int WHEEL_DELTA = 120;
-          public const int CFS_POINT = 0x0002;
+        public const int CFS_POINT = 0x0002;
 
         public const int WS_OVERLAPPEDWINDOW = 0xcf0000;
+        public const int WS_POPUP = unchecked((int)0x80000000);
         public const int WM_DESTROY = 0x0002;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]

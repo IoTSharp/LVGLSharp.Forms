@@ -18,7 +18,7 @@ public unsafe class LinuxView : IWindow
     private readonly LinuxViewMode _mode;
 
     public LinuxView(string title = "LVGLSharp Linux", int width = 800, int height = 600, float dpi = 96f,
-        string fbdev = "/dev/fb0", string indev = "/dev/input/event0")
+        string fbdev = "/dev/fb0", string indev = "/dev/input/event0", bool borderless = false)
     {
         var detectedDisplay = DetectX11Display();
         _mode = detectedDisplay switch
@@ -31,7 +31,7 @@ public unsafe class LinuxView : IWindow
         _inner = _mode switch
         {
             LinuxViewMode.FrameBuffer => new FrameBufferView(fbdev, indev, dpi),
-            LinuxViewMode.X11 => new X11View(title, width, height, dpi, detectedDisplay),
+            LinuxViewMode.X11 => new X11View(title, width, height, dpi, detectedDisplay, borderless),
             _ => throw new InvalidOperationException($"Unsupported Linux view mode: {_mode}"),
         };
     }

@@ -47,7 +47,7 @@ namespace PictureBoxDemo
             cmbSizeMode.Items.Add("Zoom");
             cmbSizeMode.SelectedIndex = 4;
 
-            lblStatus.Text = "就绪";
+            InitializeSampleImages();
         }
 
         private void ApplyLvglSharpLayout()
@@ -73,7 +73,7 @@ namespace PictureBoxDemo
         {
             try
             {
-                string imagePath = txtImagePath.Text.Trim();
+                string imagePath = ResolveImagePath(txtImagePath.Text.Trim());
                 if (string.IsNullOrEmpty(imagePath))
                 {
                     lblStatus.Text = "请输入图像路径";
@@ -113,6 +113,95 @@ namespace PictureBoxDemo
             {
                 lblStatus.Text = $"加载失败: {ex.Message}";
             }
+        }
+
+        private void InitializeSampleImages()
+        {
+            string? defaultPreviewPath = ResolveSampleImagePath("lvgl128x128.png");
+            string? defaultInputPath = ResolveSampleImagePath("lvgl64x64.png");
+
+            if (!string.IsNullOrWhiteSpace(defaultInputPath))
+            {
+                txtImagePath.Text = ToDisplayPath(defaultInputPath);
+            }
+
+            if (string.IsNullOrWhiteSpace(defaultPreviewPath))
+            {
+                lblStatus.Text = "就绪";
+                return;
+            }
+
+            try
+            {
+                picMain.Load(defaultPreviewPath);
+                _currentRotationAngle = 0;
+                _currentZoom = 256;
+                CapturePictureBoxSourceImage();
+                ApplyPictureBoxTransforms();
+                lblStatus.Text = $"默认图像已加载: {Path.GetFileName(defaultPreviewPath)}";
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = $"默认图像加载失败: {ex.Message}";
+            }
+        }
+
+        private static string ResolveImagePath(string imagePath)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath))
+            {
+                return string.Empty;
+            }
+
+            if (Path.IsPathRooted(imagePath))
+            {
+                return imagePath;
+            }
+
+            return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, imagePath));
+        }
+
+        private static string ToDisplayPath(string absolutePath)
+        {
+            string relativePath = Path.GetRelativePath(AppContext.BaseDirectory, absolutePath);
+            return string.IsNullOrWhiteSpace(relativePath) ? absolutePath : relativePath;
+        }
+
+        private static string? ResolveSampleImagePath(string fileName)
+        {
+            string[] localCandidates =
+            [
+                Path.Combine(AppContext.BaseDirectory, "Assets", fileName),
+                Path.Combine(AppContext.BaseDirectory, fileName),
+            ];
+
+            foreach (string candidate in localCandidates)
+            {
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            string currentDirectory = AppContext.BaseDirectory;
+            for (int depth = 0; depth < 8; depth++)
+            {
+                string candidate = Path.Combine(currentDirectory, "src", "Share", fileName);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+
+                string? parentDirectory = Directory.GetParent(currentDirectory)?.FullName;
+                if (string.IsNullOrWhiteSpace(parentDirectory))
+                {
+                    break;
+                }
+
+                currentDirectory = parentDirectory;
+            }
+
+            return null;
         }
 
         private void btnRotateLeft_Click(object? sender, EventArgs e)
@@ -279,4 +368,3 @@ namespace PictureBoxDemo
         }
     }
 }
-

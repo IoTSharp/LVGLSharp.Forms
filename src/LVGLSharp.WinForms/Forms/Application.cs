@@ -23,6 +23,16 @@ namespace LVGLSharp.Forms
         {
             ArgumentNullException.ThrowIfNull(windowFactory);
 
+            UseRuntime(options => windowFactory(options.Title, options.Width, options.Height), currentMouseButtonProvider);
+        }
+
+        /// <summary>
+        /// Registers the platform runtime used by <see cref="Run(Form)"/>.
+        /// </summary>
+        public static void UseRuntime(Func<WindowCreateOptions, IWindow> windowFactory, Func<uint>? currentMouseButtonProvider = null)
+        {
+            ArgumentNullException.ThrowIfNull(windowFactory);
+
             WindowHostFactory.Register(windowFactory);
             RuntimeInputState.RegisterCurrentMouseButtonProvider(currentMouseButtonProvider);
         }
