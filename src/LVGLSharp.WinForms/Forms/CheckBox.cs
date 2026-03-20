@@ -112,5 +112,20 @@ namespace LVGLSharp.Forms
             Checked = !Checked;
             base.OnClick(e);
         }
+
+        protected override unsafe void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+
+            if (_lvglObjectHandle == nint.Zero)
+            {
+                return;
+            }
+
+            fixed (byte* ptr = ToUtf8(Text))
+            {
+                lv_checkbox_set_text((lv_obj_t*)_lvglObjectHandle, ptr);
+            }
+        }
     }
 }

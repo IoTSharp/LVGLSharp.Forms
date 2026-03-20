@@ -170,5 +170,39 @@ namespace LVGLSharp.Forms
                     lv_dropdown_set_text(obj, ptr);
             }
         }
+
+        protected override void DispatchLvglEvent(lv_event_code_t code)
+        {
+            if (code == LV_EVENT_VALUE_CHANGED)
+            {
+                SyncSelectionFromLvgl();
+                return;
+            }
+
+            base.DispatchLvglEvent(code);
+        }
+
+        private unsafe void SyncSelectionFromLvgl()
+        {
+            if (_lvglObjectHandle == nint.Zero)
+            {
+                return;
+            }
+
+            int selectedIndex = (int)lv_dropdown_get_selected((lv_obj_t*)_lvglObjectHandle);
+            if (selectedIndex < 0 || selectedIndex >= _items.Count)
+            {
+                selectedIndex = -1;
+            }
+
+            if (_selectedIndex == selectedIndex)
+            {
+                return;
+            }
+
+            _selectedIndex = selectedIndex;
+            _selectedItem = _selectedIndex >= 0 && _selectedIndex < _items.Count ? _items[_selectedIndex] : null;
+            OnSelectedIndexChanged(EventArgs.Empty);
+        }
     }
 }

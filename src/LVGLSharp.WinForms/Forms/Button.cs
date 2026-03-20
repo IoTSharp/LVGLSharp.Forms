@@ -24,5 +24,26 @@ namespace LVGLSharp.Forms
             ApplyLvglProperties();
             CreateChildrenLvglObjects();
         }
+
+        protected override unsafe void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+
+            if (_lvglObjectHandle == nint.Zero)
+            {
+                return;
+            }
+
+            var labelObj = lv_obj_get_child((lv_obj_t*)_lvglObjectHandle, 0);
+            if (labelObj == null)
+            {
+                return;
+            }
+
+            fixed (byte* ptr = ToUtf8(Text))
+            {
+                lv_label_set_text(labelObj, ptr);
+            }
+        }
     }
 }

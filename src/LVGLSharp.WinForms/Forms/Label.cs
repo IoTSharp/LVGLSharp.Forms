@@ -21,6 +21,21 @@ namespace LVGLSharp.Forms
             CreateChildrenLvglObjects();
         }
 
+        protected override unsafe void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+
+            if (_lvglObjectHandle == nint.Zero)
+            {
+                return;
+            }
+
+            fixed (byte* ptr = ToUtf8(Text))
+            {
+                lv_label_set_text((lv_obj_t*)_lvglObjectHandle, ptr);
+            }
+        }
+
         private static lv_text_align_t ToLvglTextAlign(ContentAlignment alignment)
         {
             return alignment switch

@@ -32,6 +32,7 @@
  
 	<ItemGroup>
 	  <PackageReference Include="System.Drawing.Common" Version="10.0.5" />
+	  <PackageReference Include="System.IO.Ports" Version="10.0.5" />
 	  <PackageReference Include="System.Resources.Extensions" Version="10.0.5" />
 	</ItemGroup>
  
@@ -39,7 +40,12 @@
 	  <Folder Include="Properties\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Include="..\..\Share\lvgl.png">
+	    <Link>Assets\lvgl.png</Link>
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 </Project>
-
-
 

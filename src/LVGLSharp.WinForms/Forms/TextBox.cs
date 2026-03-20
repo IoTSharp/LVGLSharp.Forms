@@ -13,6 +13,7 @@ namespace LVGLSharp.Forms
         private GCHandle _mouseEventGcHandle;
         private UndoRedoStack _undoRedoStack = new();
         private bool _isUpdatingText;
+        private bool _isSyncingFromLvgl;
 
         protected override bool AllowsNativeScrolling => Multiline;
 
@@ -229,7 +230,12 @@ namespace LVGLSharp.Forms
                 unsafe
                 {
                     fixed (byte* ptr = ToUtf8(Text ?? string.Empty))
+                    {
                         lv_textarea_set_text((lv_obj_t*)_lvglObjectHandle, ptr);
+                    }
+
+                    int cursorPosition = Math.Clamp(_selectionStart, 0, Text?.Length ?? 0);
+                    lv_textarea_set_cursor_pos((lv_obj_t*)_lvglObjectHandle, cursorPosition);
                 }
             }
         }
@@ -380,6 +386,58 @@ namespace LVGLSharp.Forms
                         Redo();
                         break;
                 }
+            }
+        }
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+
+            if (_lvglObjectHandle == IntPtr.Zero || _isSyncingFromLvgl)
+            {
+                return;
+            }
+
+            UpdateLvglText();
+        }
+
+        protected override void DispatchLvglEvent(lv_event_code_t code)
+        {
+            if (code == LV_EVENT_VALUE_CHANGED)
+            {
+                SyncTextFromLvgl();
+                return;
+            }
+
+            base.DispatchLvglEvent(code);
+        }
+
+        private unsafe void SyncTextFromLvgl()
+        {
+            if (_lvglObjectHandle == IntPtr.Zero)
+            {
+                return;
+            }
+
+            string lvglText = Marshal.PtrToStringUTF8((nint)lv_textarea_get_text((lv_obj_t*)_lvglObjectHandle)) ?? string.Empty;
+            int cursorPosition = (int)lv_textarea_get_cursor_pos((lv_obj_t*)_lvglObjectHandle);
+
+            _selectionStart = Math.Clamp(cursorPosition, 0, lvglText.Length);
+            _selectionLength = 0;
+
+            if (string.Equals(Text, lvglText, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _isSyncingFromLvgl = true;
+            try
+            {
+                Text = lvglText;
+            }
+            finally
+            {
+                _isSyncingFromLvgl = false;
             }
         }
 

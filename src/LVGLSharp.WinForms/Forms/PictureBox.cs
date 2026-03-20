@@ -201,6 +201,7 @@ namespace LVGLSharp.Forms
                 return;
 
             ArgumentNullException.ThrowIfNull(path);
+            _imageLocation = path;
 
             // Use LVGL's file system directly when the path targets an LVGL-mounted drive.
             if (path.StartsWith("A:", StringComparison.Ordinal) || 

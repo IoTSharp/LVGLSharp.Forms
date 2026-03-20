@@ -47,7 +47,7 @@ namespace PictureBoxDemo
             cmbSizeMode.Items.Add("Zoom");
             cmbSizeMode.SelectedIndex = 4;
 
-            lblStatus.Text = "¾ÍĞ÷";
+            lblStatus.Text = "å°±ç»ª";
         }
 
         private void ApplyLvglSharpLayout()
@@ -76,11 +76,11 @@ namespace PictureBoxDemo
                 string imagePath = txtImagePath.Text.Trim();
                 if (string.IsNullOrEmpty(imagePath))
                 {
-                    lblStatus.Text = "ÇëÊäÈëÍ¼ÏñÂ·¾¶";
+                    lblStatus.Text = "è¯·è¾“å…¥å›¾åƒè·¯å¾„";
                     return;
                 }
 
-                lblStatus.Text = "ÕıÔÚ¼ÓÔØÍ¼Ïñ...";
+                lblStatus.Text = "æ­£åœ¨åŠ è½½å›¾åƒ...";
 
 #if NET10_0
                 picMain.Load(imagePath);
@@ -97,7 +97,7 @@ namespace PictureBoxDemo
                 }
                 else
                 {
-                    lblStatus.Text = $"ÎÄ¼ş²»´æÔÚ: {imagePath}";
+                    lblStatus.Text = $"æ–‡ä»¶ä¸å­˜åœ¨: {imagePath}";
                     return;
                 }
 #endif
@@ -107,11 +107,11 @@ namespace PictureBoxDemo
                 CapturePictureBoxSourceImage();
                 ApplyPictureBoxTransforms();
 
-                lblStatus.Text = $"Í¼ÏñÒÑ¼ÓÔØ: {imagePath}";
+                lblStatus.Text = $"å›¾åƒå·²åŠ è½½: {imagePath}";
             }
             catch (Exception ex)
             {
-                lblStatus.Text = $"¼ÓÔØÊ§°Ü: {ex.Message}";
+                lblStatus.Text = $"åŠ è½½å¤±è´¥: {ex.Message}";
             }
         }
 
@@ -181,7 +181,7 @@ namespace PictureBoxDemo
         private void chkAntiAlias_CheckedChanged(object? sender, EventArgs e)
         {
             ApplyPictureBoxAntiAlias(chkAntiAlias.Checked);
-            lblStatus.Text = $"¿¹¾â³İ: {(chkAntiAlias.Checked ? "¿ªÆô" : "¹Ø±Õ")}";
+            lblStatus.Text = $"æŠ—é”¯é½¿: {(chkAntiAlias.Checked ? "å¼€å¯" : "å…³é—­")}";
         }
 
         private void ApplyPictureBoxAntiAlias(bool enabled)
@@ -275,7 +275,7 @@ namespace PictureBoxDemo
         private void UpdateStatusLabel()
         {
             int zoomPercent = (int)(_currentZoom * 100 / 256);
-            lblStatus.Text = $"Ä£Ê½: {picMain.SizeMode} | Ğı×ª: {_currentRotationAngle}¡ã | Ëõ·Å: {zoomPercent}% | ¿¹¾â³İ: {(chkAntiAlias.Checked ? "¿ªÆô" : "¹Ø±Õ")}";
+            lblStatus.Text = $"æ¨¡å¼: {picMain.SizeMode} | æ—‹è½¬: {_currentRotationAngle}Â° | ç¼©æ”¾: {zoomPercent}% | æŠ—é”¯é½¿: {(chkAntiAlias.Checked ? "å¼€å¯" : "å…³é—­")}";
         }
     }
 }
