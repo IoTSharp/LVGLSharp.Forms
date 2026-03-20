@@ -57,13 +57,18 @@ namespace LVGLSharp
         private static IEnumerable<string> GetCandidatePaths()
         {
             var baseDirectory = AppContext.BaseDirectory;
-            var fileName = GetLibraryFileName();
 
-            yield return Path.Combine(baseDirectory, fileName);
+            foreach (var fileName in GetLibraryFileNames())
+            {
+                yield return Path.Combine(baseDirectory, fileName);
+            }
 
             foreach (var runtimeIdentifier in GetCandidateRuntimeIdentifiers())
             {
-                yield return Path.Combine(baseDirectory, "runtimes", runtimeIdentifier, "native", fileName);
+                foreach (var fileName in GetLibraryFileNames())
+                {
+                    yield return Path.Combine(baseDirectory, "runtimes", runtimeIdentifier, "native", fileName);
+                }
             }
         }
 
@@ -92,19 +97,24 @@ namespace LVGLSharp
             }
         }
 
-        private static string GetLibraryFileName()
+        private static IEnumerable<string> GetLibraryFileNames()
         {
             if (OperatingSystem.IsWindows())
             {
-                return "lvgl.dll";
+                yield return "lvgl.dll";
+                yield break;
             }
 
             if (OperatingSystem.IsLinux())
             {
-                return "liblvgl.so";
+                // Prefer the versioned SONAME so we reuse the exact same LVGL image
+                // already pulled in by liblvgl_host_x11.so and avoid double-loading.
+                yield return "liblvgl.so.9";
+                yield return "liblvgl.so";
+                yield break;
             }
 
-            return NativeLibraryName;
+            yield return NativeLibraryName;
         }
     }
 }
