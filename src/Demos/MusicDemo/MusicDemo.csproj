@@ -18,10 +18,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="..\..\..\libs\lvgl\demos\music\screenshot1.gif" Link="Assets\screenshot1.gif" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
 	</ItemGroup>
 
