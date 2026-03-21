@@ -69,6 +69,7 @@ public unsafe sealed class WaylandView : IView
             return;
         }
 
+        _window.InitializeSurface(_connection);
         _initialized = true;
         _connection.ThrowIfDisposed();
         throw CreateNativeHostNotImplementedException();
@@ -105,8 +106,8 @@ public unsafe sealed class WaylandView : IView
     }
 
     public override string ToString() => _fallbackView is null
-        ? $"{_diagnosticSummary}, Mode=WaylandSkeleton, Connected={_connection.IsConnected}"
-        : $"{_diagnosticSummary}, Mode=X11Fallback, Connected={_connection.IsConnected}";
+        ? $"{_diagnosticSummary}, Mode=WaylandSkeleton, Connected={_connection.IsConnected}, Compositor={_connection.HasCompositor}, Shm={_connection.HasSharedMemory}, XdgWmBase={_connection.HasXdgWmBase}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}"
+        : $"{_diagnosticSummary}, Mode=X11Fallback, Connected={_connection.IsConnected}, Compositor={_connection.HasCompositor}, Shm={_connection.HasSharedMemory}, XdgWmBase={_connection.HasXdgWmBase}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}";
 
     private IView GetActiveView()
     {
@@ -126,6 +127,6 @@ public unsafe sealed class WaylandView : IView
     private InvalidOperationException CreateNativeHostNotImplementedException()
     {
         return new InvalidOperationException(
-            $"Wayland native host is not implemented yet. {_connection.DiagnosticSummary}, Connected={_connection.IsConnected}, ConnectedDisplay={_connection.ConnectedDisplayName ?? "<default>"}, Window={_window.Title}({_window.Width}x{_window.Height}), Pointer={_inputSource.SupportsPointer}, Keyboard={_inputSource.SupportsKeyboard}, TextInput={_inputSource.SupportsTextInput}, Surface={_bufferPresenter.PixelWidth}x{_bufferPresenter.PixelHeight}@{_bufferPresenter.Dpi:0.##}dpi");
+            $"Wayland native host is not implemented yet. {_connection.DiagnosticSummary}, Connected={_connection.IsConnected}, ConnectedDisplay={_connection.ConnectedDisplayName ?? "<default>"}, Compositor={_connection.HasCompositor}:{_connection.CompositorVersion}, Shm={_connection.HasSharedMemory}:{_connection.SharedMemoryVersion}, XdgWmBase={_connection.HasXdgWmBase}:{_connection.XdgWmBaseVersion}, Window={_window.Title}({_window.Width}x{_window.Height}), SurfaceReady={_window.HasSurfacePrerequisites}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgReady={_window.HasXdgShellPrerequisites}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, WindowInit={_window.InitializationSummary ?? "<pending>"}, Pointer={_inputSource.SupportsPointer}, Keyboard={_inputSource.SupportsKeyboard}, TextInput={_inputSource.SupportsTextInput}, Surface={_bufferPresenter.PixelWidth}x{_bufferPresenter.PixelHeight}@{_bufferPresenter.Dpi:0.##}dpi");
     }
 }
