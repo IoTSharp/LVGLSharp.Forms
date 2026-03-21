@@ -1,4 +1,6 @@
-﻿using LVGLSharp.Interop;
+﻿using System;
+using LVGLSharp.Drawing;
+using LVGLSharp.Interop;
 
 namespace LVGLSharp.Forms
 {
@@ -17,7 +19,7 @@ namespace LVGLSharp.Forms
             {
                 lv_obj_set_style_text_align(obj, ToLvglTextAlign(TextAlign), 0);
             }
-            ApplyLvglProperties();
+            ApplyPassiveLvglProperties(obj);
             CreateChildrenLvglObjects();
         }
 
@@ -44,6 +46,35 @@ namespace LVGLSharp.Forms
                 ContentAlignment.TopRight or ContentAlignment.MiddleRight or ContentAlignment.BottomRight => LV_TEXT_ALIGN_RIGHT,
                 _ => LV_TEXT_ALIGN_LEFT,
             };
+        }
+
+        private unsafe void ApplyPassiveLvglProperties(lv_obj_t* obj)
+        {
+            int width = Size.Width > 0 ? Size.Width : LV_SIZE_CONTENT;
+            int height = Size.Height > 0 ? Size.Height : LV_SIZE_CONTENT;
+            lv_obj_set_size(obj, width, height);
+            lv_obj_set_pos(obj, Location.X, Location.Y);
+
+            if (BackColor != Color.Empty)
+            {
+                lv_obj_set_style_bg_opa(obj, (byte)LV_OPA_COVER, 0);
+                lv_obj_set_style_bg_color(obj, lv_color_make(BackColor.R, BackColor.G, BackColor.B), 0);
+            }
+
+            if (ForeColor != Color.Empty)
+            {
+                lv_obj_set_style_text_color(obj, lv_color_make(ForeColor.R, ForeColor.G, ForeColor.B), 0);
+            }
+
+            lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
+            lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+
+            if (!Visible)
+            {
+                lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+            }
+
+            OnHandleCreated(EventArgs.Empty);
         }
     }
 }

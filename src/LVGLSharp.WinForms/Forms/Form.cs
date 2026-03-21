@@ -69,7 +69,10 @@ namespace LVGLSharp.Forms
             OnHandleCreated(EventArgs.Empty);
             Application.RegisterOpenForm(this);
 
-            CreateChildrenLvglObjects();
+            foreach (var child in Controls)
+            {
+                child.CreateLvglObject(_lvglObjectHandle);
+            }
             OnLoad(EventArgs.Empty);
 
             if (root != null)
@@ -103,7 +106,11 @@ namespace LVGLSharp.Forms
                 return;
             }
 
-            _window.StartLoop(handle ?? (() => { }));
+            _window.StartLoop(() =>
+            {
+                handle?.Invoke();
+                OnMessageLoopIteration();
+            });
             Application.UnregisterOpenForm(this);
         }
 
@@ -144,14 +151,13 @@ namespace LVGLSharp.Forms
             Height = ClientSize.Height;
         }
 
+        protected internal virtual void OnMessageLoopIteration()
+        {
+        }
+
         public SizeF AutoScaleDimensions { get; set; }
 
         public AutoScaleMode AutoScaleMode { get; set; }
     }
 }
-
-
-
-
-
 
