@@ -13,7 +13,7 @@ namespace MusicWinFromsDemo
             DemoRuntimeConfiguration.Configure();
 #endif
 
-            Application.Run(new frmMusicWinFromsDemo());
+            Application.Run(new frmMusicDemo());
         }
     }
 }

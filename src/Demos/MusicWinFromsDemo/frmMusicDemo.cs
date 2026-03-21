@@ -12,7 +12,7 @@ using DrawingColor = System.Drawing.Color;
 
 namespace MusicWinFromsDemo;
 
-public sealed class frmMusicWinFromsDemo : Form
+public sealed class frmMusicDemo : Form
 {
     private readonly record struct TrackInfo(
         string Title,
@@ -83,7 +83,7 @@ public sealed class frmMusicWinFromsDemo : Form
     private int _currentTrackIndex;
     private int _currentSecond;
 
-    public frmMusicWinFromsDemo()
+    public frmMusicDemo()
     {
         InitializeComponent();
     }

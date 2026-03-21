@@ -33,9 +33,17 @@ function Get-DemoTargetFramework {
         "WinFormsDemo" { return "net10.0-windows" }
         "PictureBoxDemo" { return "net10.0-windows" }
         "MusicDemo" { return "net10.0-windows" }
-        "MusicWinFromsDemo" { return "net10.0-windows" }
         "SmartWatchDemo" { return "net10.0-windows" }
         default { return "net10.0" }
+    }
+}
+
+function Get-DemoProjectPath {
+    param([string]$DemoName)
+
+    switch ($DemoName) {
+        "MusicDemo" { return (Join-Path $rootDir "src/Demos/MusicWinFromsDemo/MusicDemo.csproj") }
+        default { return (Join-Path $rootDir "src/Demos/$DemoName/$DemoName.csproj") }
     }
 }
 
@@ -47,7 +55,6 @@ function Normalize-Demo {
         "winformsdemo" { return "WinFormsDemo" }
         "pictureboxdemo" { return "PictureBoxDemo" }
         "musicdemo" { return "MusicDemo" }
-        "musicwinfromsdemo" { return "MusicWinFromsDemo" }
         "smartwatchdemo" { return "SmartWatchDemo" }
         default { return $null }
     }
@@ -58,7 +65,6 @@ $allDemos = @(
     "WinFormsDemo",
     "PictureBoxDemo",
     "MusicDemo",
-    "MusicWinFromsDemo",
     "SmartWatchDemo"
 )
 
@@ -143,7 +149,7 @@ if (-not $lvglDll) {
 function Publish-Demo {
     param([string]$DemoName)
 
-    $projectPath = Join-Path $rootDir "src/Demos/$DemoName/$DemoName.csproj"
+    $projectPath = Get-DemoProjectPath $DemoName
     $publishDir = Join-Path $distDir $DemoName
     $executablePath = Join-Path $publishDir "$DemoName.exe"
     $targetFramework = Get-DemoTargetFramework $DemoName

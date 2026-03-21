@@ -47,9 +47,12 @@ The following screenshots show an application published with NativeAOT for win-x
 
 | Package | Description |
 |---------|-------------|
-| `LVGLSharp.Forms` | WinForms API compatibility layer (core package) |
+| `LVGLSharp.Forms` | WinForms API compatibility layer |
+| `LVGLSharp.Core` | Shared runtime abstractions and common font/host helper capabilities |
+| `LVGLSharp.Runtime.Windows` | Windows platform runtime |
+| `LVGLSharp.Runtime.Linux` | Linux platform runtime |
 | `LVGLSharp.Interop` | LVGL P/Invoke bindings (auto-generated) |
-| `LVGLSharp.Native` | Platform-native LVGL libraries (win-x64, linux-arm, etc.) |
+| `LVGLSharp.Native` | Platform-native LVGL libraries (win-x86 / win-x64 / win-arm64, linux-arm, etc.) |
 
 ---
 
@@ -57,18 +60,56 @@ The following screenshots show an application published with NativeAOT for win-x
 
 ### 1. Create a Project
 
-Create a Windows Forms App (.NET) in Visual Studio, then replace the `System.Windows.Forms` reference with `LVGLSharp.Forms`.
+Use the same multi-target pattern as the demos in this repository:
+
+- use `UseWindowsForms=true` on the `net10.0-windows` target so it stays on the standard WinForms path
+- use `UseLVGLSharpForms=true` on the `net10.0` target so it uses the `LVGLSharp.Forms` path
+
+Whether a target uses WinForms or `LVGLSharp.Forms` must be decided only by `UseWindowsForms` and `UseLVGLSharpForms`, not by OS symbols such as `WINDOWS`.
+
+Typical project configuration:
+
+```xml
+<PropertyGroup>
+  <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+  <UseWindowsForms>true</UseWindowsForms>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+  <UseLVGLSharpForms>true</UseLVGLSharpForms>
+  <PublishAot>true</PublishAot>
+</PropertyGroup>
+```
+
+On the `UseLVGLSharpForms=true` target:
+
+- reference `LVGLSharp.Forms`
+- reference `LVGLSharp.Runtime.Windows`
+- reference `LVGLSharp.Runtime.Linux`
+- register the runtime explicitly before `Application.Run(...)` by calling a helper that wraps `Application.UseRuntime(...)` and `Image.RegisterFactory(...)` (the demos use `DemoRuntimeConfiguration.Configure()`)
+
+See [`src/Demos/PictureBoxDemo/PictureBoxDemo.csproj`](./src/Demos/PictureBoxDemo/PictureBoxDemo.csproj).
 
 ### 2. Entry Point
 
-```csharp
-using LVGLSharp.Forms;
+The `UseWindowsForms=true` target does not require any `LVGLSharp` runtime registration.
 
-Application.SetHighDpiMode(HighDpiMode.SystemAware);
-Application.EnableVisualStyles();
-Application.SetCompatibleTextRenderingDefault(false);
+The `UseLVGLSharpForms=true` target must register the runtime before `Application.Run(...)`. The recommended pattern is to wrap that in a shared helper, like the demos do:
+
+```csharp
+ApplicationConfiguration.Initialize();
+
+#if LVGLSHARP_FORMS
+DemoRuntimeConfiguration.Configure();
+#endif
+
 Application.Run(new frmMain());
 ```
+
+Inside `DemoRuntimeConfiguration.Configure()`, the `LVGLSharp.Forms` path detects the current runtime platform (Windows or Linux) and selects the matching LVGL host and image implementation.
 
 ### 3. Run on Linux
 
@@ -76,6 +117,18 @@ Publish using NativeAOT:
 
 ```bash
 dotnet publish -r linux-arm64 -c Release
+```
+
+Windows publish example:
+
+```powershell
+dotnet publish -f net10.0-windows -r win-x64 -c Release
+```
+
+Linux / `LVGLSharp.Forms` publish example:
+
+```bash
+dotnet publish -f net10.0 -r linux-x64 -c Release
 ```
 
 ---
@@ -86,13 +139,19 @@ dotnet publish -r linux-arm64 -c Release
 src/
 ├── LVGLSharp.WinForms/     # WinForms API compatibility layer (core)
 │   ├── Forms/              # Control implementations (Control, Form, Button, etc.)
-│   ├── Darwing/            # Cross-platform drawing types (Size, Point, Color, etc.)
-│   └── Runtime/            # Platform runtime (Windows / Linux)
+│   ├── Drawing/            # Cross-platform drawing types (Size, Point, Color, etc.)
+│   └── Runtime/            # Shared runtime registration glue and host integration
 ├── LVGLSharp.Interop/      # LVGL P/Invoke auto-generated bindings
 ├── LVGLSharp.Native/       # Platform-native libraries
 ├── LVGLSharp.Core/         # Shared core library
+├── LVGLSharp.Windows/      # Windows platform runtime
+├── LVGLSharp.Runtime.Linux/# Linux platform runtime
 └── Demos/
-    └── WinFormsDemo/       # Demo application
+    ├── WinFormsDemo/       # Baseline WinForms / LVGLSharp.Forms comparison demo
+    ├── PictureBoxDemo/     # PictureBox demo
+    ├── MusicWinFromsDemo/  # MusicDemo demo application
+    ├── SmartWatchDemo/     # SmartWatch UI demo
+    └── SerialPort/         # SerialPort demo application
 libs/
 └── lvgl/                   # LVGL source code (submodule)
 ```

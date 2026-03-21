@@ -167,7 +167,11 @@ src/
 ├── LVGLSharp.Interop/      # LVGL P/Invoke 自动生成绑定
 ├── LVGLSharp.Native/       # 各平台原生库
 └── Demos/
-    └── WinFormsDemo/       # 演示项目
+    ├── WinFormsDemo/       # 基础 WinForms / LVGLSharp.Forms 对照演示
+    ├── PictureBoxDemo/     # PictureBox 控件演示
+    ├── MusicWinFromsDemo/  # MusicDemo 演示项目
+    ├── SmartWatchDemo/     # SmartWatch 界面演示
+    └── SerialPort/         # SerialPort 演示项目
 libs/
 └── lvgl/                   # LVGL 源码（submodule）
 ```

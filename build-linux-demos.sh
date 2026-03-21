@@ -26,7 +26,6 @@ Demos:
   WinFormsDemo
   PictureBoxDemo
   MusicDemo
-  MusicWinFromsDemo
   SmartWatchDemo
 
 If no demo is specified, all demos are published.
@@ -35,11 +34,22 @@ EOF
 
 get_demo_target_framework() {
     case "$1" in
-        SerialPort|WinFormsDemo|PictureBoxDemo|MusicDemo|MusicWinFromsDemo|SmartWatchDemo)
+        SerialPort|WinFormsDemo|PictureBoxDemo|MusicDemo|SmartWatchDemo)
             printf 'net10.0'
             ;;
         *)
             fail "no target framework mapping for demo: $1"
+            ;;
+    esac
+}
+
+get_demo_project_path() {
+    case "$1" in
+        MusicDemo)
+            printf '%s' "$ROOT_DIR/src/Demos/MusicWinFromsDemo/MusicDemo.csproj"
+            ;;
+        *)
+            printf '%s' "$ROOT_DIR/src/Demos/$1/$1.csproj"
             ;;
     esac
 }
@@ -67,9 +77,6 @@ normalize_demo() {
             ;;
         musicdemo|MusicDemo)
             printf 'MusicDemo'
-            ;;
-        musicwinfromsdemo|MusicWinFromsDemo)
-            printf 'MusicWinFromsDemo'
             ;;
         smartwatchdemo|SmartWatchDemo)
             printf 'SmartWatchDemo'
@@ -114,7 +121,7 @@ while (($# > 0)); do
 done
 
 if ((${#DEMO_NAMES[@]} == 0)); then
-    DEMO_NAMES=(SerialPort WinFormsDemo PictureBoxDemo MusicDemo MusicWinFromsDemo SmartWatchDemo)
+    DEMO_NAMES=(SerialPort WinFormsDemo PictureBoxDemo MusicDemo SmartWatchDemo)
 fi
 
 require_cmd cmake
@@ -153,12 +160,13 @@ cmake --build "$LVGL_BUILD_DIR" -j"$JOBS"
 
 publish_demo() {
     local demo_name="$1"
-    local project_path="$ROOT_DIR/src/Demos/$demo_name/$demo_name.csproj"
+    local project_path
     local publish_dir="$DIST_DIR/$demo_name"
     local executable_path="$publish_dir/$demo_name"
     local target_framework
 
     target_framework="$(get_demo_target_framework "$demo_name")"
+    project_path="$(get_demo_project_path "$demo_name")"
 
     [[ -f "$project_path" ]] || fail "missing demo project: $project_path"
 

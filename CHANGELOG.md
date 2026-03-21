@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - 无。
 
 ### 变更 / Changed
-- 无。
+- 无
 
 ### 修复 / Fixed
 - 无。
