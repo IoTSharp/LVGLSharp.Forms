@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace LVGLSharp.Runtime.Linux;
 
-internal unsafe sealed class WaylandInputSource : IDisposable
+internal unsafe sealed partial class WaylandInputSource : IDisposable
 {
     private const uint SeatCapabilityPointer = 1u;
     private const uint SeatCapabilityKeyboard = 2u;
@@ -20,6 +20,11 @@ internal unsafe sealed class WaylandInputSource : IDisposable
 
     private uint _lastKey;
     private bool _keyPressed;
+    private bool _shiftPressed;
+    private bool _capsLockEnabled;
+
+    [LibraryImport("libc", EntryPoint = "close")]
+    private static partial int Close(int fd);
 
     private static readonly WaylandNative.WlSeatListener s_seatListener = new(&HandleSeatCapabilities, &HandleSeatName);
     private static readonly WaylandNative.WlPointerListener s_pointerListener = new(&HandlePointerEnter, &HandlePointerLeave, &HandlePointerMotion, &HandlePointerButton, &HandlePointerAxis);
@@ -29,7 +34,7 @@ internal unsafe sealed class WaylandInputSource : IDisposable
 
     public bool SupportsKeyboard => true;
 
-    public bool SupportsTextInput => false;
+    public bool SupportsTextInput => true;
 
     public (int X, int Y) CurrentMousePosition { get; private set; }
 
@@ -100,6 +105,8 @@ internal unsafe sealed class WaylandInputSource : IDisposable
         CurrentMouseButton = 0;
         _lastKey = 0;
         _keyPressed = false;
+        _shiftPressed = false;
+        _capsLockEnabled = false;
         IsDisposed = true;
     }
 
@@ -151,6 +158,7 @@ internal unsafe sealed class WaylandInputSource : IDisposable
             _keyboard = IntPtr.Zero;
             _lastKey = 0;
             _keyPressed = false;
+            _shiftPressed = false;
         }
     }
 
@@ -166,8 +174,29 @@ internal unsafe sealed class WaylandInputSource : IDisposable
 
     private void UpdateKeyboardState(uint key, uint state)
     {
-        _lastKey = MapLinuxKeyCodeToLvKey(key);
-        _keyPressed = state != 0 && _lastKey != 0;
+        var isPressed = state != 0;
+
+        switch (key)
+        {
+            case 42 or 54:
+                _shiftPressed = isPressed;
+                _lastKey = 0;
+                _keyPressed = false;
+                return;
+            case 58 when isPressed:
+                _capsLockEnabled = !_capsLockEnabled;
+                _lastKey = 0;
+                _keyPressed = false;
+                return;
+        }
+
+        _lastKey = MapLinuxKeyCodeToLvKey(key, _shiftPressed, _capsLockEnabled);
+        _keyPressed = isPressed && _lastKey != 0;
+
+        if (!isPressed && _lastKey == 0)
+        {
+            _keyPressed = false;
+        }
     }
 
     private static uint MapPointerButton(uint button)
@@ -181,14 +210,27 @@ internal unsafe sealed class WaylandInputSource : IDisposable
         };
     }
 
-    private static uint MapLinuxKeyCodeToLvKey(uint keyCode)
+    private static uint MapLinuxKeyCodeToLvKey(uint keyCode, bool shiftPressed, bool capsLockEnabled)
     {
+        var uppercase = shiftPressed ^ capsLockEnabled;
+
         return keyCode switch
         {
             28 => (uint)LV_KEY_ENTER,
             1 => (uint)LV_KEY_ESC,
             14 => (uint)LV_KEY_BACKSPACE,
             15 => (uint)LV_KEY_NEXT,
+            43 => shiftPressed ? (uint)'|' : (uint)'\\',
+            12 => shiftPressed ? (uint)'_' : (uint)'-',
+            13 => shiftPressed ? (uint)'+' : (uint)'=',
+            26 => shiftPressed ? (uint)'{' : (uint)'[',
+            27 => shiftPressed ? (uint)'}' : (uint)']',
+            39 => shiftPressed ? (uint)':' : (uint)';',
+            40 => shiftPressed ? (uint)'"' : (uint)'\'',
+            41 => shiftPressed ? (uint)'~' : (uint)'`',
+            51 => shiftPressed ? (uint)'<' : (uint)',',
+            52 => shiftPressed ? (uint)'>' : (uint)'.',
+            53 => shiftPressed ? (uint)'?' : (uint)'/',
             102 => (uint)LV_KEY_HOME,
             107 => (uint)LV_KEY_END,
             111 => (uint)LV_KEY_DEL,
@@ -197,7 +239,83 @@ internal unsafe sealed class WaylandInputSource : IDisposable
             103 => (uint)LV_KEY_UP,
             108 => (uint)LV_KEY_DOWN,
             57 => (uint)' ',
-            >= 2 and <= 11 => (uint)(keyCode == 11 ? '0' : '1' + (keyCode - 2)),
+            >= 2 and <= 11 => MapDigitKey(keyCode, shiftPressed),
+            >= 16 and <= 25 => MapTopRowLetterKey(keyCode, uppercase),
+            >= 30 and <= 38 => MapMiddleRowLetterKey(keyCode, uppercase),
+            >= 44 and <= 50 => MapBottomRowLetterKey(keyCode, uppercase),
+            _ => 0,
+        };
+    }
+
+    private static uint MapDigitKey(uint keyCode, bool shiftPressed)
+    {
+        return (keyCode, shiftPressed) switch
+        {
+            (2, true) => (uint)'!',
+            (3, true) => (uint)'@',
+            (4, true) => (uint)'#',
+            (5, true) => (uint)'$',
+            (6, true) => (uint)'%',
+            (7, true) => (uint)'^',
+            (8, true) => (uint)'&',
+            (9, true) => (uint)'*',
+            (10, true) => (uint)'(',
+            (11, true) => (uint)')',
+            _ => (uint)(keyCode == 11 ? '0' : '1' + (keyCode - 2)),
+        };
+    }
+
+    private static uint MapLetterKey(char baseChar, bool uppercase)
+    {
+        return uppercase ? (uint)char.ToUpperInvariant(baseChar) : (uint)baseChar;
+    }
+
+    private static uint MapTopRowLetterKey(uint keyCode, bool uppercase)
+    {
+        return keyCode switch
+        {
+            16 => MapLetterKey('q', uppercase),
+            17 => MapLetterKey('w', uppercase),
+            18 => MapLetterKey('e', uppercase),
+            19 => MapLetterKey('r', uppercase),
+            20 => MapLetterKey('t', uppercase),
+            21 => MapLetterKey('y', uppercase),
+            22 => MapLetterKey('u', uppercase),
+            23 => MapLetterKey('i', uppercase),
+            24 => MapLetterKey('o', uppercase),
+            25 => MapLetterKey('p', uppercase),
+            _ => 0,
+        };
+    }
+
+    private static uint MapMiddleRowLetterKey(uint keyCode, bool uppercase)
+    {
+        return keyCode switch
+        {
+            30 => MapLetterKey('a', uppercase),
+            31 => MapLetterKey('s', uppercase),
+            32 => MapLetterKey('d', uppercase),
+            33 => MapLetterKey('f', uppercase),
+            34 => MapLetterKey('g', uppercase),
+            35 => MapLetterKey('h', uppercase),
+            36 => MapLetterKey('j', uppercase),
+            37 => MapLetterKey('k', uppercase),
+            38 => MapLetterKey('l', uppercase),
+            _ => 0,
+        };
+    }
+
+    private static uint MapBottomRowLetterKey(uint keyCode, bool uppercase)
+    {
+        return keyCode switch
+        {
+            44 => MapLetterKey('z', uppercase),
+            45 => MapLetterKey('x', uppercase),
+            46 => MapLetterKey('c', uppercase),
+            47 => MapLetterKey('v', uppercase),
+            48 => MapLetterKey('b', uppercase),
+            49 => MapLetterKey('n', uppercase),
+            50 => MapLetterKey('m', uppercase),
             _ => 0,
         };
     }
@@ -268,6 +386,10 @@ internal unsafe sealed class WaylandInputSource : IDisposable
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void HandleKeyboardKeymap(IntPtr data, IntPtr keyboard, uint format, int fileDescriptor, uint size)
     {
+        if (fileDescriptor >= 0)
+        {
+            _ = Close(fileDescriptor);
+        }
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]

@@ -1,5 +1,6 @@
 using LVGLSharp.Interop;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace LVGLSharp.Runtime.Linux;
@@ -20,6 +21,9 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
     private string? _sharedMemoryName;
     private byte* _drawBuffer;
     private uint _drawBufferByteSize;
+    private GCHandle _bufferListenerStateHandle;
+
+    private static readonly WaylandNative.WlBufferListener s_bufferListener = new(&HandleBufferRelease);
 
     [LibraryImport("libc", EntryPoint = "shm_open", StringMarshalling = StringMarshalling.Utf8)]
     private static partial int ShmOpen(string name, int oflag, uint mode);
@@ -44,11 +48,12 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
         PixelWidth = pixelWidth;
         PixelHeight = pixelHeight;
         Dpi = dpi;
+        IsBufferReleased = true;
     }
 
-    public int PixelWidth { get; }
+    public int PixelWidth { get; private set; }
 
-    public int PixelHeight { get; }
+    public int PixelHeight { get; private set; }
 
     public float Dpi { get; }
 
@@ -57,6 +62,12 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
     public uint DrawBufferByteSize => _drawBufferByteSize;
 
     public IntPtr SharedMemoryBuffer => _sharedMemoryBuffer;
+
+    public bool IsBufferReleased { get; private set; }
+
+    public uint BufferReleaseCount { get; private set; }
+
+    public uint SkippedFlushCount { get; private set; }
 
     public uint FlushCount { get; private set; }
 
@@ -74,17 +85,7 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
     {
         ThrowIfDisposed();
 
-        if (_drawBuffer != null)
-        {
-            return;
-        }
-
-        _drawBufferByteSize = checked((uint)(PixelWidth * PixelHeight * sizeof(ushort)));
-        _drawBuffer = (byte*)NativeMemory.AllocZeroed((nuint)_drawBufferByteSize);
-        if (_drawBuffer == null)
-        {
-            throw new OutOfMemoryException("Wayland draw buffer allocation failed.");
-        }
+        EnsureDrawBuffer();
     }
 
     public void InitializeSharedMemory(WaylandDisplayConnection connection)
@@ -124,11 +125,40 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
 
             _sharedMemoryPool = WaylandNative.CreateSharedMemoryPool(sharedMemoryProxy, _sharedMemoryFileDescriptor, sharedMemorySize);
             _sharedMemoryBuffer = WaylandNative.CreateSharedMemoryBuffer(_sharedMemoryPool, PixelWidth, PixelHeight, _stride);
+            AttachBufferReleaseListener();
+            IsBufferReleased = true;
         }
         finally
         {
             WaylandNative.DestroyProxy(sharedMemoryProxy);
         }
+    }
+
+    public bool ResizeIfNeeded(WaylandDisplayConnection connection, int pixelWidth, int pixelHeight)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        ThrowIfDisposed();
+
+        if (pixelWidth <= 0 || pixelHeight <= 0)
+        {
+            return false;
+        }
+
+        if (pixelWidth == PixelWidth && pixelHeight == PixelHeight)
+        {
+            return false;
+        }
+
+        ReleaseSharedMemoryResources();
+        ReleaseDrawBuffer();
+
+        PixelWidth = pixelWidth;
+        PixelHeight = pixelHeight;
+
+        Initialize();
+        InitializeSharedMemory(connection);
+        return true;
     }
 
     public void Flush(lv_display_t* display, lv_area_t* area, IntPtr surfaceProxy)
@@ -143,6 +173,13 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
 
         FlushCount++;
 
+        if (!IsBufferReleased)
+        {
+            SkippedFlushCount++;
+            lv_display_flush_ready(display);
+            return;
+        }
+
         if (_sharedMemory != IntPtr.Zero && area != null)
         {
             CopyRgb565ToXrgb8888(area);
@@ -153,9 +190,48 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
             WaylandNative.AttachBuffer(surfaceProxy, _sharedMemoryBuffer, 0, 0);
             WaylandNative.DamageBuffer(surfaceProxy, area->x1, area->y1, LastFlushWidth, LastFlushHeight);
             WaylandNative.CommitSurface(surfaceProxy);
+            IsBufferReleased = false;
         }
 
         lv_display_flush_ready(display);
+    }
+
+    private void EnsureDrawBuffer()
+    {
+        if (_drawBuffer != null)
+        {
+            return;
+        }
+
+        _drawBufferByteSize = checked((uint)(PixelWidth * PixelHeight * sizeof(ushort)));
+        _drawBuffer = (byte*)NativeMemory.AllocZeroed((nuint)_drawBufferByteSize);
+        if (_drawBuffer == null)
+        {
+            throw new OutOfMemoryException("Wayland draw buffer allocation failed.");
+        }
+    }
+
+    private void AttachBufferReleaseListener()
+    {
+        if (_sharedMemoryBuffer == IntPtr.Zero)
+        {
+            throw new InvalidOperationException("Wayland shared memory buffer is not ready for release listener attachment.");
+        }
+
+        if (!_bufferListenerStateHandle.IsAllocated)
+        {
+            _bufferListenerStateHandle = GCHandle.Alloc(this);
+        }
+
+        var listenerState = GCHandle.ToIntPtr(_bufferListenerStateHandle);
+        fixed (WaylandNative.WlBufferListener* bufferListener = &s_bufferListener)
+        {
+            var result = WaylandNative.AddBufferListener(_sharedMemoryBuffer, bufferListener, listenerState);
+            if (result != 0)
+            {
+                throw new InvalidOperationException("Unable to attach Wayland wl_buffer listener.");
+            }
+        }
     }
 
     private void CopyRgb565ToXrgb8888(lv_area_t* area)
@@ -196,6 +272,27 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
 
     public void Dispose()
     {
+        ReleaseSharedMemoryResources();
+        ReleaseDrawBuffer();
+
+        if (_bufferListenerStateHandle.IsAllocated)
+        {
+            _bufferListenerStateHandle.Free();
+        }
+
+        _stride = 0;
+        _drawBufferByteSize = 0;
+        FlushCount = 0;
+        BufferReleaseCount = 0;
+        SkippedFlushCount = 0;
+        IsBufferReleased = true;
+        LastFlushWidth = 0;
+        LastFlushHeight = 0;
+        IsDisposed = true;
+    }
+
+    private void ReleaseSharedMemoryResources()
+    {
         if (_sharedMemory != IntPtr.Zero)
         {
             _ = Munmap(_sharedMemory, (nuint)checked(_stride * PixelHeight));
@@ -219,17 +316,30 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
             _sharedMemoryName = null;
         }
 
+        IsBufferReleased = true;
+    }
+
+    private void ReleaseDrawBuffer()
+    {
         if (_drawBuffer != null)
         {
             NativeMemory.Free(_drawBuffer);
             _drawBuffer = null;
         }
 
-        _stride = 0;
         _drawBufferByteSize = 0;
-        FlushCount = 0;
-        LastFlushWidth = 0;
-        LastFlushHeight = 0;
-        IsDisposed = true;
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void HandleBufferRelease(IntPtr data, IntPtr buffer)
+    {
+        var handle = GCHandle.FromIntPtr(data);
+        if (handle.Target is not WaylandBufferPresenter presenter)
+        {
+            return;
+        }
+
+        presenter.IsBufferReleased = true;
+        presenter.BufferReleaseCount++;
     }
 }

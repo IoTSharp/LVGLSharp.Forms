@@ -57,6 +57,8 @@ internal sealed unsafe class WaylandWindow : IDisposable
 
     public bool IsCloseRequested { get; private set; }
 
+    public bool HasPendingResize { get; private set; }
+
     public int LastConfiguredWidth { get; private set; }
 
     public int LastConfiguredHeight { get; private set; }
@@ -162,10 +164,28 @@ internal sealed unsafe class WaylandWindow : IDisposable
         LastConfigureSerial = 0;
         LastPingSerial = 0;
         IsCloseRequested = false;
+        HasPendingResize = false;
         LastConfiguredWidth = 0;
         LastConfiguredHeight = 0;
         InitializationSummary = null;
         IsDisposed = true;
+    }
+
+    public bool TryConsumePendingResize(out int width, out int height)
+    {
+        ThrowIfDisposed();
+
+        if (!HasPendingResize)
+        {
+            width = 0;
+            height = 0;
+            return false;
+        }
+
+        width = LastConfiguredWidth;
+        height = LastConfiguredHeight;
+        HasPendingResize = false;
+        return width > 0 && height > 0;
     }
 
     private void EnsureShellListenersAttached()
@@ -260,6 +280,7 @@ internal sealed unsafe class WaylandWindow : IDisposable
 
         window.LastConfiguredWidth = width;
         window.LastConfiguredHeight = height;
+        window.HasPendingResize = width > 0 && height > 0;
         window.UpdateInitializationSummary();
     }
 

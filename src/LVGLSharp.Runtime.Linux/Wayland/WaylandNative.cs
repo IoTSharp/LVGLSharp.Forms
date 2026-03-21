@@ -48,6 +48,17 @@ internal static unsafe partial class WaylandNative
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct WlBufferListener
+    {
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void> Release;
+
+        public WlBufferListener(delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void> release)
+        {
+            Release = release;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     internal readonly struct WlSeatListener
     {
         public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, void> Capabilities;
@@ -176,6 +187,9 @@ internal static unsafe partial class WaylandNative
 
     [LibraryImport(WaylandClientLib, EntryPoint = "wl_proxy_add_listener")]
     private static partial int WlProxyAddKeyboardListener(IntPtr proxy, WlKeyboardListener* implementation, IntPtr data);
+
+    [LibraryImport(WaylandClientLib, EntryPoint = "wl_proxy_add_listener")]
+    private static partial int WlProxyAddBufferListener(IntPtr proxy, WlBufferListener* implementation, IntPtr data);
 
     internal static IntPtr BindGlobal(IntPtr registryProxy, WaylandGlobalInfo globalInfo, string interfaceSymbolName)
     {
@@ -504,6 +518,16 @@ internal static unsafe partial class WaylandNative
         }
 
         return WlProxyAddKeyboardListener(keyboardProxy, listener, data);
+    }
+
+    internal static int AddBufferListener(IntPtr bufferProxy, WlBufferListener* listener, IntPtr data)
+    {
+        if (bufferProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_buffer proxy cannot be zero.", nameof(bufferProxy));
+        }
+
+        return WlProxyAddBufferListener(bufferProxy, listener, data);
     }
 
     internal static void DestroyProxy(IntPtr proxy)
