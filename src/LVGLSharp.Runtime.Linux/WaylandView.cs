@@ -84,6 +84,8 @@ public unsafe sealed class WaylandView : IView
 
         InitializeLvgl();
         _window.InitializeSurface(_connection);
+        _bufferPresenter.InitializeSharedMemory(_connection);
+        _inputSource.Initialize(_connection);
         _connection.PumpEvents();
         s_activeView = this;
         _running = true;
@@ -118,6 +120,13 @@ public unsafe sealed class WaylandView : IView
         while (_running)
         {
             ProcessEvents();
+
+            if (_window.IsCloseRequested)
+            {
+                Stop();
+                break;
+            }
+
             handle?.Invoke();
             Thread.Sleep(5);
         }
@@ -178,12 +187,12 @@ public unsafe sealed class WaylandView : IView
 
     public override string ToString() => _fallbackView is null
         ? $"{_diagnosticSummary}, Mode=WaylandSkeleton, Connected={_connection.IsConnected}, Compositor={_connection.HasCompositor}, Shm={_connection.HasSharedMemory}, XdgWmBase={_connection.HasXdgWmBase}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}"
-        : $"{_diagnosticSummary}, Mode=X11Fallback, Connected={_connection.IsConnected}, Compositor={_connection.HasCompositor}, Shm={_connection.HasSharedMemory}, XdgWmBase={_connection.HasXdgWmBase}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}";
+        : $"{_diagnosticSummary}, Mode=X11Fallback, Connected={_connection.IsConnected}, Compositor={_connection.HasCompositor}, Shm={_connection.HasSharedMemory}, XdgWmBase={_connection.HasXdgWmBase}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}, ShmBuffer={_bufferPresenter.HasSharedMemoryBuffer}, Seat={_connection.HasSeat}:{_connection.SeatVersion}";
 
     private InvalidOperationException CreateNativeHostNotImplementedException()
     {
         return new InvalidOperationException(
-            $"Wayland native host is not implemented yet. {_connection.DiagnosticSummary}, Connected={_connection.IsConnected}, ConnectedDisplay={_connection.ConnectedDisplayName ?? "<default>"}, Compositor={_connection.HasCompositor}:{_connection.CompositorVersion}, Shm={_connection.HasSharedMemory}:{_connection.SharedMemoryVersion}, XdgWmBase={_connection.HasXdgWmBase}:{_connection.XdgWmBaseVersion}, Window={_window.Title}({_window.Width}x{_window.Height}), SurfaceReady={_window.HasSurfacePrerequisites}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgReady={_window.HasXdgShellPrerequisites}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}, WindowInit={_window.InitializationSummary ?? "<pending>"}, Pointer={_inputSource.SupportsPointer}, Keyboard={_inputSource.SupportsKeyboard}, TextInput={_inputSource.SupportsTextInput}, Surface={_bufferPresenter.PixelWidth}x{_bufferPresenter.PixelHeight}@{_bufferPresenter.Dpi:0.##}dpi, LvDisplay={_lvDisplay != null}, Root={_root != null}, KeyGroup={_keyInputGroup != null}, Flushes={_bufferPresenter.FlushCount}:{_bufferPresenter.LastFlushWidth}x{_bufferPresenter.LastFlushHeight}");
+            $"Wayland native host is not implemented yet. {_connection.DiagnosticSummary}, Connected={_connection.IsConnected}, ConnectedDisplay={_connection.ConnectedDisplayName ?? "<default>"}, Compositor={_connection.HasCompositor}:{_connection.CompositorVersion}, Shm={_connection.HasSharedMemory}:{_connection.SharedMemoryVersion}, XdgWmBase={_connection.HasXdgWmBase}:{_connection.XdgWmBaseVersion}, Seat={_connection.HasSeat}:{_connection.SeatVersion}, Window={_window.Title}({_window.Width}x{_window.Height}), SurfaceReady={_window.HasSurfacePrerequisites}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgReady={_window.HasXdgShellPrerequisites}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}, WindowInit={_window.InitializationSummary ?? "<pending>"}, Pointer={_inputSource.SupportsPointer}:{_inputSource.CurrentMouseButton}@{_inputSource.CurrentMousePosition.X},{_inputSource.CurrentMousePosition.Y}, Keyboard={_inputSource.SupportsKeyboard}:{_inputSource.CurrentKey}:{_inputSource.IsKeyPressed}, TextInput={_inputSource.SupportsTextInput}, Surface={_bufferPresenter.PixelWidth}x{_bufferPresenter.PixelHeight}@{_bufferPresenter.Dpi:0.##}dpi, LvDisplay={_lvDisplay != null}, Root={_root != null}, KeyGroup={_keyInputGroup != null}, ShmBuffer={_bufferPresenter.HasSharedMemoryBuffer}, Flushes={_bufferPresenter.FlushCount}:{_bufferPresenter.LastFlushWidth}x{_bufferPresenter.LastFlushHeight}");
     }
 
     private void InitializeLvgl()
@@ -268,7 +277,15 @@ public unsafe sealed class WaylandView : IView
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void KeyboardReadCb(lv_indev_t* indev, lv_indev_data_t* data)
     {
-        data->key = 0;
-        data->state = LV_INDEV_STATE_REL;
+        var view = s_activeView;
+        if (view is null)
+        {
+            data->key = 0;
+            data->state = LV_INDEV_STATE_REL;
+            return;
+        }
+
+        data->key = view._inputSource.CurrentKey;
+        data->state = view._inputSource.IsKeyPressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
     }
 }

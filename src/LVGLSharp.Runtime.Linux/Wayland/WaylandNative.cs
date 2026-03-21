@@ -6,8 +6,10 @@ namespace LVGLSharp.Runtime.Linux;
 internal static unsafe partial class WaylandNative
 {
     private const string WaylandClientLib = "libwayland-client.so.0";
+    private const uint WlShmFormatXrgb8888 = 1;
 
     private static IntPtr s_waylandClientHandle;
+    private static IntPtr s_seatInterface;
     private static IntPtr s_xdgWmBaseInterface;
     private static IntPtr s_xdgSurfaceInterface;
     private static IntPtr s_xdgToplevelInterface;
@@ -42,6 +44,83 @@ internal static unsafe partial class WaylandNative
         public XdgWmBaseListener(delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, void> ping)
         {
             Ping = ping;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct WlSeatListener
+    {
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, void> Capabilities;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> Name;
+
+        public WlSeatListener(
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, void> capabilities,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> name)
+        {
+            Capabilities = capabilities;
+            Name = name;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct WlPointerListener
+    {
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, int, int, void> Enter;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, void> Leave;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, int, int, void> Motion;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, void> Button;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, int, void> Axis;
+        public readonly IntPtr Frame;
+        public readonly IntPtr AxisSource;
+        public readonly IntPtr AxisStop;
+        public readonly IntPtr AxisDiscrete;
+        public readonly IntPtr AxisValue120;
+        public readonly IntPtr AxisRelativeDirection;
+
+        public WlPointerListener(
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, int, int, void> enter,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, void> leave,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, int, int, void> motion,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, void> button,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, int, void> axis)
+        {
+            Enter = enter;
+            Leave = leave;
+            Motion = motion;
+            Button = button;
+            Axis = axis;
+            Frame = IntPtr.Zero;
+            AxisSource = IntPtr.Zero;
+            AxisStop = IntPtr.Zero;
+            AxisDiscrete = IntPtr.Zero;
+            AxisValue120 = IntPtr.Zero;
+            AxisRelativeDirection = IntPtr.Zero;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly struct WlKeyboardListener
+    {
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, int, uint, void> Keymap;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, IntPtr, void> Enter;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, void> Leave;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, void> Key;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, uint, void> Modifiers;
+        public readonly IntPtr RepeatInfo;
+
+        public WlKeyboardListener(
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, int, uint, void> keymap,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, IntPtr, void> enter,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, void> leave,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, void> key,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, uint, void> modifiers)
+        {
+            Keymap = keymap;
+            Enter = enter;
+            Leave = leave;
+            Key = key;
+            Modifiers = modifiers;
+            RepeatInfo = IntPtr.Zero;
         }
     }
 
@@ -88,6 +167,15 @@ internal static unsafe partial class WaylandNative
 
     [LibraryImport(WaylandClientLib, EntryPoint = "wl_proxy_add_listener")]
     private static partial int WlProxyAddXdgToplevelListener(IntPtr proxy, XdgToplevelListener* implementation, IntPtr data);
+
+    [LibraryImport(WaylandClientLib, EntryPoint = "wl_proxy_add_listener")]
+    private static partial int WlProxyAddSeatListener(IntPtr proxy, WlSeatListener* implementation, IntPtr data);
+
+    [LibraryImport(WaylandClientLib, EntryPoint = "wl_proxy_add_listener")]
+    private static partial int WlProxyAddPointerListener(IntPtr proxy, WlPointerListener* implementation, IntPtr data);
+
+    [LibraryImport(WaylandClientLib, EntryPoint = "wl_proxy_add_listener")]
+    private static partial int WlProxyAddKeyboardListener(IntPtr proxy, WlKeyboardListener* implementation, IntPtr data);
 
     internal static IntPtr BindGlobal(IntPtr registryProxy, WaylandGlobalInfo globalInfo, string interfaceSymbolName)
     {
@@ -146,6 +234,16 @@ internal static unsafe partial class WaylandNative
     internal static IntPtr BindXdgWmBase(IntPtr registryProxy, WaylandGlobalInfo globalInfo)
     {
         return BindGlobal(registryProxy, globalInfo, GetOrCreateXdgWmBaseInterface());
+    }
+
+    internal static IntPtr BindSharedMemory(IntPtr registryProxy, WaylandGlobalInfo globalInfo)
+    {
+        return BindGlobal(registryProxy, globalInfo, "wl_shm_interface", 1u);
+    }
+
+    internal static IntPtr BindSeat(IntPtr registryProxy, WaylandGlobalInfo globalInfo)
+    {
+        return BindGlobal(registryProxy, globalInfo, GetOrCreateSeatInterface(), 1u);
     }
 
     internal static IntPtr CreateXdgSurface(IntPtr xdgWmBaseProxy, IntPtr surfaceProxy)
@@ -257,6 +355,157 @@ internal static unsafe partial class WaylandNative
         _ = WlProxyMarshalArrayFlags(surfaceProxy, 6u, IntPtr.Zero, proxyVersion, 0u, null);
     }
 
+    internal static IntPtr CreateSharedMemoryPool(IntPtr sharedMemoryProxy, int fileDescriptor, int size)
+    {
+        if (sharedMemoryProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_shm proxy cannot be zero.", nameof(sharedMemoryProxy));
+        }
+
+        WlArgument* arguments = stackalloc WlArgument[3];
+        arguments[0].N = 0;
+        arguments[1].H = fileDescriptor;
+        arguments[2].I = size;
+
+        var proxyVersion = WlProxyGetVersion(sharedMemoryProxy);
+        var poolProxy = WlProxyMarshalArrayFlags(sharedMemoryProxy, 0u, GetRequiredInterfaceSymbol("wl_shm_pool_interface"), proxyVersion, 0u, arguments);
+        if (poolProxy == IntPtr.Zero)
+        {
+            throw new InvalidOperationException("Unable to create Wayland wl_shm_pool.");
+        }
+
+        return poolProxy;
+    }
+
+    internal static IntPtr CreateSharedMemoryBuffer(IntPtr poolProxy, int width, int height, int stride)
+    {
+        if (poolProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_shm_pool proxy cannot be zero.", nameof(poolProxy));
+        }
+
+        WlArgument* arguments = stackalloc WlArgument[7];
+        arguments[0].N = 0;
+        arguments[1].I = 0;
+        arguments[2].I = width;
+        arguments[3].I = height;
+        arguments[4].I = stride;
+        arguments[5].U = WlShmFormatXrgb8888;
+        arguments[6].N = 0;
+
+        var proxyVersion = WlProxyGetVersion(poolProxy);
+        var bufferProxy = WlProxyMarshalArrayFlags(poolProxy, 0u, GetRequiredInterfaceSymbol("wl_buffer_interface"), proxyVersion, 0u, arguments);
+        if (bufferProxy == IntPtr.Zero)
+        {
+            throw new InvalidOperationException("Unable to create Wayland wl_buffer.");
+        }
+
+        return bufferProxy;
+    }
+
+    internal static void AttachBuffer(IntPtr surfaceProxy, IntPtr bufferProxy, int x, int y)
+    {
+        if (surfaceProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_surface proxy cannot be zero.", nameof(surfaceProxy));
+        }
+
+        WlArgument* arguments = stackalloc WlArgument[3];
+        arguments[0].O = bufferProxy;
+        arguments[1].I = x;
+        arguments[2].I = y;
+
+        var proxyVersion = WlProxyGetVersion(surfaceProxy);
+        _ = WlProxyMarshalArrayFlags(surfaceProxy, 1u, IntPtr.Zero, proxyVersion, 0u, arguments);
+    }
+
+    internal static void DamageBuffer(IntPtr surfaceProxy, int x, int y, int width, int height)
+    {
+        if (surfaceProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_surface proxy cannot be zero.", nameof(surfaceProxy));
+        }
+
+        WlArgument* arguments = stackalloc WlArgument[4];
+        arguments[0].I = x;
+        arguments[1].I = y;
+        arguments[2].I = width;
+        arguments[3].I = height;
+
+        var proxyVersion = WlProxyGetVersion(surfaceProxy);
+        _ = WlProxyMarshalArrayFlags(surfaceProxy, 9u, IntPtr.Zero, proxyVersion, 0u, arguments);
+    }
+
+    internal static int AddSeatListener(IntPtr seatProxy, WlSeatListener* listener, IntPtr data)
+    {
+        if (seatProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_seat proxy cannot be zero.", nameof(seatProxy));
+        }
+
+        return WlProxyAddSeatListener(seatProxy, listener, data);
+    }
+
+    internal static IntPtr GetSeatPointer(IntPtr seatProxy)
+    {
+        if (seatProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_seat proxy cannot be zero.", nameof(seatProxy));
+        }
+
+        WlArgument* arguments = stackalloc WlArgument[1];
+        arguments[0].N = 0;
+
+        var proxyVersion = WlProxyGetVersion(seatProxy);
+        var pointerProxy = WlProxyMarshalArrayFlags(seatProxy, 0u, GetRequiredInterfaceSymbol("wl_pointer_interface"), proxyVersion, 0u, arguments);
+        if (pointerProxy == IntPtr.Zero)
+        {
+            throw new InvalidOperationException("Unable to create Wayland wl_pointer.");
+        }
+
+        return pointerProxy;
+    }
+
+    internal static IntPtr GetSeatKeyboard(IntPtr seatProxy)
+    {
+        if (seatProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_seat proxy cannot be zero.", nameof(seatProxy));
+        }
+
+        WlArgument* arguments = stackalloc WlArgument[1];
+        arguments[0].N = 0;
+
+        var proxyVersion = WlProxyGetVersion(seatProxy);
+        var keyboardProxy = WlProxyMarshalArrayFlags(seatProxy, 1u, GetRequiredInterfaceSymbol("wl_keyboard_interface"), proxyVersion, 0u, arguments);
+        if (keyboardProxy == IntPtr.Zero)
+        {
+            throw new InvalidOperationException("Unable to create Wayland wl_keyboard.");
+        }
+
+        return keyboardProxy;
+    }
+
+    internal static int AddPointerListener(IntPtr pointerProxy, WlPointerListener* listener, IntPtr data)
+    {
+        if (pointerProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_pointer proxy cannot be zero.", nameof(pointerProxy));
+        }
+
+        return WlProxyAddPointerListener(pointerProxy, listener, data);
+    }
+
+    internal static int AddKeyboardListener(IntPtr keyboardProxy, WlKeyboardListener* listener, IntPtr data)
+    {
+        if (keyboardProxy == IntPtr.Zero)
+        {
+            throw new ArgumentException("Wayland wl_keyboard proxy cannot be zero.", nameof(keyboardProxy));
+        }
+
+        return WlProxyAddKeyboardListener(keyboardProxy, listener, data);
+    }
+
     internal static void DestroyProxy(IntPtr proxy)
     {
         if (proxy == IntPtr.Zero)
@@ -312,6 +561,17 @@ internal static unsafe partial class WaylandNative
 
     private static IntPtr BindGlobal(IntPtr registryProxy, WaylandGlobalInfo globalInfo, IntPtr interfacePtr)
     {
+        return BindGlobal(registryProxy, globalInfo, interfacePtr, globalInfo.Version);
+    }
+
+    private static IntPtr BindGlobal(IntPtr registryProxy, WaylandGlobalInfo globalInfo, string interfaceSymbolName, uint bindVersion)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(interfaceSymbolName);
+        return BindGlobal(registryProxy, globalInfo, GetRequiredInterfaceSymbol(interfaceSymbolName), bindVersion);
+    }
+
+    private static IntPtr BindGlobal(IntPtr registryProxy, WaylandGlobalInfo globalInfo, IntPtr interfacePtr, uint bindVersion)
+    {
         if (registryProxy == IntPtr.Zero)
         {
             throw new ArgumentException("Wayland registry proxy cannot be zero.", nameof(registryProxy));
@@ -322,16 +582,17 @@ internal static unsafe partial class WaylandNative
             throw new ArgumentException("Wayland interface pointer cannot be zero.", nameof(interfacePtr));
         }
 
+        var targetVersion = bindVersion == 0 ? globalInfo.Version : Math.Min(globalInfo.Version, bindVersion);
         var interfaceNameUtf8 = Marshal.StringToCoTaskMemUTF8(globalInfo.InterfaceName);
         try
         {
             WlArgument* arguments = stackalloc WlArgument[4];
             arguments[0].U = globalInfo.Name;
             arguments[1].S = interfaceNameUtf8;
-            arguments[2].U = globalInfo.Version;
+            arguments[2].U = targetVersion;
             arguments[3].N = 0;
 
-            var boundProxy = WlProxyMarshalArrayFlags(registryProxy, 0u, interfacePtr, globalInfo.Version, 0u, arguments);
+            var boundProxy = WlProxyMarshalArrayFlags(registryProxy, 0u, interfacePtr, targetVersion, 0u, arguments);
             if (boundProxy == IntPtr.Zero)
             {
                 throw new InvalidOperationException($"Unable to bind Wayland global '{globalInfo.InterfaceName}' ({globalInfo.Name}).");
@@ -343,6 +604,13 @@ internal static unsafe partial class WaylandNative
         {
             Marshal.FreeCoTaskMem(interfaceNameUtf8);
         }
+    }
+
+    private static IntPtr GetOrCreateSeatInterface()
+    {
+        return s_seatInterface != IntPtr.Zero
+            ? s_seatInterface
+            : s_seatInterface = CreateCustomInterface("wl_seat", 1);
     }
 
     private static IntPtr GetOrCreateXdgWmBaseInterface()

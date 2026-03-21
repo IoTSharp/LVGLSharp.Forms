@@ -4,10 +4,40 @@ using System.Runtime.InteropServices;
 
 namespace LVGLSharp.Runtime.Linux;
 
-internal unsafe sealed class WaylandBufferPresenter : IDisposable
+internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
 {
+    private const int O_CREAT = 0x0040;
+    private const int O_RDWR = 0x0002;
+    private const uint PROT_READ = 0x1;
+    private const uint PROT_WRITE = 0x2;
+    private const uint MAP_SHARED = 0x01;
+
+    private IntPtr _sharedMemory;
+    private IntPtr _sharedMemoryPool;
+    private IntPtr _sharedMemoryBuffer;
+    private int _sharedMemoryFileDescriptor = -1;
+    private int _stride;
+    private string? _sharedMemoryName;
     private byte* _drawBuffer;
     private uint _drawBufferByteSize;
+
+    [LibraryImport("libc", EntryPoint = "shm_open", StringMarshalling = StringMarshalling.Utf8)]
+    private static partial int ShmOpen(string name, int oflag, uint mode);
+
+    [LibraryImport("libc", EntryPoint = "shm_unlink", StringMarshalling = StringMarshalling.Utf8)]
+    private static partial int ShmUnlink(string name);
+
+    [LibraryImport("libc", EntryPoint = "ftruncate")]
+    private static partial int Ftruncate(int fd, nint length);
+
+    [LibraryImport("libc", EntryPoint = "mmap")]
+    private static partial IntPtr Mmap(IntPtr addr, nuint length, uint prot, uint flags, int fd, nint offset);
+
+    [LibraryImport("libc", EntryPoint = "munmap")]
+    private static partial int Munmap(IntPtr addr, nuint length);
+
+    [LibraryImport("libc", EntryPoint = "close")]
+    private static partial int Close(int fd);
 
     public WaylandBufferPresenter(int pixelWidth, int pixelHeight, float dpi)
     {
@@ -26,6 +56,8 @@ internal unsafe sealed class WaylandBufferPresenter : IDisposable
 
     public uint DrawBufferByteSize => _drawBufferByteSize;
 
+    public IntPtr SharedMemoryBuffer => _sharedMemoryBuffer;
+
     public uint FlushCount { get; private set; }
 
     public int LastFlushWidth { get; private set; }
@@ -33,6 +65,8 @@ internal unsafe sealed class WaylandBufferPresenter : IDisposable
     public int LastFlushHeight { get; private set; }
 
     public bool HasAllocatedBuffer => _drawBuffer != null;
+
+    public bool HasSharedMemoryBuffer => _sharedMemoryBuffer != IntPtr.Zero;
 
     public bool IsDisposed { get; private set; }
 
@@ -53,6 +87,50 @@ internal unsafe sealed class WaylandBufferPresenter : IDisposable
         }
     }
 
+    public void InitializeSharedMemory(WaylandDisplayConnection connection)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        ThrowIfDisposed();
+        connection.ThrowIfDisposed();
+
+        if (_sharedMemoryBuffer != IntPtr.Zero)
+        {
+            return;
+        }
+
+        var sharedMemoryProxy = connection.BindSharedMemory();
+        try
+        {
+            _stride = checked(PixelWidth * sizeof(uint));
+            var sharedMemorySize = checked(_stride * PixelHeight);
+            _sharedMemoryName = $"/lvglsharp-wayland-{Guid.NewGuid():N}";
+            _sharedMemoryFileDescriptor = ShmOpen(_sharedMemoryName, O_CREAT | O_RDWR, 0x180);
+            if (_sharedMemoryFileDescriptor < 0)
+            {
+                throw new InvalidOperationException("Unable to create Wayland shared memory object.");
+            }
+
+            if (Ftruncate(_sharedMemoryFileDescriptor, sharedMemorySize) != 0)
+            {
+                throw new InvalidOperationException("Unable to size Wayland shared memory object.");
+            }
+
+            _sharedMemory = Mmap(IntPtr.Zero, (nuint)sharedMemorySize, PROT_READ | PROT_WRITE, MAP_SHARED, _sharedMemoryFileDescriptor, 0);
+            if (_sharedMemory == IntPtr.Zero || _sharedMemory == new IntPtr(-1))
+            {
+                throw new InvalidOperationException("Unable to map Wayland shared memory buffer.");
+            }
+
+            _sharedMemoryPool = WaylandNative.CreateSharedMemoryPool(sharedMemoryProxy, _sharedMemoryFileDescriptor, sharedMemorySize);
+            _sharedMemoryBuffer = WaylandNative.CreateSharedMemoryBuffer(_sharedMemoryPool, PixelWidth, PixelHeight, _stride);
+        }
+        finally
+        {
+            WaylandNative.DestroyProxy(sharedMemoryProxy);
+        }
+    }
+
     public void Flush(lv_display_t* display, lv_area_t* area, IntPtr surfaceProxy)
     {
         ThrowIfDisposed();
@@ -65,12 +143,50 @@ internal unsafe sealed class WaylandBufferPresenter : IDisposable
 
         FlushCount++;
 
-        if (surfaceProxy != IntPtr.Zero)
+        if (_sharedMemory != IntPtr.Zero && area != null)
         {
+            CopyRgb565ToXrgb8888(area);
+        }
+
+        if (surfaceProxy != IntPtr.Zero && _sharedMemoryBuffer != IntPtr.Zero)
+        {
+            WaylandNative.AttachBuffer(surfaceProxy, _sharedMemoryBuffer, 0, 0);
+            WaylandNative.DamageBuffer(surfaceProxy, area->x1, area->y1, LastFlushWidth, LastFlushHeight);
             WaylandNative.CommitSurface(surfaceProxy);
         }
 
         lv_display_flush_ready(display);
+    }
+
+    private void CopyRgb565ToXrgb8888(lv_area_t* area)
+    {
+        var destination = (uint*)_sharedMemory;
+        var width = lv_area_get_width(area);
+        var height = lv_area_get_height(area);
+        var source = (ushort*)_drawBuffer;
+
+        for (var y = 0; y < height; y++)
+        {
+            var destinationRow = destination + (area->y1 + y) * PixelWidth + area->x1;
+            var sourceRow = source + y * width;
+            for (var x = 0; x < width; x++)
+            {
+                destinationRow[x] = ConvertRgb565ToXrgb8888(sourceRow[x]);
+            }
+        }
+    }
+
+    private static uint ConvertRgb565ToXrgb8888(ushort pixel)
+    {
+        uint r = (uint)((pixel >> 11) & 0x1F);
+        uint g = (uint)((pixel >> 5) & 0x3F);
+        uint b = (uint)(pixel & 0x1F);
+
+        r = (r << 3) | (r >> 2);
+        g = (g << 2) | (g >> 4);
+        b = (b << 3) | (b >> 2);
+
+        return 0xFF000000u | (r << 16) | (g << 8) | b;
     }
 
     public void ThrowIfDisposed()
@@ -80,12 +196,36 @@ internal unsafe sealed class WaylandBufferPresenter : IDisposable
 
     public void Dispose()
     {
+        if (_sharedMemory != IntPtr.Zero)
+        {
+            _ = Munmap(_sharedMemory, (nuint)checked(_stride * PixelHeight));
+            _sharedMemory = IntPtr.Zero;
+        }
+
+        WaylandNative.DestroyProxy(_sharedMemoryBuffer);
+        WaylandNative.DestroyProxy(_sharedMemoryPool);
+        _sharedMemoryBuffer = IntPtr.Zero;
+        _sharedMemoryPool = IntPtr.Zero;
+
+        if (_sharedMemoryFileDescriptor >= 0)
+        {
+            _ = Close(_sharedMemoryFileDescriptor);
+            _sharedMemoryFileDescriptor = -1;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_sharedMemoryName))
+        {
+            _ = ShmUnlink(_sharedMemoryName);
+            _sharedMemoryName = null;
+        }
+
         if (_drawBuffer != null)
         {
             NativeMemory.Free(_drawBuffer);
             _drawBuffer = null;
         }
 
+        _stride = 0;
         _drawBufferByteSize = 0;
         FlushCount = 0;
         LastFlushWidth = 0;

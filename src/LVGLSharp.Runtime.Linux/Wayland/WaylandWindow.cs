@@ -98,8 +98,8 @@ internal sealed unsafe class WaylandWindow : IDisposable
             {
                 _xdgWmBase = connection.BindXdgWmBase();
                 _xdgSurface = WaylandNative.CreateXdgSurface(_xdgWmBase, _surface);
-                EnsureShellListenersAttached();
                 _xdgToplevel = WaylandNative.CreateXdgToplevel(_xdgSurface);
+                EnsureShellListenersAttached();
                 WaylandNative.SetXdgToplevelTitle(_xdgToplevel, Title);
                 WaylandNative.CommitSurface(_surface);
                 connection.PumpEvents();

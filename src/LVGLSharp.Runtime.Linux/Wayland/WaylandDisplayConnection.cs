@@ -74,11 +74,15 @@ internal sealed unsafe partial class WaylandDisplayConnection : IDisposable
 
     public bool HasXdgWmBase { get; private set; }
 
+    public bool HasSeat { get; private set; }
+
     public uint CompositorVersion { get; private set; }
 
     public uint SharedMemoryVersion { get; private set; }
 
     public uint XdgWmBaseVersion { get; private set; }
+
+    public uint SeatVersion { get; private set; }
 
     public IReadOnlyCollection<string> DiscoveredInterfaces => _discoveredInterfaces.AsReadOnly();
 
@@ -236,6 +240,42 @@ internal sealed unsafe partial class WaylandDisplayConnection : IDisposable
         return WaylandNative.BindXdgWmBase(_registry, xdgWmBaseGlobal);
     }
 
+    public IntPtr BindSharedMemory()
+    {
+        ThrowIfDisposed();
+        ThrowIfNotConnected();
+
+        if (_registry == IntPtr.Zero)
+        {
+            throw new InvalidOperationException($"Wayland registry is unavailable. {DiagnosticSummary}");
+        }
+
+        if (!TryGetGlobal("wl_shm", out var sharedMemoryGlobal))
+        {
+            throw new InvalidOperationException($"Wayland wl_shm global is unavailable. {DiagnosticSummary}");
+        }
+
+        return WaylandNative.BindSharedMemory(_registry, sharedMemoryGlobal);
+    }
+
+    public IntPtr BindSeat()
+    {
+        ThrowIfDisposed();
+        ThrowIfNotConnected();
+
+        if (_registry == IntPtr.Zero)
+        {
+            throw new InvalidOperationException($"Wayland registry is unavailable. {DiagnosticSummary}");
+        }
+
+        if (!TryGetGlobal("wl_seat", out var seatGlobal))
+        {
+            throw new InvalidOperationException($"Wayland wl_seat global is unavailable. {DiagnosticSummary}");
+        }
+
+        return WaylandNative.BindSeat(_registry, seatGlobal);
+    }
+
     public void ThrowIfDisposed()
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
@@ -365,9 +405,11 @@ internal sealed unsafe partial class WaylandDisplayConnection : IDisposable
         HasCompositor = false;
         HasSharedMemory = false;
         HasXdgWmBase = false;
+        HasSeat = false;
         CompositorVersion = 0;
         SharedMemoryVersion = 0;
         XdgWmBaseVersion = 0;
+        SeatVersion = 0;
 
         for (var index = 0; index < _discoveredGlobals.Count; index++)
         {
@@ -385,6 +427,10 @@ internal sealed unsafe partial class WaylandDisplayConnection : IDisposable
                 case "xdg_wm_base":
                     HasXdgWmBase = true;
                     XdgWmBaseVersion = Math.Max(XdgWmBaseVersion, globalInfo.Version);
+                    break;
+                case "wl_seat":
+                    HasSeat = true;
+                    SeatVersion = Math.Max(SeatVersion, globalInfo.Version);
                     break;
             }
         }
