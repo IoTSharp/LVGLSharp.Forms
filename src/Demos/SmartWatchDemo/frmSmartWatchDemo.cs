@@ -110,6 +110,7 @@ public sealed class frmSmartWatchDemo : Form
     private readonly Dictionary<WatchPage, Button> _navButtons = new();
     private readonly Dictionary<Button, bool> _quickToggleStates = new();
     private readonly HashSet<WatchPage> _attachedPages = new();
+    private readonly Queue<WatchPage> _warmupPages = new();
     private readonly Random _random = new();
     private readonly Queue<string> _generatedWatchfacePaths = new();
     private readonly string _generatedAssetDirectory = Path.Combine(Path.GetTempPath(), "LVGLSharp.Forms.SmartWatchDemo", Guid.NewGuid().ToString("N"));
@@ -185,6 +186,7 @@ public sealed class frmSmartWatchDemo : Form
     private bool _layoutApplying;
 
     private long _lastDynamicUpdateStamp = -1;
+    private long _lastWarmupTick = -1;
 
     public frmSmartWatchDemo()
     {
@@ -797,6 +799,7 @@ public sealed class frmSmartWatchDemo : Form
         ApplyWindowLayout();
         UpdateDynamicContent();
         _lastDynamicUpdateStamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerSecond;
+        InitializeWarmupQueue();
     }
 
     private void frmSmartWatchDemo_SizeChanged(object? sender, EventArgs e)
@@ -1250,6 +1253,56 @@ public sealed class frmSmartWatchDemo : Form
 
         _watchViewportPanel.Controls.Add(panel);
         _attachedPages.Add(page);
+    }
+
+    private void InitializeWarmupQueue()
+    {
+        _warmupPages.Clear();
+        _lastWarmupTick = Environment.TickCount64;
+
+        WatchPage[] warmupOrder =
+        [
+            WatchPage.Quick,
+            WatchPage.Apps,
+            WatchPage.Activity,
+            WatchPage.Notifications,
+            WatchPage.HeartRate,
+            WatchPage.Weather,
+            WatchPage.Sleep,
+        ];
+
+        foreach (WatchPage page in warmupOrder)
+        {
+            if (!_attachedPages.Contains(page))
+            {
+                _warmupPages.Enqueue(page);
+            }
+        }
+    }
+
+    private void WarmPendingPages()
+    {
+        while (_warmupPages.Count > 0 && _attachedPages.Contains(_warmupPages.Peek()))
+        {
+            _warmupPages.Dequeue();
+        }
+
+        if (_warmupPages.Count == 0 || _swipeDragging)
+        {
+            return;
+        }
+
+        WatchPage nextPage = _warmupPages.Peek();
+        int intervalMs = IsTopLevelPage(nextPage) ? 150 : 450;
+        long now = Environment.TickCount64;
+        if (_lastWarmupTick >= 0 && now - _lastWarmupTick < intervalMs)
+        {
+            return;
+        }
+
+        _warmupPages.Dequeue();
+        _lastWarmupTick = now;
+        EnsurePageAttached(nextPage);
     }
 
     private void ResetVisiblePages()
@@ -1771,6 +1824,8 @@ public sealed class frmSmartWatchDemo : Form
     protected override void OnMessageLoopIteration()
     {
         base.OnMessageLoopIteration();
+
+        WarmPendingPages();
 
         long secondStamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerSecond;
         if (secondStamp == _lastDynamicUpdateStamp)
