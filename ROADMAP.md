@@ -43,6 +43,21 @@
   - 作为下一步实施重点开始推进
   - 首版目标仍按“最小可交付版本”落地，优先满足独立窗口、基础渲染、基础输入与 demo 跑通
 
+### `LVGLSharp.Forms` 兼容层收尾事项
+
+- 键盘消息兼容链已完成第一阶段打通：
+  - `PreProcessControlMessage`
+  - `PreviewKeyDown`
+  - `ProcessKeyMessage`
+  - `ProcessDialogKey` 第一版
+- 后续仍需继续收尾：
+  - `ProcessCmdKey` 第一版（常用快捷键与命令键消费语义）
+  - `ProcessDialogKey` 增强（`Enter` / `Escape` / 默认按钮 / 取消按钮 / 更完整焦点导航）
+  - `Focus` / `Focused` / `ContainsFocus` / `SelectNextControl` 与 LVGL `group/focus` 模型正式对齐
+  - `TextBox` 与 `Control` 键盘处理职责继续收敛，减少重复消费
+  - `Paint` / `Invalidate` / `Refresh` / `OnPrint` 的 LVGL 兼容策略评估与分层实现
+  - `Message` / `KeyEventArgs` / `KeyPressEventArgs` / `PreviewKeyDownEventArgs` 继续向 WinForms 语义补齐
+
 当前环境探测由 `LinuxEnvironmentDetector` 负责，`LinuxView` 只负责路由。
 
 ### 已支持 Linux 宿主说明

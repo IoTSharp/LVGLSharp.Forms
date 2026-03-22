@@ -3547,9 +3547,52 @@ namespace LVGLSharp.Forms
         //
         // 返回结果:
         //     true if the key was processed by the control; otherwise, false.
-        protected virtual bool ProcessDialogKey(Keys keyData)
+        protected virtual unsafe bool ProcessDialogKey(Keys keyData)
         {
-            return true;
+            if (_lvglObjectHandle == 0 || Form.KeyInputGroupObject == null)
+            {
+                return false;
+            }
+
+            Keys keyCode = keyData & ~Keys.Modifiers;
+            switch (keyCode)
+            {
+                case Keys.Tab:
+                    if ((keyData & Keys.Shift) == Keys.Shift)
+                    {
+                        lv_group_focus_prev(Form.KeyInputGroupObject);
+                    }
+                    else
+                    {
+                        lv_group_focus_next(Form.KeyInputGroupObject);
+                    }
+
+                    return true;
+
+                case Keys.Left:
+                case Keys.Up:
+                    lv_group_focus_prev(Form.KeyInputGroupObject);
+                    return true;
+
+                case Keys.Right:
+                case Keys.Down:
+                    lv_group_focus_next(Form.KeyInputGroupObject);
+                    return true;
+
+                case Keys.Enter:
+                    if (CanFocus)
+                    {
+                        Focus();
+                    }
+
+                    return false;
+
+                case Keys.Escape:
+                    return false;
+
+                default:
+                    return false;
+            }
         }
         //
         // 摘要:
