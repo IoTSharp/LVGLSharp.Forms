@@ -73,6 +73,11 @@ public unsafe sealed class WaylandView : IView
 
     public void Open()
     {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(WaylandView));
+        }
+
         if (_initialized)
         {
             return;
@@ -130,23 +135,35 @@ public unsafe sealed class WaylandView : IView
             return;
         }
 
-        while (_running)
+        try
         {
-            HandleEvents();
-
-            if (_window.IsCloseRequested)
+            while (_running)
             {
-                Close();
-                break;
-            }
+                HandleEvents();
 
-            iteration?.Invoke();
-            Thread.Sleep(5);
+                if (_window.IsCloseRequested)
+                {
+                    Close();
+                    break;
+                }
+
+                iteration?.Invoke();
+                Thread.Sleep(5);
+            }
+        }
+        finally
+        {
+            Close();
         }
     }
 
     public void Close()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (s_activeView == this)
         {
             s_activeView = null;
@@ -154,54 +171,67 @@ public unsafe sealed class WaylandView : IView
 
         _running = false;
 
-        try
+        if (_fallbackView is not null)
         {
-            _fallbackView?.Close();
-        }
-        finally
-        {
-            if (_mouseIndev != null)
-            {
-                lv_indev_delete(_mouseIndev);
-                _mouseIndev = null;
-            }
-
-            if (_keyboardIndev != null)
-            {
-                lv_indev_delete(_keyboardIndev);
-                _keyboardIndev = null;
-            }
-
-            if (_wheelIndev != null)
-            {
-                lv_indev_delete(_wheelIndev);
-                _wheelIndev = null;
-            }
-
-            if (_keyInputGroup != null)
-            {
-                lv_group_delete(_keyInputGroup);
-                _keyInputGroup = null;
-            }
-
-            if (_lvDisplay != null)
-            {
-                lv_display_delete(_lvDisplay);
-                _lvDisplay = null;
-            }
-
-            _fontManager?.Dispose();
-            _fontManager = null;
-            _resolvedSystemFontPath = null;
-            _fontDiagnosticSummary = null;
-
-            _root = null;
-            _bufferPresenter.Dispose();
-            _inputSource.Dispose();
-            _window.Dispose();
-            _connection.Dispose();
+            _fallbackView.Close();
             _initialized = false;
+            _disposed = true;
+            return;
         }
+
+        if (!_initialized &&
+            _lvDisplay == null &&
+            _mouseIndev == null &&
+            _keyboardIndev == null &&
+            _wheelIndev == null &&
+            _root == null)
+        {
+            _disposed = true;
+            return;
+        }
+
+        if (_mouseIndev != null)
+        {
+            lv_indev_delete(_mouseIndev);
+            _mouseIndev = null;
+        }
+
+        if (_keyboardIndev != null)
+        {
+            lv_indev_delete(_keyboardIndev);
+            _keyboardIndev = null;
+        }
+
+        if (_wheelIndev != null)
+        {
+            lv_indev_delete(_wheelIndev);
+            _wheelIndev = null;
+        }
+
+        if (_keyInputGroup != null)
+        {
+            lv_group_delete(_keyInputGroup);
+            _keyInputGroup = null;
+        }
+
+        if (_lvDisplay != null)
+        {
+            lv_display_delete(_lvDisplay);
+            _lvDisplay = null;
+        }
+
+        _fontManager?.Dispose();
+        _fontManager = null;
+        _resolvedSystemFontPath = null;
+        _fontDiagnosticSummary = null;
+
+        _root = null;
+        _bufferPresenter.Dispose();
+        _inputSource.Dispose();
+        _window.Dispose();
+        _connection.Dispose();
+        _initialized = false;
+        _disposed = true;
     }
 
     public void RegisterTextInput(lv_obj_t* textArea)

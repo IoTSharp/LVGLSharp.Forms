@@ -41,6 +41,7 @@ public unsafe sealed partial class SdlView : IView
     private lv_group_t* _keyInputGroup;
     private GCHandle _selfHandle;
     private lv_obj_t* _focusedTextArea;
+    private bool _disposed;
 
     public SdlView(string title = "LVGLSharp SDL", int width = 800, int height = 600, float dpi = 96f, bool borderless = false)
     {
@@ -66,6 +67,11 @@ public unsafe sealed partial class SdlView : IView
 
     public void Open()
     {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(SdlView));
+        }
+
         if (_initialized)
         {
             return;
@@ -146,12 +152,29 @@ public unsafe sealed partial class SdlView : IView
 
     public void Close()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (s_activeView == this)
         {
             s_activeView = null;
         }
 
         _running = false;
+
+        if (!_initialized &&
+            _lvDisplay == null &&
+            _mouseIndev == null &&
+            _keyboardIndev == null &&
+            _wheelIndev == null &&
+            _root == null &&
+            _keyInputGroup == null)
+        {
+            _disposed = true;
+            return;
+        }
 
         if (_mouseIndev != null)
         {
@@ -208,6 +231,7 @@ public unsafe sealed partial class SdlView : IView
         SdlNative.SDL_StopTextInput();
 
         _initialized = false;
+        _disposed = true;
     }
 
     public void RegisterTextInput(lv_obj_t* textArea)

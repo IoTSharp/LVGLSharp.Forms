@@ -39,7 +39,7 @@ namespace LVGLSharp.Runtime.Windows
         static bool ime_composing = false;
         static int pending_ime_char_skips = 0;
         static volatile int mouseWheelDelta = 0;
-        static ConcurrentQueue<uint> key_queue = new ConcurrentQueue<uint>();
+        static ConcurrentQueue<uint> keyQueue = new ConcurrentQueue<uint>();
 
         public static lv_obj_t* RootObject { get; set; }
         public static lv_group_t* KeyInputGroupObject { get; set; }
@@ -136,7 +136,7 @@ namespace LVGLSharp.Runtime.Windows
             }
 
             uint new_key;
-            if (key_queue.TryDequeue(out new_key))
+            if (keyQueue.TryDequeue(out new_key))
             {
                 data->key = new_key;
                 data->state = LV_INDEV_STATE_PR;
@@ -387,7 +387,7 @@ namespace LVGLSharp.Runtime.Windows
                         break;
                     }
 
-                    key_queue.Enqueue((uint)wParam);
+                    keyQueue.Enqueue((uint)wParam);
                     break;
                 case WM_IME_ENDCOMPOSITION:
                     ime_composing = false;
@@ -436,8 +436,8 @@ namespace LVGLSharp.Runtime.Windows
         private lv_font_t* _defaultFont;
         private lv_style_t* _defaultFontStyle;
         private SixLaborsFontManager _fontManager;
-        private lv_indev_t* kbd_indev;
-        private lv_indev_t* indev;
+        private lv_indev_t* _keyboardInputDevice;
+        private lv_indev_t* _pointerInputDevice;
         private WNDCLASSEX wc;
         private IntPtr wndProcPtr;
         private WndProcDelegate wndProcDelegate;
@@ -516,16 +516,16 @@ namespace LVGLSharp.Runtime.Windows
             g_display = lv_display_create(Width, Height);
 
             // Mouse
-            indev = lv_indev_create();
-            lv_indev_set_type(indev, lv_indev_type_t.LV_INDEV_TYPE_POINTER);
-            lv_indev_set_read_cb(indev, &MouseReadCb);
+            _pointerInputDevice = lv_indev_create();
+            lv_indev_set_type(_pointerInputDevice, lv_indev_type_t.LV_INDEV_TYPE_POINTER);
+            lv_indev_set_read_cb(_pointerInputDevice, &MouseReadCb);
 
             // Keyboard
-            kbd_indev = lv_indev_create();
-            lv_indev_set_type(kbd_indev, lv_indev_type_t.LV_INDEV_TYPE_KEYPAD);
-            lv_indev_set_read_cb(kbd_indev, &KeyboardReadCb);
+            _keyboardInputDevice = lv_indev_create();
+            lv_indev_set_type(_keyboardInputDevice, lv_indev_type_t.LV_INDEV_TYPE_KEYPAD);
+            lv_indev_set_read_cb(_keyboardInputDevice, &KeyboardReadCb);
             KeyInputGroupObject = lv_group_create();
-            lv_indev_set_group(kbd_indev, KeyInputGroupObject);
+            lv_indev_set_group(_keyboardInputDevice, KeyInputGroupObject);
 
             g_lvbuf = Marshal.AllocHGlobal((int)g_bufSize);
             lv_display_set_buffers(g_display, g_lvbuf.ToPointer(), null, g_bufSize, LV_DISPLAY_RENDER_MODE_FULL);
@@ -594,16 +594,16 @@ namespace LVGLSharp.Runtime.Windows
 
             g_running = false;
 
-            if (kbd_indev != null)
+            if (_keyboardInputDevice != null)
             {
-                lv_indev_delete(kbd_indev);
-                kbd_indev = null;
+                lv_indev_delete(_keyboardInputDevice);
+                _keyboardInputDevice = null;
             }
 
-            if (indev != null)
+            if (_pointerInputDevice != null)
             {
-                lv_indev_delete(indev);
-                indev = null;
+                lv_indev_delete(_pointerInputDevice);
+                _pointerInputDevice = null;
             }
 
             if (KeyInputGroupObject != null)

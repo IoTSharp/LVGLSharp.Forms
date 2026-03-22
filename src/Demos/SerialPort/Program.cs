@@ -11,15 +11,15 @@ using System.Text;
 
 unsafe class Program
 {
-    static lv_obj_t* port_dropdown;
-    static lv_obj_t* baud_dropdown;
-    static lv_obj_t* ref_btn;
-    static lv_obj_t* open_btn;
-    static lv_obj_t* recv_textarea;
-    static lv_obj_t* send_textarea;
-    static lv_obj_t* send_btn;
-    static lv_obj_t* clear_btn;
-    static lv_obj_t* hex_switch;
+    static lv_obj_t* portDropdown;
+    static lv_obj_t* baudDropdown;
+    static lv_obj_t* refreshButton;
+    static lv_obj_t* openButton;
+    static lv_obj_t* receiveTextArea;
+    static lv_obj_t* sendTextArea;
+    static lv_obj_t* sendButton;
+    static lv_obj_t* clearButton;
+    static lv_obj_t* hexSwitch;
     static IView? view;
     static SerialPort? serialPort;
     static List<string> serialPorts = [];
@@ -75,12 +75,12 @@ unsafe class Program
             {
                 serialPort.Close();
                 fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("打开串口"))
-                    lv_label_set_text(lv_obj_get_child(open_btn, 0), utf8Ptr);
+                    lv_label_set_text(lv_obj_get_child(openButton, 0), utf8Ptr);
             }
             else
             {
-                var portName = serialPorts[(int)GetSelectedIndex(port_dropdown)];
-                var baudRateStr = bauds[(int)GetSelectedIndex(baud_dropdown)];
+                var portName = serialPorts[(int)GetSelectedIndex(portDropdown)];
+                var baudRateStr = bauds[(int)GetSelectedIndex(baudDropdown)];
                 if (string.IsNullOrEmpty(portName) || string.IsNullOrEmpty(baudRateStr))
                     return;
 
@@ -89,7 +89,7 @@ unsafe class Program
                 {
                     serialPort.Open();
                     fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("关闭串口"))
-                        lv_label_set_text(lv_obj_get_child(open_btn, 0), utf8Ptr);
+                        lv_label_set_text(lv_obj_get_child(openButton, 0), utf8Ptr);
                 }
                 catch (Exception ex)
                 {
@@ -112,7 +112,7 @@ unsafe class Program
         {
             if (serialPort != null && serialPort.IsOpen)
             {
-                var sendText = Marshal.PtrToStringUTF8((nint)lv_textarea_get_text(send_textarea)) ?? "";
+                var sendText = Marshal.PtrToStringUTF8((nint)lv_textarea_get_text(sendTextArea)) ?? "";
                 if (!string.IsNullOrEmpty(sendText))
                 {
                     try
@@ -125,7 +125,7 @@ unsafe class Program
                         serialPort.Read(buffer, 0, bytesToRead);
 
                         string text;
-                        if (lv_obj_has_state(hex_switch, LV_STATE_CHECKED))
+                        if (lv_obj_has_state(hexSwitch, LV_STATE_CHECKED))
                         {
                             text = BitConverter.ToString(buffer).Replace("-", " ") + "\n";
                         }
@@ -134,10 +134,10 @@ unsafe class Program
                             text = Encoding.UTF8.GetString(buffer);
                         }
 
-                        var currentText = Marshal.PtrToStringUTF8((nint)lv_textarea_get_text(recv_textarea)) ?? "";
+                        var currentText = Marshal.PtrToStringUTF8((nint)lv_textarea_get_text(receiveTextArea)) ?? "";
                         string newText = currentText + text;
                         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes(newText))
-                            lv_textarea_set_text(recv_textarea, utf8Ptr);
+                            lv_textarea_set_text(receiveTextArea, utf8Ptr);
                     }
                     catch (Exception ex)
                     {
@@ -155,7 +155,7 @@ unsafe class Program
         if (code == lv_event_code_t.LV_EVENT_CLICKED)
         {
             fixed (byte* utf8Ptr = Encoding.ASCII.GetBytes("\0"))
-                lv_textarea_set_text(recv_textarea, utf8Ptr);
+                lv_textarea_set_text(receiveTextArea, utf8Ptr);
         }
     }
 
@@ -165,11 +165,11 @@ unsafe class Program
         if (serialPorts.Count > 0)
         {
             fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes(string.Join('\n', serialPorts)))
-                lv_dropdown_set_options(port_dropdown, utf8Ptr);
+                lv_dropdown_set_options(portDropdown, utf8Ptr);
         }
         else
         {
-            lv_dropdown_clear_options(port_dropdown);
+            lv_dropdown_clear_options(portDropdown);
         } 
             
     }
@@ -193,17 +193,17 @@ unsafe class Program
         lv_obj_set_height(port_label, 50);
 
         // 串口下拉
-        port_dropdown = lv_dropdown_create(toolbar);
+        portDropdown = lv_dropdown_create(toolbar);
         RefSerialPort();
-        lv_obj_set_width(port_dropdown, 150);
-        lv_obj_set_height(port_dropdown, 50);
+        lv_obj_set_width(portDropdown, 150);
+        lv_obj_set_height(portDropdown, 50);
 
         // 刷新串口按钮
-        ref_btn = lv_btn_create(toolbar);
-        var ref_btn_label = lv_label_create(ref_btn);
+        refreshButton = lv_btn_create(toolbar);
+        var ref_btn_label = lv_label_create(refreshButton);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("刷新串口"))
             lv_label_set_text(ref_btn_label, utf8Ptr);
-        lv_obj_add_event(ref_btn, &RefButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
+        lv_obj_add_event(refreshButton, &RefButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
         lv_obj_set_height(ref_btn_label, 20);
 
         // 波特率
@@ -213,18 +213,18 @@ unsafe class Program
         lv_obj_set_height(baud_label, 50);
 
         // 波特率下拉
-        baud_dropdown = lv_dropdown_create(toolbar);
+        baudDropdown = lv_dropdown_create(toolbar);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes(string.Join('\n', bauds)))
-            lv_dropdown_set_options(baud_dropdown, utf8Ptr);
-        lv_obj_set_width(baud_dropdown, 150);
-        lv_obj_set_height(baud_dropdown, 50);
+            lv_dropdown_set_options(baudDropdown, utf8Ptr);
+        lv_obj_set_width(baudDropdown, 150);
+        lv_obj_set_height(baudDropdown, 50);
 
         // 打开串口按钮
-        open_btn = lv_btn_create(toolbar);
-        var btn_label = lv_label_create(open_btn);
+        openButton = lv_btn_create(toolbar);
+        var btn_label = lv_label_create(openButton);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("打开串口"))
             lv_label_set_text(btn_label, utf8Ptr);
-        lv_obj_add_event(open_btn, &OpenButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
+        lv_obj_add_event(openButton, &OpenButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
         lv_obj_set_height(btn_label, 20);
 
         // 接收区容器
@@ -235,24 +235,24 @@ unsafe class Program
         lv_obj_set_style_pad_gap(recv_container, 10, 0);
 
         // 接收区
-        recv_textarea = lv_textarea_create(recv_container);
+        receiveTextArea = lv_textarea_create(recv_container);
         if (keyInputGroup != null)
-            lv_group_add_obj(keyInputGroup, recv_textarea);
-        lv_obj_set_flex_grow(recv_textarea, 1);
-        lv_obj_set_height(recv_textarea, 150);
+            lv_group_add_obj(keyInputGroup, receiveTextArea);
+        lv_obj_set_flex_grow(receiveTextArea, 1);
+        lv_obj_set_height(receiveTextArea, 150);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("接收的数据..."))
-            lv_textarea_set_placeholder_text(recv_textarea, utf8Ptr);
+            lv_textarea_set_placeholder_text(receiveTextArea, utf8Ptr);
 
         // 清空按钮
-        clear_btn = lv_btn_create(recv_container);
-        var clear_label = lv_label_create(clear_btn);
+        clearButton = lv_btn_create(recv_container);
+        var clear_label = lv_label_create(clearButton);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("清空"))
             lv_label_set_text(clear_label, utf8Ptr);
-        lv_obj_add_event(clear_btn, &ClearButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
+        lv_obj_add_event(clearButton, &ClearButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
         lv_obj_set_height(clear_label, 30);
 
         // HEX显示
-        hex_switch = lv_switch_create(recv_container);
+        hexSwitch = lv_switch_create(recv_container);
         var switch_label = lv_label_create(recv_container);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("HEX模式"))
             lv_label_set_text(switch_label, utf8Ptr);
@@ -266,24 +266,24 @@ unsafe class Program
         lv_obj_set_style_pad_gap(send_container, 10, 0);
 
         // 发送区
-        send_textarea = lv_textarea_create(send_container);
-        lv_obj_set_flex_grow(send_textarea, 1);
+        sendTextArea = lv_textarea_create(send_container);
+        lv_obj_set_flex_grow(sendTextArea, 1);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("输入的数据..."))
-            lv_textarea_set_placeholder_text(send_textarea, utf8Ptr);
+            lv_textarea_set_placeholder_text(sendTextArea, utf8Ptr);
         if (sendTextAreaFocusCallback != null)
-            lv_obj_add_event_cb(send_textarea, sendTextAreaFocusCallback, lv_event_code_t.LV_EVENT_FOCUSED, null);
+            lv_obj_add_event_cb(sendTextArea, sendTextAreaFocusCallback, lv_event_code_t.LV_EVENT_FOCUSED, null);
         if (keyInputGroup != null)
-            lv_group_add_obj(keyInputGroup, send_textarea);
-        lv_obj_set_height(send_textarea, 50);
+            lv_group_add_obj(keyInputGroup, sendTextArea);
+        lv_obj_set_height(sendTextArea, 50);
 
-        view?.RegisterTextInput(send_textarea);
+        view?.RegisterTextInput(sendTextArea);
 
         // 发送按钮
-        send_btn = lv_btn_create(send_container);
-        var send_label = lv_label_create(send_btn);
+        sendButton = lv_btn_create(send_container);
+        var send_label = lv_label_create(sendButton);
         fixed (byte* utf8Ptr = Encoding.UTF8.GetBytes("发送"))
             lv_label_set_text(send_label, utf8Ptr);
-        lv_obj_add_event(send_btn, &SendButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
+        lv_obj_add_event(sendButton, &SendButtonClick, lv_event_code_t.LV_EVENT_ALL, null);
         lv_obj_set_height(send_label, 30);
     }
 }
