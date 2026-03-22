@@ -26,7 +26,7 @@ namespace WinFormsDemo
 
         private void button1_Click(object sender, EventArgs e)
         {
-            recv_textarea.Text = string.Empty;
+            receiveTextArea.Text = string.Empty;
         }
 
         private void send_btn_Click(object sender, EventArgs e)
@@ -80,8 +80,8 @@ namespace WinFormsDemo
 
         private void ConfigureDemoControls()
         {
-            port_dropdown.DropDownStyle = ComboBoxStyle.DropDownList;
-            baud_dropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            portDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            baudDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
 
             button1.Text = "复制接收";
             button2.Text = "填充示例";
@@ -90,7 +90,7 @@ namespace WinFormsDemo
             checkBox1.Text = "发送换行";
             radioButton1.Text = "缩放预览";
             checkBox2.Text = "拉伸预览";
-            hex_switch.Text = "HEX显示";
+            hexSwitch.Text = "HEX显示";
 
             checkBox1.Checked = true;
             radioButton1.Checked = true;
@@ -100,8 +100,8 @@ namespace WinFormsDemo
 
         private void WireEvents()
         {
-            ref_btn.Click += ref_btn_Click;
-            open_btn.Click += open_btn_Click;
+            refreshButton.Click += ref_btn_Click;
+            openButton.Click += open_btn_Click;
             button1.Click += copy_recv_btn_Click;
             button2.Click += fill_sample_btn_Click;
             button3.Click += load_logo_btn_Click;
@@ -112,29 +112,29 @@ namespace WinFormsDemo
 
         private void RefreshBaudRates()
         {
-            string? previousSelection = baud_dropdown.SelectedItem?.ToString();
+            string? previousSelection = baudDropdown.SelectedItem?.ToString();
 
-            baud_dropdown.Items.Clear();
+            baudDropdown.Items.Clear();
             foreach (int baudRate in s_baudRates)
             {
-                baud_dropdown.Items.Add(baudRate.ToString());
+                baudDropdown.Items.Add(baudRate.ToString());
             }
 
             if (!string.IsNullOrWhiteSpace(previousSelection) &&
-                baud_dropdown.Items.Contains(previousSelection))
+                baudDropdown.Items.Contains(previousSelection))
             {
-                baud_dropdown.SelectedItem = previousSelection;
+                baudDropdown.SelectedItem = previousSelection;
             }
             else
             {
                 int defaultIndex = Array.IndexOf(s_baudRates, 115200);
-                baud_dropdown.SelectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
+                baudDropdown.SelectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
             }
         }
 
         private void RefreshSerialPorts()
         {
-            string? previousSelection = port_dropdown.SelectedItem?.ToString();
+            string? previousSelection = portDropdown.SelectedItem?.ToString();
             string[] portNames;
 
             try
@@ -149,29 +149,29 @@ namespace WinFormsDemo
                 return;
             }
 
-            port_dropdown.Items.Clear();
+            portDropdown.Items.Clear();
             foreach (string portName in portNames)
             {
-                port_dropdown.Items.Add(portName);
+                portDropdown.Items.Add(portName);
             }
 
             if (!string.IsNullOrWhiteSpace(previousSelection) &&
-                port_dropdown.Items.Contains(previousSelection))
+                portDropdown.Items.Contains(previousSelection))
             {
-                port_dropdown.SelectedItem = previousSelection;
+                portDropdown.SelectedItem = previousSelection;
             }
-            else if (port_dropdown.Items.Count > 0)
+            else if (portDropdown.Items.Count > 0)
             {
-                port_dropdown.SelectedIndex = 0;
+                portDropdown.SelectedIndex = 0;
             }
             else
             {
-                port_dropdown.SelectedIndex = -1;
+                portDropdown.SelectedIndex = -1;
             }
 
-            open_btn.Enabled = port_dropdown.Items.Count > 0;
-            AppendLog(port_dropdown.Items.Count > 0
-                ? $"系统: 已发现 {port_dropdown.Items.Count} 个串口"
+            openButton.Enabled = portDropdown.Items.Count > 0;
+            AppendLog(portDropdown.Items.Count > 0
+                ? $"系统: 已发现 {portDropdown.Items.Count} 个串口"
                 : "系统: 未发现可用串口");
         }
 
@@ -188,8 +188,8 @@ namespace WinFormsDemo
                 return;
             }
 
-            string? portName = port_dropdown.SelectedItem?.ToString();
-            string? baudText = baud_dropdown.SelectedItem?.ToString();
+            string? portName = portDropdown.SelectedItem?.ToString();
+            string? baudText = baudDropdown.SelectedItem?.ToString();
             if (string.IsNullOrWhiteSpace(portName))
             {
                 AppendLog("系统: 请选择串口");
@@ -214,7 +214,7 @@ namespace WinFormsDemo
                 };
 
                 _serialPort.Open();
-                open_btn.Text = "关闭串口";
+                openButton.Text = "关闭串口";
                 AppendLog($"系统: 已打开串口 {portName} @ {baudRate}");
             }
             catch (Exception ex)
@@ -226,13 +226,13 @@ namespace WinFormsDemo
 
         private void copy_recv_btn_Click(object? sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(recv_textarea.Text))
+            if (string.IsNullOrWhiteSpace(receiveTextArea.Text))
             {
                 AppendLog("系统: 接收区为空，无内容可复制");
                 return;
             }
 
-            Clipboard.SetText(recv_textarea.Text);
+            Clipboard.SetText(receiveTextArea.Text);
             AppendLog("系统: 接收内容已复制到剪贴板");
         }
 
@@ -358,7 +358,7 @@ namespace WinFormsDemo
         {
             if (_serialPort is null)
             {
-                open_btn.Text = "打开串口";
+                openButton.Text = "打开串口";
                 return;
             }
 
@@ -382,7 +382,7 @@ namespace WinFormsDemo
             {
                 _serialPort.Dispose();
                 _serialPort = null;
-                open_btn.Text = "打开串口";
+                openButton.Text = "打开串口";
             }
 
             if (logResult)
@@ -398,7 +398,7 @@ namespace WinFormsDemo
                 return string.Empty;
             }
 
-            return hex_switch.Checked
+            return hexSwitch.Checked
                 ? BitConverter.ToString(buffer).Replace("-", " ")
                 : Encoding.UTF8.GetString(buffer);
         }
@@ -410,13 +410,13 @@ namespace WinFormsDemo
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(recv_textarea.Text) || recv_textarea.Text == "接收的数据...")
+            if (string.IsNullOrWhiteSpace(receiveTextArea.Text) || receiveTextArea.Text == "接收的数据...")
             {
-                recv_textarea.Text = message;
+                receiveTextArea.Text = message;
                 return;
             }
 
-            recv_textarea.Text = $"{recv_textarea.Text}{Environment.NewLine}{message}";
+            receiveTextArea.Text = $"{receiveTextArea.Text}{Environment.NewLine}{message}";
         }
 
         protected override void OnHandleDestroyed(EventArgs e)

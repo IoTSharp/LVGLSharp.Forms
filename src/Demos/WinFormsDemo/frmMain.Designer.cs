@@ -34,15 +34,15 @@ namespace WinFormsDemo
         {
             toolbar = new FlowLayoutPanel();
             port_label = new Label();
-            port_dropdown = new ComboBox();
-            ref_btn = new Button();
+            portDropdown = new ComboBox();
+            refreshButton = new Button();
             baud_label = new Label();
-            baud_dropdown = new ComboBox();
-            open_btn = new Button();
+            baudDropdown = new ComboBox();
+            openButton = new Button();
             tpMain = new TableLayoutPanel();
             flowLayoutPanel1 = new FlowLayoutPanel();
             textBox1 = new TextBox();
-            send_btn = new Button();
+            sendButton = new Button();
             button2 = new Button();
             checkBox1 = new CheckBox();
             pictureBox1 = new PictureBox();
@@ -51,10 +51,10 @@ namespace WinFormsDemo
             button4 = new Button();
             checkBox2 = new CheckBox();
             recv_container = new FlowLayoutPanel();
-            recv_textarea = new TextBox();
+            receiveTextArea = new TextBox();
             button1 = new Button();
-            clear_btn = new Button();
-            hex_switch = new CheckBox();
+            clearButton = new Button();
+            hexSwitch = new CheckBox();
             toolbar.SuspendLayout();
             tpMain.SuspendLayout();
             flowLayoutPanel1.SuspendLayout();
@@ -65,11 +65,11 @@ namespace WinFormsDemo
             // toolbar
             // 
             toolbar.Controls.Add(port_label);
-            toolbar.Controls.Add(port_dropdown);
-            toolbar.Controls.Add(ref_btn);
+            toolbar.Controls.Add(portDropdown);
+            toolbar.Controls.Add(refreshButton);
             toolbar.Controls.Add(baud_label);
-            toolbar.Controls.Add(baud_dropdown);
-            toolbar.Controls.Add(open_btn);
+            toolbar.Controls.Add(baudDropdown);
+            toolbar.Controls.Add(openButton);
             toolbar.Location = new Point(3, 3);
             toolbar.Name = "toolbar";
             toolbar.Size = new Size(771, 49);
@@ -84,27 +84,27 @@ namespace WinFormsDemo
             port_label.Text = "串口";
             port_label.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // port_dropdown
+            // portDropdown
             // 
-            port_dropdown.DropDownHeight = 105;
-            port_dropdown.FlatStyle = FlatStyle.Flat;
-            port_dropdown.Font = new Font("Microsoft YaHei UI", 9F);
-            port_dropdown.FormattingEnabled = true;
-            port_dropdown.IntegralHeight = false;
-            port_dropdown.ItemHeight = 17;
-            port_dropdown.Location = new Point(109, 3);
-            port_dropdown.Name = "port_dropdown";
-            port_dropdown.Size = new Size(150, 25);
-            port_dropdown.TabIndex = 2;
+            portDropdown.DropDownHeight = 105;
+            portDropdown.FlatStyle = FlatStyle.Flat;
+            portDropdown.Font = new Font("Microsoft YaHei UI", 9F);
+            portDropdown.FormattingEnabled = true;
+            portDropdown.IntegralHeight = false;
+            portDropdown.ItemHeight = 17;
+            portDropdown.Location = new Point(109, 3);
+            portDropdown.Name = "portDropdown";
+            portDropdown.Size = new Size(150, 25);
+            portDropdown.TabIndex = 2;
             // 
-            // ref_btn
+            // refreshButton
             // 
-            ref_btn.Location = new Point(265, 3);
-            ref_btn.Name = "ref_btn";
-            ref_btn.Size = new Size(111, 46);
-            ref_btn.TabIndex = 1;
-            ref_btn.Text = "刷新串口";
-            ref_btn.UseVisualStyleBackColor = true;
+            refreshButton.Location = new Point(265, 3);
+            refreshButton.Name = "refreshButton";
+            refreshButton.Size = new Size(111, 46);
+            refreshButton.TabIndex = 1;
+            refreshButton.Text = "刷新串口";
+            refreshButton.UseVisualStyleBackColor = true;
             // 
             // baud_label
             // 
@@ -115,23 +115,23 @@ namespace WinFormsDemo
             baud_label.Text = "波特率";
             baud_label.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // baud_dropdown
+            // baudDropdown
             // 
-            baud_dropdown.Font = new Font("Microsoft YaHei UI", 9F);
-            baud_dropdown.FormattingEnabled = true;
-            baud_dropdown.Location = new Point(488, 3);
-            baud_dropdown.Name = "baud_dropdown";
-            baud_dropdown.Size = new Size(121, 25);
-            baud_dropdown.TabIndex = 4;
+            baudDropdown.Font = new Font("Microsoft YaHei UI", 9F);
+            baudDropdown.FormattingEnabled = true;
+            baudDropdown.Location = new Point(488, 3);
+            baudDropdown.Name = "baudDropdown";
+            baudDropdown.Size = new Size(121, 25);
+            baudDropdown.TabIndex = 4;
             // 
-            // open_btn
+            // openButton
             // 
-            open_btn.Location = new Point(615, 3);
-            open_btn.Name = "open_btn";
-            open_btn.Size = new Size(75, 49);
-            open_btn.TabIndex = 5;
-            open_btn.Text = "打开串口";
-            open_btn.UseVisualStyleBackColor = true;
+            openButton.Location = new Point(615, 3);
+            openButton.Name = "openButton";
+            openButton.Size = new Size(75, 49);
+            openButton.TabIndex = 5;
+            openButton.Text = "打开串口";
+            openButton.UseVisualStyleBackColor = true;
             // 
             // tpMain
             // 
@@ -153,7 +153,7 @@ namespace WinFormsDemo
             // flowLayoutPanel1
             // 
             flowLayoutPanel1.Controls.Add(textBox1);
-            flowLayoutPanel1.Controls.Add(send_btn);
+            flowLayoutPanel1.Controls.Add(sendButton);
             flowLayoutPanel1.Controls.Add(button2);
             flowLayoutPanel1.Controls.Add(checkBox1);
             flowLayoutPanel1.Controls.Add(pictureBox1);
@@ -176,15 +176,15 @@ namespace WinFormsDemo
             textBox1.Size = new Size(570, 50);
             textBox1.TabIndex = 0;
             // 
-            // send_btn
+            // sendButton
             // 
-            send_btn.Location = new Point(579, 3);
-            send_btn.Name = "send_btn";
-            send_btn.Size = new Size(106, 50);
-            send_btn.TabIndex = 2;
-            send_btn.Text = "发送";
-            send_btn.UseVisualStyleBackColor = true;
-            send_btn.Click += send_btn_Click;
+            sendButton.Location = new Point(579, 3);
+            sendButton.Name = "sendButton";
+            sendButton.Size = new Size(106, 50);
+            sendButton.TabIndex = 2;
+            sendButton.Text = "发送";
+            sendButton.UseVisualStyleBackColor = true;
+            sendButton.Click += send_btn_Click;
             // 
             // button2
             // 
@@ -255,24 +255,24 @@ namespace WinFormsDemo
             // recv_container
             // 
             tpMain.SetColumnSpan(recv_container, 3);
-            recv_container.Controls.Add(recv_textarea);
+            recv_container.Controls.Add(receiveTextArea);
             recv_container.Controls.Add(button1);
-            recv_container.Controls.Add(clear_btn);
-            recv_container.Controls.Add(hex_switch);
+            recv_container.Controls.Add(clearButton);
+            recv_container.Controls.Add(hexSwitch);
             recv_container.Dock = DockStyle.Fill;
             recv_container.Location = new Point(3, 58);
             recv_container.Name = "recv_container";
             recv_container.Size = new Size(794, 179);
             recv_container.TabIndex = 1;
             // 
-            // recv_textarea
+            // receiveTextArea
             // 
-            recv_textarea.Location = new Point(3, 3);
-            recv_textarea.Multiline = true;
-            recv_textarea.Name = "recv_textarea";
-            recv_textarea.Size = new Size(504, 183);
-            recv_textarea.TabIndex = 0;
-            recv_textarea.Text = "接收的数据...";
+            receiveTextArea.Location = new Point(3, 3);
+            receiveTextArea.Multiline = true;
+            receiveTextArea.Name = "receiveTextArea";
+            receiveTextArea.Size = new Size(504, 183);
+            receiveTextArea.TabIndex = 0;
+            receiveTextArea.Text = "接收的数据...";
             // 
             // button1
             // 
@@ -283,24 +283,24 @@ namespace WinFormsDemo
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
-            // clear_btn
+            // clearButton
             // 
-            clear_btn.Location = new Point(594, 3);
-            clear_btn.Name = "clear_btn";
-            clear_btn.Size = new Size(75, 41);
-            clear_btn.TabIndex = 2;
-            clear_btn.Text = "清空";
-            clear_btn.UseVisualStyleBackColor = true;
-            clear_btn.Click += button1_Click;
+            clearButton.Location = new Point(594, 3);
+            clearButton.Name = "clearButton";
+            clearButton.Size = new Size(75, 41);
+            clearButton.TabIndex = 2;
+            clearButton.Text = "清空";
+            clearButton.UseVisualStyleBackColor = true;
+            clearButton.Click += button1_Click;
             // 
-            // hex_switch
+            // hexSwitch
             // 
-            hex_switch.Location = new Point(675, 3);
-            hex_switch.Name = "hex_switch";
-            hex_switch.Size = new Size(91, 41);
-            hex_switch.TabIndex = 3;
-            hex_switch.Text = "HEX模式";
-            hex_switch.UseVisualStyleBackColor = true;
+            hexSwitch.Location = new Point(675, 3);
+            hexSwitch.Name = "hexSwitch";
+            hexSwitch.Size = new Size(91, 41);
+            hexSwitch.TabIndex = 3;
+            hexSwitch.Text = "HEX模式";
+            hexSwitch.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
@@ -325,19 +325,19 @@ namespace WinFormsDemo
 
         private FlowLayoutPanel toolbar;
         private Label port_label;
-        private ComboBox port_dropdown;
-        private Button ref_btn;
+        private ComboBox portDropdown;
+        private Button refreshButton;
         private TableLayoutPanel tpMain;
         private FlowLayoutPanel recv_container;
         private Label baud_label;
-        private ComboBox baud_dropdown;
-        private Button open_btn;
-        private TextBox recv_textarea;
-        private Button clear_btn;
-        private CheckBox hex_switch;
+        private ComboBox baudDropdown;
+        private Button openButton;
+        private TextBox receiveTextArea;
+        private Button clearButton;
+        private CheckBox hexSwitch;
         private FlowLayoutPanel flowLayoutPanel1;
         private TextBox textBox1;
-        private Button send_btn;
+        private Button sendButton;
         private Button button2;
         private CheckBox checkBox1;
         private PictureBox pictureBox1;
