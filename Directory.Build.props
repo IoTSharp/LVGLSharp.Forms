@@ -15,6 +15,10 @@
     <Version>9.3.0</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+    <RestoreFallbackFolders></RestoreFallbackFolders>
+  </PropertyGroup>
+
   <!-- Include the repo-level README in every NuGet package. -->
   <ItemGroup Condition="'$(IsPackable)' != 'false' And Exists('$(MSBuildThisFileDirectory)README.md')">
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />

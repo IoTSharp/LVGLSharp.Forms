@@ -117,21 +117,22 @@ internal static unsafe partial class WaylandNative
         public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, void> Leave;
         public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, void> Key;
         public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, uint, void> Modifiers;
-        public readonly IntPtr RepeatInfo;
+        public readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, int, void> RepeatInfo;
 
         public WlKeyboardListener(
             delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, int, uint, void> keymap,
             delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, IntPtr, void> enter,
             delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, IntPtr, void> leave,
             delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, void> key,
-            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, uint, void> modifiers)
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, uint, uint, uint, uint, uint, void> modifiers,
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, int, void> repeatInfo)
         {
             Keymap = keymap;
             Enter = enter;
             Leave = leave;
             Key = key;
             Modifiers = modifiers;
-            RepeatInfo = IntPtr.Zero;
+            RepeatInfo = repeatInfo;
         }
     }
 

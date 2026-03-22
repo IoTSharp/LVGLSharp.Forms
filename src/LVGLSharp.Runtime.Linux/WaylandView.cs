@@ -21,6 +21,7 @@ public unsafe sealed class WaylandView : IView
     private lv_display_t* _lvDisplay;
     private lv_indev_t* _mouseIndev;
     private lv_indev_t* _keyboardIndev;
+    private lv_indev_t* _wheelIndev;
     private lv_obj_t* _root;
     private lv_group_t* _keyInputGroup;
     private bool _initialized;
@@ -107,6 +108,12 @@ public unsafe sealed class WaylandView : IView
 
         _connection.PumpEvents();
         HandlePendingResize();
+
+        if (_root != null && _bufferPresenter.ConsumeRedrawAfterRelease())
+        {
+            lv_obj_invalidate(_root);
+        }
+
         lv_timer_handler();
     }
 
@@ -160,6 +167,12 @@ public unsafe sealed class WaylandView : IView
                 _keyboardIndev = null;
             }
 
+            if (_wheelIndev != null)
+            {
+                lv_indev_delete(_wheelIndev);
+                _wheelIndev = null;
+            }
+
             if (_keyInputGroup != null)
             {
                 lv_group_delete(_keyInputGroup);
@@ -193,12 +206,17 @@ public unsafe sealed class WaylandView : IView
     private InvalidOperationException CreateNativeHostNotImplementedException()
     {
         return new InvalidOperationException(
-            $"Wayland native host is not implemented yet. {_connection.DiagnosticSummary}, Connected={_connection.IsConnected}, ConnectedDisplay={_connection.ConnectedDisplayName ?? "<default>"}, Compositor={_connection.HasCompositor}:{_connection.CompositorVersion}, Shm={_connection.HasSharedMemory}:{_connection.SharedMemoryVersion}, XdgWmBase={_connection.HasXdgWmBase}:{_connection.XdgWmBaseVersion}, Seat={_connection.HasSeat}:{_connection.SeatVersion}, Window={_window.Title}({_window.Width}x{_window.Height}), SurfaceReady={_window.HasSurfacePrerequisites}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgReady={_window.HasXdgShellPrerequisites}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}, WindowInit={_window.InitializationSummary ?? "<pending>"}, Pointer={_inputSource.SupportsPointer}:{_inputSource.CurrentMouseButton}@{_inputSource.CurrentMousePosition.X},{_inputSource.CurrentMousePosition.Y}, Keyboard={_inputSource.SupportsKeyboard}:{_inputSource.CurrentKey}:{_inputSource.IsKeyPressed}, TextInput={_inputSource.SupportsTextInput}, Surface={_bufferPresenter.PixelWidth}x{_bufferPresenter.PixelHeight}@{_bufferPresenter.Dpi:0.##}dpi, LvDisplay={_lvDisplay != null}, Root={_root != null}, KeyGroup={_keyInputGroup != null}, ShmBuffer={_bufferPresenter.HasSharedMemoryBuffer}:{_bufferPresenter.IsBufferReleased}:{_bufferPresenter.BufferReleaseCount}, Flushes={_bufferPresenter.FlushCount}:{_bufferPresenter.LastFlushWidth}x{_bufferPresenter.LastFlushHeight}, SkippedFlushes={_bufferPresenter.SkippedFlushCount}");
+            $"Wayland native host is not implemented yet. {_connection.DiagnosticSummary}, Connected={_connection.IsConnected}, ConnectedDisplay={_connection.ConnectedDisplayName ?? "<default>"}, Compositor={_connection.HasCompositor}:{_connection.CompositorVersion}, Shm={_connection.HasSharedMemory}:{_connection.SharedMemoryVersion}, XdgWmBase={_connection.HasXdgWmBase}:{_connection.XdgWmBaseVersion}, Seat={_connection.HasSeat}:{_connection.SeatVersion}, Window={_window.Title}({_window.Width}x{_window.Height}), SurfaceReady={_window.HasSurfacePrerequisites}, NativeSurface={_window.IsNativeSurfaceInitialized}, XdgReady={_window.HasXdgShellPrerequisites}, XdgSurface={_window.IsXdgSurfaceInitialized}, XdgToplevel={_window.IsXdgToplevelInitialized}, Configure={_window.HasReceivedConfigure}:{_window.LastConfigureSerial}, Ack={_window.HasAcknowledgedConfigure}, Pong={_window.HasRespondedToPing}:{_window.LastPingSerial}, ToplevelSize={_window.LastConfiguredWidth}x{_window.LastConfiguredHeight}, Close={_window.IsCloseRequested}, WindowInit={_window.InitializationSummary ?? "<pending>"}, Pointer={_inputSource.SupportsPointer}:{_inputSource.CurrentMouseButton}@{_inputSource.CurrentMousePosition.X},{_inputSource.CurrentMousePosition.Y}:{_inputSource.HasPointerFocus}, Keyboard={_inputSource.SupportsKeyboard}:{_inputSource.CurrentKey}:{_inputSource.IsKeyPressed}:{_inputSource.HasKeyboardLayout}:{_inputSource.HasKeyboardFocus}, Repeat={_inputSource.RepeatRate}:{_inputSource.RepeatDelay}, TextInput={_inputSource.SupportsTextInput}, Surface={_bufferPresenter.PixelWidth}x{_bufferPresenter.PixelHeight}@{_bufferPresenter.Dpi:0.##}dpi, LvDisplay={_lvDisplay != null}, Root={_root != null}, KeyGroup={_keyInputGroup != null}, ShmBuffer={_bufferPresenter.HasSharedMemoryBuffer}:{_bufferPresenter.IsBufferReleased}:{_bufferPresenter.BufferReleaseCount}, Flushes={_bufferPresenter.FlushCount}:{_bufferPresenter.LastFlushWidth}x{_bufferPresenter.LastFlushHeight}, SkippedFlushes={_bufferPresenter.SkippedFlushCount}");
     }
 
     private void HandlePendingResize()
     {
-        if (_lvDisplay == null || !_window.TryConsumePendingResize(out var width, out var height))
+        if (_lvDisplay == null || !_window.HasPendingResize || !_bufferPresenter.IsBufferReleased)
+        {
+            return;
+        }
+
+        if (!_window.TryConsumePendingResize(out var width, out var height))
         {
             return;
         }
@@ -210,6 +228,11 @@ public unsafe sealed class WaylandView : IView
 
         lv_display_set_resolution(_lvDisplay, width, height);
         lv_display_set_buffers(_lvDisplay, _bufferPresenter.DrawBuffer, null, _bufferPresenter.DrawBufferByteSize, LV_DISPLAY_RENDER_MODE_FULL);
+
+        if (_root != null)
+        {
+            lv_obj_invalidate(_root);
+        }
     }
 
     private void InitializeLvgl()
@@ -243,6 +266,11 @@ public unsafe sealed class WaylandView : IView
         lv_indev_set_type(_keyboardIndev, LV_INDEV_TYPE_KEYPAD);
         lv_indev_set_read_cb(_keyboardIndev, &KeyboardReadCb);
         lv_indev_set_display(_keyboardIndev, _lvDisplay);
+
+        _wheelIndev = lv_indev_create();
+        lv_indev_set_type(_wheelIndev, LV_INDEV_TYPE_ENCODER);
+        lv_indev_set_read_cb(_wheelIndev, &WheelReadCb);
+        lv_indev_set_display(_wheelIndev, _lvDisplay);
 
         _root = lv_scr_act();
         _keyInputGroup = lv_group_create();
@@ -302,7 +330,24 @@ public unsafe sealed class WaylandView : IView
             return;
         }
 
-        data->key = view._inputSource.CurrentKey;
-        data->state = view._inputSource.IsKeyPressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+        view._inputSource.ReadKeyboardState(out var key, out var pressed);
+        data->key = key;
+        data->state = pressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
     }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void WheelReadCb(lv_indev_t* indev, lv_indev_data_t* data)
+    {
+        var view = s_activeView;
+        if (view is null)
+        {
+            data->enc_diff = 0;
+            data->state = LV_INDEV_STATE_REL;
+            return;
+        }
+
+        data->enc_diff = (short)view._inputSource.ConsumeEncoderDiff();
+        data->state = LV_INDEV_STATE_REL;
+    }
+
 }

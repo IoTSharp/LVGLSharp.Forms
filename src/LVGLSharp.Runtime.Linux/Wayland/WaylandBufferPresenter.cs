@@ -65,6 +65,8 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
 
     public bool IsBufferReleased { get; private set; }
 
+    public bool NeedsRedrawAfterRelease { get; private set; }
+
     public uint BufferReleaseCount { get; private set; }
 
     public uint SkippedFlushCount { get; private set; }
@@ -127,6 +129,7 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
             _sharedMemoryBuffer = WaylandNative.CreateSharedMemoryBuffer(_sharedMemoryPool, PixelWidth, PixelHeight, _stride);
             AttachBufferReleaseListener();
             IsBufferReleased = true;
+            NeedsRedrawAfterRelease = false;
         }
         finally
         {
@@ -176,6 +179,7 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
         if (!IsBufferReleased)
         {
             SkippedFlushCount++;
+            NeedsRedrawAfterRelease = true;
             lv_display_flush_ready(display);
             return;
         }
@@ -286,9 +290,23 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
         BufferReleaseCount = 0;
         SkippedFlushCount = 0;
         IsBufferReleased = true;
+        NeedsRedrawAfterRelease = false;
         LastFlushWidth = 0;
         LastFlushHeight = 0;
         IsDisposed = true;
+    }
+
+    public bool ConsumeRedrawAfterRelease()
+    {
+        ThrowIfDisposed();
+
+        if (!NeedsRedrawAfterRelease || !IsBufferReleased)
+        {
+            return false;
+        }
+
+        NeedsRedrawAfterRelease = false;
+        return true;
     }
 
     private void ReleaseSharedMemoryResources()
@@ -317,6 +335,7 @@ internal unsafe sealed partial class WaylandBufferPresenter : IDisposable
         }
 
         IsBufferReleased = true;
+        NeedsRedrawAfterRelease = false;
     }
 
     private void ReleaseDrawBuffer()

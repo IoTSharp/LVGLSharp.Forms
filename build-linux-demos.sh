@@ -127,6 +127,7 @@ fi
 require_cmd cmake
 require_cmd dotnet
 require_cmd cp
+require_cmd find
 require_cmd ln
 require_cmd rm
 require_cmd chmod
@@ -136,12 +137,22 @@ LVGL_BUILD_DIR="$ROOT_DIR/libs/build/lvgl-x11"
 LVGL_LIB_DIR="$LVGL_BUILD_DIR/lib"
 LVGL_SONAME_PATH="$LVGL_LIB_DIR/liblvgl.so.9"
 DIST_DIR="$ROOT_DIR/dist/$RID"
+NUGET_CONFIG_PATH="$ROOT_DIR/NuGet.Wsl.Config"
+
+NUGET_CONFIG_OPTION=()
+if [[ -f "$NUGET_CONFIG_PATH" ]]; then
+    NUGET_CONFIG_OPTION=(--configfile "$NUGET_CONFIG_PATH")
+fi
 
 if ((CLEAN)); then
     rm -rf "$DIST_DIR" "$LVGL_BUILD_DIR"
 fi
 
 mkdir -p "$DIST_DIR"
+
+if ((${#NUGET_CONFIG_OPTION[@]} > 0)); then
+    find "$ROOT_DIR/src" -type d \( -name obj -o -name bin \) -prune -exec rm -rf {} +
+fi
 
 printf '==> Building LVGL shared library (%s)\n' "$RID"
 cmake -S "$LVGL_SOURCE_DIR" -B "$LVGL_BUILD_DIR" \
@@ -173,11 +184,19 @@ publish_demo() {
     printf '==> Publishing %s (%s)\n' "$demo_name" "$target_framework"
     rm -rf "$publish_dir"
 
+    dotnet restore "$project_path" \
+        -r "$RID" \
+        --force-evaluate \
+        "${NUGET_CONFIG_OPTION[@]}" \
+        -p:EnableWindowsTargeting=true
+
     dotnet publish "$project_path" \
         -f "$target_framework" \
         -c "$CONFIGURATION" \
         -r "$RID" \
         -o "$publish_dir" \
+        --no-restore \
+        "${NUGET_CONFIG_OPTION[@]}" \
         -p:EnableWindowsTargeting=true
 
     [[ -f "$executable_path" ]] || fail "missing published executable: $executable_path"
