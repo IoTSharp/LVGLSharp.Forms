@@ -78,7 +78,7 @@ public unsafe sealed partial class SdlView : ViewLifetimeBase
         _root = lv_scr_act();
         _keyInputGroup = lv_group_create();
         lv_indev_set_group(_keyboardIndev, _keyInputGroup);
-        _fallbackFont = lv_obj_get_style_text_font(_root, LV_PART_MAIN);
+        _fallbackFont = lv_obj_get_style_text_font(_root, lv_part_t.LV_PART_MAIN);
         _fontDiagnosticSummary = LinuxSystemFontResolver.GetFontPathDiagnosticSummary();
         _fontGlyphDiagnosticSummary = LinuxSystemFontResolver.GetGlyphDiagnosticSummary();
 

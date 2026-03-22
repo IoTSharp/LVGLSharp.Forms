@@ -89,11 +89,11 @@ namespace LVGLSharp.Forms
             var obj = (lv_obj_t*)_lvglObjectHandle;
             if (_checked)
             {
-                lv_obj_add_state(obj, LV_STATE_CHECKED);
+                lv_obj_add_state(obj, lv_state_t.LV_STATE_CHECKED);
             }
             else
             {
-                lv_obj_clear_state(obj, LV_STATE_CHECKED);
+                lv_obj_clear_state(obj, lv_state_t.LV_STATE_CHECKED);
             }
         }
     }

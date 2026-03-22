@@ -188,7 +188,7 @@ namespace LVGLSharp.Runtime.Windows
             lv_point_t cursorPoint;
             lv_label_get_letter_pos(labelObj, lv_textarea_get_cursor_pos(target), &cursorPoint);
 
-            var font = lv_obj_get_style_text_font(target, LV_PART_MAIN);
+            var font = lv_obj_get_style_text_font(target, lv_part_t.LV_PART_MAIN);
             int ime_x = labelArea.x1 + cursorPoint.x;
             int ime_y = labelArea.y1 + cursorPoint.y + (font != null ? font->line_height : 0);
 
@@ -319,7 +319,7 @@ namespace LVGLSharp.Runtime.Windows
             }
 
             lv_textarea_clear_selection(focusedObj);
-            lv_obj_clear_state(focusedObj, (ushort)(LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY));
+            lv_obj_clear_state(focusedObj, lv_state_t.LV_STATE_FOCUSED | lv_state_t.LV_STATE_FOCUS_KEY);
             lv_group_focus_obj(g_focusSink);
         }
 
@@ -535,7 +535,7 @@ namespace LVGLSharp.Runtime.Windows
             lv_obj_set_size(g_focusSink, 1, 1);
             lv_obj_add_flag(g_focusSink, lv_obj_flag_t.LV_OBJ_FLAG_HIDDEN | lv_obj_flag_t.LV_OBJ_FLAG_IGNORE_LAYOUT);
 
-            _fallbackFont = lv_obj_get_style_text_font(RootObject, LV_PART_MAIN);
+            _fallbackFont = lv_obj_get_style_text_font(RootObject, lv_part_t.LV_PART_MAIN);
 
             _fontManager = new SixLaborsFontManager(SystemFonts.Get("Microsoft YaHei"), 12, GetDPI(), _fallbackFont, [
                 61441, 61448, 61451, 61452, 61453, 61457, 61459, 61461, 61465, 61468,

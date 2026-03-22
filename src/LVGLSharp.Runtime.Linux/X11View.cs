@@ -402,7 +402,7 @@ public unsafe partial class X11View : ViewLifetimeBase
         RootObject = lv_scr_act();
         KeyInputGroupObject = lv_group_create();
         lv_indev_set_group(_keyboardIndev, KeyInputGroupObject);
-        _fallbackFont = lv_obj_get_style_text_font(RootObject, LV_PART_MAIN);
+        _fallbackFont = lv_obj_get_style_text_font(RootObject, lv_part_t.LV_PART_MAIN);
         _fontDiagnosticSummary = LinuxSystemFontResolver.GetFontPathDiagnosticSummary();
         _fontGlyphDiagnosticSummary = LinuxSystemFontResolver.GetGlyphDiagnosticSummary();
 

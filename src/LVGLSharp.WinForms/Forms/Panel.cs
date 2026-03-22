@@ -46,7 +46,7 @@ namespace LVGLSharp.Forms
 
             if (BackColor != Color.Empty)
             {
-                lv_obj_set_style_bg_opa(obj, (byte)LV_OPA_COVER, 0);
+                lv_obj_set_style_bg_opa(obj, (byte)_lv_opacity_level_t.LV_OPA_COVER, 0);
                 lv_obj_set_style_bg_color(obj, lv_color_make(BackColor.R, BackColor.G, BackColor.B), 0);
             }
 

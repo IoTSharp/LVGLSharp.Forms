@@ -294,7 +294,7 @@ public unsafe sealed class WaylandView : ViewLifetimeBase
             lv_indev_set_group(_keyboardIndev, _keyInputGroup);
         }
 
-        _fallbackFont = lv_obj_get_style_text_font(_root, LV_PART_MAIN);
+        _fallbackFont = lv_obj_get_style_text_font(_root, lv_part_t.LV_PART_MAIN);
         _fontDiagnosticSummary = LinuxSystemFontResolver.GetFontPathDiagnosticSummary();
 
         _resolvedSystemFontPath = LinuxSystemFontResolver.TryResolveFontPath();

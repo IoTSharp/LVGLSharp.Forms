@@ -128,6 +128,9 @@ namespace LVGLSharp.Runtime.Windows
         public static extern bool UpdateWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
+        public static extern bool DestroyWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hWnd);
         [DllImport("user32.dll")]
         public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);

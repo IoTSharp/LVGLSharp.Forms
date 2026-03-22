@@ -70,7 +70,7 @@ public unsafe class FrameBufferView : ViewLifetimeBase
 
             RootObject = lv_scr_act();
 
-            _fallbackFont = lv_obj_get_style_text_font(RootObject, LV_PART_MAIN);
+            _fallbackFont = lv_obj_get_style_text_font(RootObject, lv_part_t.LV_PART_MAIN);
 
             var systemFontPath = LinuxSystemFontResolver.TryResolveFontPath();
             if (!string.IsNullOrWhiteSpace(systemFontPath))

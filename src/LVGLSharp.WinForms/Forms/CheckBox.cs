@@ -98,11 +98,11 @@ namespace LVGLSharp.Forms
             
             if (_checked || _checkState == CheckState.Checked)
             {
-                lv_obj_add_state(obj, LV_STATE_CHECKED);
+                lv_obj_add_state(obj, lv_state_t.LV_STATE_CHECKED);
             }
             else
             {
-                lv_obj_clear_state(obj, LV_STATE_CHECKED);
+                lv_obj_clear_state(obj, lv_state_t.LV_STATE_CHECKED);
             }
         }
 
