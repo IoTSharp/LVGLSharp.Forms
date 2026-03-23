@@ -136,17 +136,31 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
     {
         if (!_initialized)
         {
-            throw new InvalidOperationException("OffscreenView …–Œ¥¥Úø™°£");
+            throw new InvalidOperationException("OffscreenView ?????");
         }
 
         lv_timer_handler();
+    }
+
+    public Image<Rgba32> RenderSnapshot()
+    {
+        RenderFrame();
+        return CaptureImage();
+    }
+
+    public void RenderSnapshotToPng(string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        using var image = RenderSnapshot();
+        image.Save(path);
     }
 
     public Image<Rgba32> CaptureImage()
     {
         if (!_initialized || _frameBuffer == null)
         {
-            throw new InvalidOperationException("OffscreenView …–Œ¥◊º±∏∫√ΩÿÕº°£");
+            throw new InvalidOperationException("OffscreenView ????????");
         }
 
         var image = new Image<Rgba32>(_width, _height);
@@ -185,13 +199,13 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
         _drawBuffer = (byte*)NativeMemory.AllocZeroed((nuint)_drawBufferByteSize);
         if (_drawBuffer == null)
         {
-            throw new OutOfMemoryException("Offscreen draw buffer ∑÷≈‰ ß∞‹°£");
+            throw new OutOfMemoryException("Offscreen draw buffer ?????");
         }
 
         _frameBuffer = (uint*)NativeMemory.AllocZeroed((nuint)(_width * _height), (nuint)sizeof(uint));
         if (_frameBuffer == null)
         {
-            throw new OutOfMemoryException("Offscreen frame buffer ∑÷≈‰ ß∞‹°£");
+            throw new OutOfMemoryException("Offscreen frame buffer ?????");
         }
     }
 

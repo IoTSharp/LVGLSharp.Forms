@@ -47,41 +47,10 @@ jobs:
         shell: bash
         run: |
           rm -rf pages-src _site
-          mkdir -p pages-src/blog pages-src/_layouts pages-src/assets/css
-          cp docs/_config.yml pages-src/_config.yml
-          cp docs/index.md pages-src/index.md
-          cp docs/index.en.md pages-src/index.en.md
-          cp docs/navigation.md pages-src/navigation.md
-          cp docs/navigation.en.md pages-src/navigation.en.md
-          cp docs/preview-local.md pages-src/preview-local.md
-          cp docs/ci-workflows.md pages-src/ci-workflows.md
-          cp docs/ci-workflows.en.md pages-src/ci-workflows.en.md
-          cp docs/WSL-Developer-Guide.md pages-src/WSL-Developer-Guide.md
-          cp docs/WSL-Developer-Guide.en.md pages-src/WSL-Developer-Guide.en.md
-          cp docs/_layouts/default.html pages-src/_layouts/default.html
-          cp docs/assets/css/site.css pages-src/assets/css/site.css
-          cp docs/blog-winforms-over-lvgl.md pages-src/blog-winforms-over-lvgl.md
-          cp docs/blog-nativeaot-gui.md pages-src/blog-nativeaot-gui.md
-          cp docs/blog-linux-hosts.md pages-src/blog-linux-hosts.md
-          cp docs/blog-architecture.md pages-src/blog-architecture.md
-          cp docs/blog/index.md pages-src/blog/index.md
-          cp docs/blog/index.en.md pages-src/blog/index.en.md
-          cp docs/blog-architecture.md pages-src/blog/architecture.md
-          cp docs/blog-nativeaot-gui.md pages-src/blog/nativeaot-gui.md
-          cp docs/blog-linux-hosts.md pages-src/blog/linux-hosts.md
-          cp docs/blog-winforms-over-lvgl.md pages-src/blog/winforms-over-lvgl.md
-          cp docs/blog/architecture.en.md pages-src/blog/architecture.en.md
-          cp docs/blog/nativeaot-gui.en.md pages-src/blog/nativeaot-gui.en.md
-          cp docs/blog/linux-hosts.en.md pages-src/blog/linux-hosts.en.md
-          cp docs/blog/why-winforms-over-lvgl.en.md pages-src/blog/why-winforms-over-lvgl.en.md
+          mkdir -p pages-src
+          cp -R docs/. pages-src/
           cp ROADMAP.md pages-src/ROADMAP.md
           cp CHANGELOG.md pages-src/CHANGELOG.md
-          cp docs/CNAME pages-src/CNAME
-
-          if [ -d docs/images ]; then
-            mkdir -p pages-src/images
-            cp -R docs/images/. pages-src/images/
-          fi
 
       - name: 构建 Jekyll 站点
         uses: actions/jekyll-build-pages@v1

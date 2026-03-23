@@ -82,7 +82,7 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Linux X11 / WSLg | Available | Current desktop-oriented Linux path |
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
 | Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
-| Headless Offscreen | In progress | Basic headless rendering path exists in `LVGLSharp.Runtime.Headless`, along with an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
+| Headless Offscreen | In progress | Basic headless rendering path exists in `LVGLSharp.Runtime.Headless`, with reusable snapshot export APIs and an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
 | MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, but no native macOS host backend is implemented yet |
 | Remote runtimes (`VNC` / `RDP`) | Planned (skeleton) | Cross-platform remote runtime project exists; protocol/server implementations are not started yet |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |

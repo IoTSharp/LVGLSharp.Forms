@@ -25,21 +25,20 @@ internal static unsafe class Program
             throw new InvalidOperationException("Offscreen label ´´½¨Ê§°Ü¡£");
         }
 
-        var text = Encoding.UTF8.GetBytes("LVGLSharp Offscreen Snapshot\0");
+        var text = Encoding.UTF8.GetBytes($"{options.Text}\0");
         fixed (byte* textPtr = text)
         {
             lv_label_set_text(label, textPtr);
         }
 
         lv_obj_center(label);
-        view.RenderFrame();
 
         Directory.CreateDirectory(Path.GetDirectoryName(options.OutputPath)!);
-        view.SavePng(options.OutputPath);
+        view.RenderSnapshotToPng(options.OutputPath);
         Console.WriteLine($"Offscreen snapshot saved: {options.OutputPath}");
     }
 
-    private sealed record OffscreenDemoOptions(string OutputPath, int Width, int Height, float Dpi)
+    private sealed record OffscreenDemoOptions(string OutputPath, int Width, int Height, float Dpi, string Text)
     {
         public static OffscreenDemoOptions Parse(string[] args)
         {
@@ -50,8 +49,11 @@ internal static unsafe class Program
             var width = TryParseInt(args, 1, 480);
             var height = TryParseInt(args, 2, 320);
             var dpi = TryParseFloat(args, 3, 96f);
+            var text = args.Length > 4 && !string.IsNullOrWhiteSpace(args[4])
+                ? args[4]
+                : "LVGLSharp Offscreen Snapshot";
 
-            return new OffscreenDemoOptions(outputPath, width, height, dpi);
+            return new OffscreenDemoOptions(outputPath, width, height, dpi, text);
         }
 
         private static int TryParseInt(string[] args, int index, int fallback)

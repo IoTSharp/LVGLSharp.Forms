@@ -225,10 +225,12 @@ libs/
 当前新增独立示例：
 
 - `src/Demos/OffscreenDemo/OffscreenDemo.csproj`：演示 `OffscreenView` 的无头渲染与 PNG 导出。
-- 可通过命令行参数显式指定输出文件路径、宽高与 DPI。
+- 可通过命令行参数显式指定输出文件路径、宽高、DPI 与快照文本内容。
+- `OffscreenDemo`、`LVGLSharp.Runtime.Headless`、`LVGLSharp.Runtime.Remote` 与 `LVGLSharp.Runtime.MacOs` 已纳入 `LVGLSharp.sln`，可直接参与统一解决方案构建。
 
 当前新增骨架能力：
 
+- `src/LVGLSharp.Runtime.Headless/`：无头渲染运行时，当前承载 `OffscreenView`，已提供 `RenderFrame()`、`RenderSnapshot()`、`CaptureImage()`、`RenderSnapshotToPng()` 与 `SavePng()` 等基础快照导出入口。
 - `src/LVGLSharp.Runtime.MacOs/`：macOS 运行时骨架。
 - `src/LVGLSharp.Runtime.Remote/`：跨平台远程运行时抽象骨架，用于后续 `VNC` / `RDP`。
 
