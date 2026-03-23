@@ -71,14 +71,13 @@ jobs:
   # 3. 仅在 tag 或手动发布时生成 demo 资产
   build-demos:
     name: 调用 Demo 构建阶段
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     needs: prepare
     uses: ./.github/workflows/build-demos.yml
     with:
       package_version: ${{ needs.prepare.outputs.package_version }}
     permissions:
       contents: read
-
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
   publish:
     name: 调用发布阶段
