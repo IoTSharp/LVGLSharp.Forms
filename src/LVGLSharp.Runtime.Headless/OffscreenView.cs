@@ -10,9 +10,7 @@ namespace LVGLSharp.Runtime.Headless;
 
 public unsafe sealed class OffscreenView : ViewLifetimeBase
 {
-    private int _width;
-    private int _height;
-    private readonly float _dpi;
+    private readonly OffscreenOptions _options;
     private bool _running;
     private bool _initialized;
     private lv_display_t* _lvDisplay;
@@ -23,12 +21,28 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
     private uint* _frameBuffer;
     private GCHandle _selfHandle;
 
-    public OffscreenView(int width = 800, int height = 600, float dpi = 96f)
+    public OffscreenView()
+        : this(OffscreenOptions.Default)
     {
-        _width = width;
-        _height = height;
-        _dpi = dpi;
     }
+
+    public OffscreenView(OffscreenOptions options)
+    {
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _options.Validate();
+    }
+
+    public OffscreenView(int width, int height, float dpi)
+        : this(new OffscreenOptions
+        {
+            Width = width,
+            Height = height,
+            Dpi = dpi,
+        })
+    {
+    }
+
+    public OffscreenOptions Options => _options;
 
     public override lv_obj_t* Root => _root;
 
@@ -47,10 +61,10 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
 
         AllocateBuffers();
 
-        _lvDisplay = lv_display_create(_width, _height);
+        _lvDisplay = lv_display_create(_options.Width, _options.Height);
         if (_lvDisplay == null)
         {
-            throw new InvalidOperationException("Offscreen LVGL display ´´½¨Ê§°Ü¡£");
+            throw new InvalidOperationException("Offscreen LVGL display ?????");
         }
 
         if (!_selfHandle.IsAllocated)
@@ -163,14 +177,14 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
             throw new InvalidOperationException("OffscreenView ????????");
         }
 
-        var image = new Image<Rgba32>(_width, _height);
+        var image = new Image<Rgba32>(_options.Width, _options.Height, _options.BackgroundColor);
         image.ProcessPixelRows(accessor =>
         {
-            for (var y = 0; y < _height; y++)
+            for (var y = 0; y < _options.Height; y++)
             {
                 var row = accessor.GetRowSpan(y);
-                var rowOffset = y * _width;
-                for (var x = 0; x < _width; x++)
+                var rowOffset = y * _options.Width;
+                for (var x = 0; x < _options.Width; x++)
                 {
                     var argb = _frameBuffer[rowOffset + x];
                     row[x] = new Rgba32(
@@ -193,16 +207,26 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
         image.Save(path);
     }
 
+    public void SaveSnapshot()
+    {
+        if (string.IsNullOrWhiteSpace(_options.OutputPath))
+        {
+            throw new InvalidOperationException("?? OffscreenOptions ??? OutputPath?");
+        }
+
+        RenderSnapshotToPng(_options.OutputPath);
+    }
+
     private void AllocateBuffers()
     {
-        _drawBufferByteSize = checked((uint)(_width * _height * sizeof(ushort)));
+        _drawBufferByteSize = checked((uint)(_options.Width * _options.Height * sizeof(ushort)));
         _drawBuffer = (byte*)NativeMemory.AllocZeroed((nuint)_drawBufferByteSize);
         if (_drawBuffer == null)
         {
             throw new OutOfMemoryException("Offscreen draw buffer ?????");
         }
 
-        _frameBuffer = (uint*)NativeMemory.AllocZeroed((nuint)(_width * _height), (nuint)sizeof(uint));
+        _frameBuffer = (uint*)NativeMemory.AllocZeroed((nuint)(_options.Width * _options.Height), (nuint)sizeof(uint));
         if (_frameBuffer == null)
         {
             throw new OutOfMemoryException("Offscreen frame buffer ?????");
@@ -236,7 +260,7 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
 
         for (var y = 0; y < height; y++)
         {
-            var dstRow = (area->y1 + y) * view._width + area->x1;
+            var dstRow = (area->y1 + y) * view._options.Width + area->x1;
             for (var x = 0; x < width; x++)
             {
                 var rgb565 = source[(y * width) + x];

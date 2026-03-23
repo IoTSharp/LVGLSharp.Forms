@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDemo", "src\Demos\Musi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OffscreenDemo", "src\Demos\OffscreenDemo\OffscreenDemo.csproj", "{66CCB540-3165-4F9A-8D3D-226030A7957C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Headless.Tests", "tests\LVGLSharp.Headless.Tests\LVGLSharp.Headless.Tests.csproj", "{F9BE9B18-28D2-4C07-BE0B-8F4BF79387B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,10 @@ Global
 		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9BE9B18-28D2-4C07-BE0B-8F4BF79387B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9BE9B18-28D2-4C07-BE0B-8F4BF79387B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9BE9B18-28D2-4C07-BE0B-8F4BF79387B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9BE9B18-28D2-4C07-BE0B-8F4BF79387B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
