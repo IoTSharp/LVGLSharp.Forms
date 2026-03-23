@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Runtime.Windows",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Runtime.Linux", "src\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj", "{8836E179-4FC7-4EAD-AD1B-91BFA30DD3F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Runtime.Headless", "src\LVGLSharp.Runtime.Headless\LVGLSharp.Runtime.Headless.csproj", "{E5B7FA8B-2090-4F45-9274-1D0B1688B951}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Runtime.Remote", "src\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj", "{11B4E26E-9E30-4CB2-A2C5-270D4B3FB6E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Runtime.MacOs", "src\LVGLSharp.Runtime.MacOs\LVGLSharp.Runtime.MacOs.csproj", "{5A6C7D24-3D55-4D49-AFE3-1DD7CE88C623}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LVGLSharp.Interop", "src\LVGLSharp.Interop\LVGLSharp.Interop.csproj", "{6EF0D260-CD1A-5486-DB08-B17DB37F29D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsDemo", "src\Demos\WinFormsDemo\WinFormsDemo.csproj", "{8A4F7729-413F-4FCE-9722-510825308631}"
@@ -52,6 +58,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Share", "Share", "{6C3E5B5C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDemo", "src\Demos\MusicDemo\MusicDemo.csproj", "{747ECC12-E4B3-5F34-E295-03C8EC4DCB78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OffscreenDemo", "src\Demos\OffscreenDemo\OffscreenDemo.csproj", "{66CCB540-3165-4F9A-8D3D-226030A7957C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +82,18 @@ Global
 		{8836E179-4FC7-4EAD-AD1B-91BFA30DD3F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8836E179-4FC7-4EAD-AD1B-91BFA30DD3F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8836E179-4FC7-4EAD-AD1B-91BFA30DD3F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5B7FA8B-2090-4F45-9274-1D0B1688B951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5B7FA8B-2090-4F45-9274-1D0B1688B951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5B7FA8B-2090-4F45-9274-1D0B1688B951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5B7FA8B-2090-4F45-9274-1D0B1688B951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11B4E26E-9E30-4CB2-A2C5-270D4B3FB6E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11B4E26E-9E30-4CB2-A2C5-270D4B3FB6E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11B4E26E-9E30-4CB2-A2C5-270D4B3FB6E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11B4E26E-9E30-4CB2-A2C5-270D4B3FB6E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6C7D24-3D55-4D49-AFE3-1DD7CE88C623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6C7D24-3D55-4D49-AFE3-1DD7CE88C623}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6C7D24-3D55-4D49-AFE3-1DD7CE88C623}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6C7D24-3D55-4D49-AFE3-1DD7CE88C623}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6EF0D260-CD1A-5486-DB08-B17DB37F29D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6EF0D260-CD1A-5486-DB08-B17DB37F29D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EF0D260-CD1A-5486-DB08-B17DB37F29D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -106,6 +126,10 @@ Global
 		{747ECC12-E4B3-5F34-E295-03C8EC4DCB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{747ECC12-E4B3-5F34-E295-03C8EC4DCB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{747ECC12-E4B3-5F34-E295-03C8EC4DCB78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66CCB540-3165-4F9A-8D3D-226030A7957C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +140,7 @@ Global
 		{F243F821-433D-713A-7637-8A06BF6B5DC5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{2F629527-D8F0-407F-BC21-739B53BC1655} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{747ECC12-E4B3-5F34-E295-03C8EC4DCB78} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{66CCB540-3165-4F9A-8D3D-226030A7957C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03A6E35C-AA75-408E-ABBE-C67319A14A6A}
