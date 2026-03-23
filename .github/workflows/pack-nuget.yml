@@ -1,0 +1,131 @@
+name: 打包 NuGet 包
+
+on:
+  workflow_call:
+    inputs:
+      package_version:
+        description: "用于打包的版本号"
+        required: true
+        type: string
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: 下载所有原生库制品
+        uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          path: native_artifacts
+
+      - name: 清理占位 runtimes 目录
+        shell: bash
+        run: |
+          rm -rf src/LVGLSharp.Native/runtimes
+          mkdir -p src/LVGLSharp.Native/runtimes
+
+      - name: 整理原生库到 runtimes 目录结构
+        shell: bash
+        run: |
+          declare -A LIB_NAME=(
+            [win-x64]="lvgl.dll"
+            [win-x86]="lvgl.dll"
+            [win-arm64]="lvgl.dll"
+            [linux-x64]="liblvgl.so"
+            [linux-arm]="liblvgl.so"
+            [linux-arm64]="liblvgl.so"
+          )
+          missing=()
+          for rid in "${!LIB_NAME[@]}"; do
+            src_dir="native_artifacts/native-${rid}"
+            dst_dir="src/LVGLSharp.Native/runtimes/${rid}/native"
+            mkdir -p "$dst_dir"
+            lib="${LIB_NAME[$rid]}"
+            placed=false
+            if [ -f "${src_dir}/${lib}" ]; then
+              cp "${src_dir}/${lib}" "${dst_dir}/"
+              echo "已放置 ${lib} -> ${dst_dir}/"
+              placed=true
+            else
+              first=$(find "$src_dir" \( -name "*.dll" -o -name "*.so" \) | head -1)
+              if [ -n "$first" ]; then
+                cp "$first" "${dst_dir}/${lib}"
+                echo "已放置（回退）$(basename "$first") -> ${dst_dir}/${lib}"
+                placed=true
+              fi
+            fi
+            if [ "$placed" = "false" ]; then
+              echo "错误：在 ${src_dir} 中找不到 ${rid} 的原生库"
+              missing+=("$rid")
+            fi
+          done
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "以下 RID 缺少原生库：${missing[*]}"
+            exit 1
+          fi
+          echo "当前将用于打包的原生库："
+          find src/LVGLSharp.Native/runtimes -type f | sort
+
+      - name: 打包 LVGLSharp.Native
+        run: |
+          dotnet pack src/LVGLSharp.Native/LVGLSharp.Native.csproj \
+            -c Release \
+            -p:Version=${{ inputs.package_version }} \
+            --output nupkgs
+
+      - name: 注册本地 NuGet 源
+        run: dotnet nuget add source "$(pwd)/nupkgs" --name local-packages
+
+      - name: 打包 LVGLSharp.Interop
+        run: |
+          dotnet pack src/LVGLSharp.Interop/LVGLSharp.Interop.csproj \
+            -c Release \
+            -p:Version=${{ inputs.package_version }} \
+            --output nupkgs
+
+      - name: 打包 LVGLSharp.Core
+        run: |
+          dotnet pack src/LVGLSharp.Core/LVGLSharp.Core.csproj \
+            -c Release \
+            -p:Version=${{ inputs.package_version }} \
+            --output nupkgs
+
+      - name: 打包 LVGLSharp.Runtime.Windows
+        run: |
+          dotnet pack src/LVGLSharp.Runtime.Windows/LVGLSharp.Runtime.Windows.csproj \
+            -c Release \
+            -p:Version=${{ inputs.package_version }} \
+            --output nupkgs
+
+      - name: 打包 LVGLSharp.Runtime.Linux
+        run: |
+          dotnet pack src/LVGLSharp.Runtime.Linux/LVGLSharp.Runtime.Linux.csproj \
+            -c Release \
+            -p:Version=${{ inputs.package_version }} \
+            --output nupkgs
+
+      - name: 打包 LVGLSharp.Forms
+        run: |
+          dotnet pack src/LVGLSharp.WinForms/LVGLSharp.Forms.csproj \
+            -c Release \
+            -p:Version=${{ inputs.package_version }} \
+            --output nupkgs
+
+      - name: 上传 NuGet 包制品
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: nupkgs/*.nupkg

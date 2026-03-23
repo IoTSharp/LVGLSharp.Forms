@@ -2,8 +2,11 @@ name: 打包并发布 NuGet 包
 
 on:
   push:
+    branches: [main, develop, master]
     tags:
       - "v*"
+  pull_request:
+    branches: [main, develop, master]
   workflow_dispatch:
     inputs:
       version:
@@ -75,6 +78,14 @@ jobs:
     permissions:
       contents: read
 
+  pack:
+    needs: [prepare, build-native]
+    uses: ./.github/workflows/pack-nuget.yml
+    with:
+      package_version: ${{ needs.prepare.outputs.package_version }}
+    permissions:
+      contents: read
+
   build-demos:
     needs: prepare
     uses: ./.github/workflows/build-demos.yml
@@ -83,143 +94,7 @@ jobs:
     permissions:
       contents: read
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # 2. 组装原生包、共享托管包、平台运行时包与 Forms 包
-  # ──────────────────────────────────────────────────────────────────────────
-  pack:
-    needs: [prepare, build-native]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-        with:
-          submodules: false   # 仅托管代码，无需构建 C 库
-
-      - name: 安装 .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      # ── 下载所有原生库制品 ────────────────────────────────────────────────
-      - name: 下载所有原生库制品
-        uses: actions/download-artifact@v4
-        with:
-          pattern: native-*
-          path: native_artifacts
-
-      - name: 清理占位 runtimes 目录
-        shell: bash
-        run: |
-          rm -rf src/LVGLSharp.Native/runtimes
-          mkdir -p src/LVGLSharp.Native/runtimes
-
-      # ── 按 runtimes/{rid}/native/ 结构组织原生库 ──────────────────────────
-      - name: 整理原生库到 runtimes 目录结构
-        shell: bash
-        run: |
-          declare -A LIB_NAME=(
-            [win-x64]="lvgl.dll"
-            [win-x86]="lvgl.dll"
-            [win-arm64]="lvgl.dll"
-            [linux-x64]="liblvgl.so"
-            [linux-arm]="liblvgl.so"
-            [linux-arm64]="liblvgl.so"
-          )
-          missing=()
-          for rid in "${!LIB_NAME[@]}"; do
-            src_dir="native_artifacts/native-${rid}"
-            dst_dir="src/LVGLSharp.Native/runtimes/${rid}/native"
-            mkdir -p "$dst_dir"
-            lib="${LIB_NAME[$rid]}"
-            placed=false
-            if [ -f "${src_dir}/${lib}" ]; then
-              cp "${src_dir}/${lib}" "${dst_dir}/"
-              echo "已放置 ${lib} -> ${dst_dir}/"
-              placed=true
-            else
-              # 回退：查找制品目录中的第一个 .so 或 .dll
-              first=$(find "$src_dir" \( -name "*.dll" -o -name "*.so" \) | head -1)
-              if [ -n "$first" ]; then
-                cp "$first" "${dst_dir}/${lib}"
-                echo "已放置（回退）$(basename "$first") -> ${dst_dir}/${lib}"
-                placed=true
-              fi
-            fi
-            if [ "$placed" = "false" ]; then
-              echo "错误：在 ${src_dir} 中找不到 ${rid} 的原生库"
-              missing+=("$rid")
-            fi
-          done
-          if [ ${#missing[@]} -ne 0 ]; then
-            echo "以下 RID 缺少原生库：${missing[*]}"
-            exit 1
-          fi
-          echo "当前将用于打包的原生库："
-          find src/LVGLSharp.Native/runtimes -type f | sort
-
-      # ── 打包 LVGLSharp.Native ─────────────────────────────────────────────
-      - name: 打包 LVGLSharp.Native
-        run: |
-          dotnet pack src/LVGLSharp.Native/LVGLSharp.Native.csproj \
-            -c Release \
-            -p:Version=${{ needs.prepare.outputs.package_version }} \
-            --output nupkgs
-
-      # ── 注册本地 NuGet 源，供依赖 LVGLSharp.Native 的包在 CI 中解析本地产物 ───
-      # CI 环境中 $(CI)==true 会激活 LVGLSharp.Native 包引用，
-      # 此时该包尚未发布到 NuGet.org，需要指向本地 nupkgs/ 目录。
-      - name: 注册本地 NuGet 源
-        run: dotnet nuget add source "$(pwd)/nupkgs" --name local-packages
-
-      # ── 打包 LVGLSharp.Interop（依赖 LVGLSharp.Native） ───────────────────
-      - name: 打包 LVGLSharp.Interop
-        run: |
-          dotnet pack src/LVGLSharp.Interop/LVGLSharp.Interop.csproj \
-            -c Release \
-            -p:Version=${{ needs.prepare.outputs.package_version }} \
-            --output nupkgs
-
-      # ── 打包 LVGLSharp.Core（Forms 与平台运行时共享依赖） ─────────────────
-      - name: 打包 LVGLSharp.Core
-        run: |
-          dotnet pack src/LVGLSharp.Core/LVGLSharp.Core.csproj \
-            -c Release \
-            -p:Version=${{ needs.prepare.outputs.package_version }} \
-            --output nupkgs
-
-      # ── 打包 LVGLSharp.Runtime.Windows（Windows 平台运行时） ───────────────
-      - name: 打包 LVGLSharp.Runtime.Windows
-        run: |
-          dotnet pack src/LVGLSharp.Runtime.Windows/LVGLSharp.Runtime.Windows.csproj \
-            -c Release \
-            -p:Version=${{ needs.prepare.outputs.package_version }} \
-            --output nupkgs
-
-      # ── 打包 LVGLSharp.Runtime.Linux（Linux 平台运行时） ──────────────────
-      - name: 打包 LVGLSharp.Runtime.Linux
-        run: |
-          dotnet pack src/LVGLSharp.Runtime.Linux/LVGLSharp.Runtime.Linux.csproj \
-            -c Release \
-            -p:Version=${{ needs.prepare.outputs.package_version }} \
-            --output nupkgs
-
-      # ── 打包 LVGLSharp.Forms（平台无关；由运行时包自动注册宿主） ──────────
-      - name: 打包 LVGLSharp.Forms
-        run: |
-          dotnet pack src/LVGLSharp.WinForms/LVGLSharp.Forms.csproj \
-            -c Release \
-            -p:Version=${{ needs.prepare.outputs.package_version }} \
-            --output nupkgs
-
-      # ── 将打包好的 NuGet 包上传为制品 ────────────────────────────────────
-      - name: 上传 NuGet 包制品
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-packages
-          path: nupkgs/*.nupkg
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
   # ──────────────────────────────────────────────────────────────────────────
   # 3. 发布
@@ -230,11 +105,16 @@ jobs:
     permissions:
       contents: write
       packages: write
-    # 仅在 tag 发布或手动触发需要发布时执行
+    # 仅在 tag 发布，或手动触发且显式要求发布时执行
     if: |
       startsWith(github.ref, 'refs/tags/') ||
-      github.event.inputs.publish_nuget == 'true' ||
-      github.event.inputs.publish_github == 'true'
+      (
+        github.event_name == 'workflow_dispatch' &&
+        (
+          github.event.inputs.publish_nuget == 'true' ||
+          github.event.inputs.publish_github == 'true'
+        )
+      )
 
     steps:
       - name: 安装 .NET SDK
