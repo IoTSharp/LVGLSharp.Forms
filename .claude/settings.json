@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -c 4 .github/workflows/prepare-release.yml)",
+      "Bash(xxd)",
+      "Bash(iconv -f GBK -t UTF-8 .github/workflows/prepare-release.yml)",
+      "Bash(cp /tmp/prepare-release-utf8.yml .github/workflows/prepare-release.yml)",
+      "Bash(python3 -c \":*)",
+      "Bash(powershell -Command \"$content = [System.IO.File]::ReadAllText\\(''.github/workflows/prepare-release.yml'', [System.Text.Encoding]::GetEncoding\\(''GBK''\\)\\); [System.IO.File]::WriteAllText\\(''.github/workflows/prepare-release.yml'', $content, [System.Text.Encoding]::UTF8\\); Write-Host ''done''\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File convert-encoding.ps1)",
+      "Bash(file .github/workflows/*.yml)",
+      "Bash(head -c 100 .github/workflows/docs-pages.yml)"
+    ]
+  }
+}
