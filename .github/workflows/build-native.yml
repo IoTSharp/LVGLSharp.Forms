@@ -1,16 +1,23 @@
-name: 构建 LVGL 原生库
+name: 构建原生库资产
 
 on:
   push:
     branches: [main, develop, master]
   pull_request:
-    branches: [main, master]
+    branches: [main, develop, master]
   workflow_dispatch:
+    inputs:
+      note:
+        description: "可选备注：用于说明本次手动触发的目的"
+        required: false
+        default: ""
   workflow_call:
+    # inputs: 当前工作流无需调用方额外传参，按矩阵直接构建多平台原生库。
+    # outputs: 当前工作流仅产出 artifact，不向调用方返回结构化 outputs。
 
 jobs:
   build:
-    name: 构建 ${{ matrix.rid }}
+    name: 构建原生库（${{ matrix.rid }}）
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -18,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows — 通过 MSVC -A 参数构建多架构
+          # Windows 目标：通过 MSVC -A 参数构建多架构原生库
           - rid: win-x64
             os: windows-latest
             cmake_generator: "Visual Studio 17 2022"
@@ -32,19 +39,19 @@ jobs:
             cmake_generator: "Visual Studio 17 2022"
             cmake_arch: ARM64
 
-          # Linux — 原生 x64（与 LVGL 官方 CI 一致，使用 ubuntu-24.04）
+          # Linux 目标：原生 x64（与 LVGL 官方 CI 一致，使用 ubuntu-24.04）
           - rid: linux-x64
             os: ubuntu-24.04
             cmake_extra: ""
 
-          # Linux — ARM 交叉编译（硬浮点）
+          # Linux 目标：ARM 交叉编译（硬浮点）
           - rid: linux-arm
             os: ubuntu-24.04
             apt_packages: gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
             cmake_extra: >-
               -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/libs/cmake/toolchains/arm-linux-gnueabihf.cmake
 
-          # Linux — ARM64 交叉编译
+          # Linux 目标：ARM64 交叉编译
           - rid: linux-arm64
             os: ubuntu-24.04
             apt_packages: gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
@@ -57,23 +64,19 @@ jobs:
         with:
           submodules: recursive
 
-      # ─── 将 lv_conf.h 复制到 lvgl 源码目录 ────────────────────────────────
-      # LVGL 的 CMake 在 CMAKE_SOURCE_DIR（libs/lvgl/）中查找 lv_conf.h，
-      # 而该文件位于上一级 libs/lv_conf.h，因此需要复制到正确位置。
+      # 1. 准备 LVGL 构建输入
       - name: 复制 lv_conf.h 到 lvgl 源码目录
         shell: bash
         run: cp libs/lv_conf.h libs/lvgl/lv_conf.h
 
-      # ─── Linux：安装构建依赖（参考 LVGL 官方 CI）──────────────────────────
-      # 参考：https://github.com/lvgl/lvgl/blob/master/.github/workflows/ccpp.yml
-      # 基础依赖：cmake、ninja-build；交叉编译时额外安装对应工具链
+      # 2. 安装 Linux 构建依赖
       - name: 安装 Linux 构建依赖
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y cmake ninja-build ${{ matrix.apt_packages }}
 
-      # ─── Windows 构建 ────────────────────────────────────────────────────────
+      # 3. 配置并编译 Windows 原生库
       - name: CMake 配置（Windows）
         if: runner.os == 'Windows'
         shell: bash
@@ -92,7 +95,7 @@ jobs:
         shell: bash
         run: cmake --build libs/lvgl/build_shared --config Release
 
-      # ─── Linux 构建（使用 Ninja，参考 LVGL 官方 CI）─────────────────────────
+      # 4. 配置并编译 Linux 原生库
       - name: CMake 配置（Linux）
         if: runner.os == 'Linux'
         run: |
@@ -110,14 +113,12 @@ jobs:
         if: runner.os == 'Linux'
         run: cmake --build libs/lvgl/build_shared
 
-      # ─── 收集输出文件 ────────────────────────────────────────────────────────
+      # 5. 收集并校验原生库产物
       - name: 收集原生库文件
         shell: bash
         run: |
           mkdir -p native_output
-          # Windows：从 Release 子目录复制 DLL
           find libs/lvgl/build_shared -name "lvgl.dll" | head -1 | xargs -I{} cp {} native_output/ 2>/dev/null || true
-          # Linux：复制 SO 文件（优先无版本号的符号链接）
           so=$(find libs/lvgl/build_shared -name "liblvgl.so" | head -1)
           if [ -n "$so" ]; then
             cp "$so" native_output/liblvgl.so

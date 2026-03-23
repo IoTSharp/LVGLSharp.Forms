@@ -1,15 +1,18 @@
-name: 打包 NuGet 包
+name: 打包 NuGet 资产
 
 on:
   workflow_call:
+    # inputs: 由上层协调工作流传入规范化版本号，用于生成所有 NuGet 包。
     inputs:
       package_version:
-        description: "用于打包的版本号"
+        description: "版本号：用于生成 NuGet 包文件"
         required: true
         type: string
+    # outputs: 当前工作流仅产出 nuget-packages artifact，不向调用方返回结构化 outputs。
 
 jobs:
   pack:
+    name: 生成 NuGet 资产
     runs-on: ubuntu-latest
     permissions:
       contents: read

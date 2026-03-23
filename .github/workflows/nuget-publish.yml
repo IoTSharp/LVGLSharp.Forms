@@ -1,4 +1,4 @@
-name: 打包并发布 NuGet 包
+name: 协调打包与发布
 
 on:
   push:
@@ -10,15 +10,15 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "包版本号（如 9.5.0.5 或 v9.5.0.5）"
+        description: "版本号：支持 9.5.0.5 或 v9.5.0.5 格式"
         required: true
         default: "9.5.0.5"
       publish_nuget:
-        description: "发布到 NuGet.org"
+        description: "是否发布到 NuGet.org"
         type: boolean
         default: true
       publish_github:
-        description: "发布到 GitHub Packages"
+        description: "是否发布到 GitHub Packages"
         type: boolean
         default: true
 
@@ -29,56 +29,24 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-latest
+    name: 调用准备阶段
+    uses: ./.github/workflows/prepare-release.yml
+    with:
+      package_version: ${{ env.PACKAGE_VERSION }}
     permissions:
       contents: read
-    outputs:
-      package_version: ${{ steps.ver.outputs.version }}
-      release_tag: ${{ steps.ver.outputs.tag }}
 
-    steps:
-      - name: 规范化并校验版本号
-        id: ver
-        shell: bash
-        run: |
-          RAW_TAG=""
-          RAW_VERSION="${{ env.PACKAGE_VERSION }}"
-
-          if [ -z "$RAW_VERSION" ]; then
-            echo "错误：未提供版本号。"
-            exit 1
-          fi
-
-          VERSION="${RAW_VERSION#v}"
-          # 按仓库当前 tag 约定，仅支持 4 段数字版本号，例如 9.5.0.5。
-          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
-            echo "错误：版本号 '$RAW_VERSION' 不符合要求，必须为四段版本号，如 v9.5.0.5 或 9.5.0.5。"
-            exit 1
-          fi
-
-          if [[ "${GITHUB_REF}" =~ ^refs/tags/ ]]; then
-            RAW_TAG="${GITHUB_REF_NAME}"
-          fi
-
-          if [ -z "$RAW_TAG" ]; then
-            RAW_TAG="v$VERSION"
-          fi
-
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "tag=${RAW_TAG}" >> "$GITHUB_OUTPUT"
-          echo "使用版本号：${VERSION}"
-          echo "发布标签：${RAW_TAG}"
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # 1. 为各平台构建原生库
-  # ──────────────────────────────────────────────────────────────────────────
+  # 1. 准备版本元数据与原生库制品
   build-native:
+    name: 调用原生库构建阶段
     needs: prepare
     uses: ./.github/workflows/build-native.yml
     permissions:
       contents: read
 
+  # 2. 生成 NuGet 包制品
   pack:
+    name: 调用 NuGet 打包阶段
     needs: [prepare, build-native]
     uses: ./.github/workflows/pack-nuget.yml
     with:
@@ -86,7 +54,9 @@ jobs:
     permissions:
       contents: read
 
+  # 3. 仅在 tag 或手动发布时生成 demo 资产
   build-demos:
+    name: 调用 Demo 构建阶段
     needs: prepare
     uses: ./.github/workflows/build-demos.yml
     with:
@@ -96,16 +66,17 @@ jobs:
 
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # 3. 发布
-  # ──────────────────────────────────────────────────────────────────────────
   publish:
+    name: 调用发布阶段
     needs: [prepare, pack, build-demos]
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/publish-release.yml
+    with:
+      release_tag: ${{ needs.prepare.outputs.release_tag }}
+      publish_nuget: ${{ startsWith(github.ref, 'refs/tags/') || github.event.inputs.publish_nuget == 'true' }}
+      publish_github: ${{ startsWith(github.ref, 'refs/tags/') || github.event.inputs.publish_github == 'true' }}
     permissions:
       contents: write
       packages: write
-    # 仅在 tag 发布，或手动触发且显式要求发布时执行
     if: |
       startsWith(github.ref, 'refs/tags/') ||
       (
@@ -115,91 +86,3 @@ jobs:
           github.event.inputs.publish_github == 'true'
         )
       )
-
-    steps:
-      - name: 安装 .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: 下载 NuGet 包制品
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-packages
-          path: nupkgs
-
-      - name: 下载 demo 发布包制品
-        uses: actions/download-artifact@v4
-        with:
-          pattern: demo-release-*
-          path: demo_assets
-          merge-multiple: true
-
-      - name: 汇总 Release 资产
-        shell: bash
-        run: |
-          mkdir -p release_assets
-          cp nupkgs/*.nupkg release_assets/
-          find demo_assets -maxdepth 1 -type f -exec cp {} release_assets/ \;
-          ls -lh release_assets
-
-      - name: 发布到 GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
-        run: |
-          api_url="https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}"
-          http_status=$(curl -sS -o /tmp/release_lookup.json -w "%{http_code}" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "$api_url")
-
-          if [ "$http_status" = "200" ]; then
-            gh release upload "$RELEASE_TAG" release_assets/* \
-              --repo "${{ github.repository }}" \
-              --clobber
-          elif [ "$http_status" = "404" ]; then
-            gh release create "$RELEASE_TAG" release_assets/* \
-              --repo "${{ github.repository }}" \
-              --title "$RELEASE_TAG" \
-              --generate-notes
-          else
-            echo "查询 GitHub Release 失败，HTTP 状态码：$http_status（请检查令牌权限、API 限流或网络连接）。"
-            cat /tmp/release_lookup.json
-            exit 1
-          fi
-
-      # ── 发布到 NuGet.org ──────────────────────────────────────────────────
-      - name: 发布到 NuGet.org
-        if: |
-          startsWith(github.ref, 'refs/tags/') ||
-          github.event.inputs.publish_nuget == 'true'
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: |
-          dotnet nuget push nupkgs/*.nupkg \
-            --source https://api.nuget.org/v3/index.json \
-            --api-key "$NUGET_API_KEY" \
-            --skip-duplicate \
-            --timeout 600
-
-      # ── 发布到 GitHub Packages ────────────────────────────────────────────
-      - name: 发布到 GitHub Packages
-        if: |
-          startsWith(github.ref, 'refs/tags/') ||
-          github.event.inputs.publish_github == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          dotnet nuget add source \
-            "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --name github \
-            --username "${{ github.actor }}" \
-            --password "$GITHUB_TOKEN" \
-            --store-password-in-clear-text
-          dotnet nuget push nupkgs/*.nupkg \
-            --source github \
-            --api-key "$GITHUB_TOKEN" \
-            --skip-duplicate \
-            --timeout 600

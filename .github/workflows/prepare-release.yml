@@ -1,0 +1,58 @@
+name: 准备发布元数据
+
+on:
+  workflow_call:
+    # inputs: 接收原始版本号或 tag 名，并在内部规范化。
+    inputs:
+      package_version:
+        description: "版本号：支持 9.5.0.5 或 v9.5.0.5 格式"
+        required: true
+        type: string
+    # outputs: 向调用方返回规范化后的 package_version 与 release_tag。
+    outputs:
+      package_version:
+        description: "规范化后的包版本号"
+        value: ${{ jobs.prepare.outputs.package_version }}
+      release_tag:
+        description: "规范化后的发布标签"
+        value: ${{ jobs.prepare.outputs.release_tag }}
+
+jobs:
+  prepare:
+    name: 准备发布元数据
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      package_version: ${{ steps.ver.outputs.version }}
+      release_tag: ${{ steps.ver.outputs.tag }}
+
+    steps:
+      - name: 规范化并校验版本号
+        id: ver
+        shell: bash
+        run: |
+          RAW_TAG=""
+          RAW_VERSION="${{ inputs.package_version }}"
+
+          if [ -z "$RAW_VERSION" ]; then
+            echo "错误：未提供版本号。"
+            exit 1
+          fi
+
+          VERSION="${RAW_VERSION#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
+            echo "错误：版本号 '$RAW_VERSION' 不符合要求，必须为四段版本号，如 v9.5.0.5 或 9.5.0.5。"
+            exit 1
+          fi
+
+          if [[ "$RAW_VERSION" == v* ]]; then
+            RAW_TAG="$RAW_VERSION"
+          else
+            RAW_TAG="v$VERSION"
+          fi
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${RAW_TAG}" >> "$GITHUB_OUTPUT"
+          echo "使用版本号：${VERSION}"
+          echo "发布标签：${RAW_TAG}"

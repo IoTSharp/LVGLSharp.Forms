@@ -1,4 +1,4 @@
-name: 构建 Demo 发布包
+name: 构建 Demo 资产
 
 on:
   push:
@@ -8,18 +8,26 @@ on:
   pull_request:
     branches: [main, develop, master]
   workflow_dispatch:
-  workflow_call:
     inputs:
       package_version:
-        description: "用于产物命名的版本号"
+        description: "可选版本号：用于生成 demo 资产文件名"
+        required: false
+        default: ""
+  workflow_call:
+    # inputs: 供上层协调工作流传入 demo 资产版本号，用于统一产物命名。
+    inputs:
+      package_version:
+        description: "可选版本号：用于生成 demo 资产文件名"
         required: false
         type: string
+    # outputs: 当前工作流仅产出 artifact，不向调用方返回结构化 outputs。
 
 env:
   DEMO_PACKAGE_VERSION: ${{ inputs.package_version || github.ref_name || 'dev' }}
 
 jobs:
   build-linux-demos:
+    name: 生成 Demo 资产（linux-x64）
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -58,6 +66,7 @@ jobs:
           if-no-files-found: error
 
   build-windows-demos:
+    name: 生成 Demo 资产（win-x64）
     runs-on: windows-latest
     permissions:
       contents: read
