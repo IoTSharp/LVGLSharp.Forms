@@ -9,4 +9,6 @@ public sealed record VncSessionOptions : RemoteSessionOptions
     public string? Password { get; init; }
 
     public bool ShareExistingSession { get; init; } = true;
+        public int Width { get; init; } = 800;
+        public int Height { get; init; } = 480;
 }

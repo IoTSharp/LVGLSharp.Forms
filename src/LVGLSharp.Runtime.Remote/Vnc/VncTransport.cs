@@ -31,6 +31,7 @@ namespace LVGLSharp.Runtime.Remote.Vnc
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _options.Validate();
         }
+using LVGLSharp.Interop;
 
         public void Start()
         {
@@ -137,14 +138,30 @@ namespace LVGLSharp.Runtime.Remote.Vnc
         // 静态输入事件注入方法，AOT安全
         private static void InjectKeyEvent(uint key, bool down)
         {
-            // TODO: 结合 LVGLSharp 输入 API 注入按键事件
-            // 示例：LVGLSharp.Interop.Lvgl.lv_indev_send_key(...)
+            var indev = VncView.GetKeyboardIndev();
+            if (indev == null) return;
+            var state = down ? lv_indev_state_t.LV_INDEV_STATE_PRESSED : lv_indev_state_t.LV_INDEV_STATE_RELEASED;
+            // 构造 lv_indev_data_t 并注入
+            var data = new lv_indev_data_t
+            {
+                state = state,
+                key = key
+            };
+            // 这里只能通过事件注入，实际 LVGL 需有专用 API
+            LVGLSharp.Interop.Lvgl.lv_indev_send_event(indev, lv_event_code_t.LV_EVENT_KEY, &data);
         }
 
         private static void InjectPointerEvent(ushort x, ushort y, byte buttonMask)
         {
-            // TODO: 结合 LVGLSharp 输入 API 注入指针事件
-            // 示例：LVGLSharp.Interop.Lvgl.lv_indev_send_pointer(...)
+            var indev = VncView.GetPointerIndev();
+            if (indev == null) return;
+            var state = (buttonMask & 1) != 0 ? lv_indev_state_t.LV_INDEV_STATE_PRESSED : lv_indev_state_t.LV_INDEV_STATE_RELEASED;
+            var data = new lv_indev_data_t
+            {
+                state = state,
+                point = new lv_point_t { x = x, y = y }
+            };
+            LVGLSharp.Interop.Lvgl.lv_indev_send_event(indev, lv_event_code_t.LV_EVENT_PRESSED, &data);
         }
         }
 
