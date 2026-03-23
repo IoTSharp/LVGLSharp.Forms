@@ -1,6 +1,6 @@
 name: 协调打包与发布
 
-on:
+'on':
   push:
     branches: [main, develop, master]
     tags:

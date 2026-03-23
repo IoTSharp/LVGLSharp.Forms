@@ -1,6 +1,6 @@
 name: 发布 GitHub Pages 文档站点
 
-on:
+'on':
   push:
     branches: [main, develop, master]
     paths:

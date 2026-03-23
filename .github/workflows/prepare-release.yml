@@ -1,6 +1,6 @@
 name: 准备发布元数据
 
-on:
+'on':
   workflow_call:
     inputs:
       package_version:

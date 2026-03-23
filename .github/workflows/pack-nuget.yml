@@ -1,6 +1,6 @@
 name: 打包 NuGet 资产
 
-on:
+'on':
   workflow_call:
     # inputs: 由上层协调工作流传入规范化版本号，用于生成所有 NuGet 包。
     inputs:

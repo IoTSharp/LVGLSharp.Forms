@@ -1,6 +1,6 @@
 name: 构建 Demo 资产
 
-on:
+'on':
   push:
     branches: [main, develop, master]
     tags:

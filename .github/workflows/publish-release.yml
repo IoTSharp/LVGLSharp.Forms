@@ -1,6 +1,6 @@
 name: 发布 NuGet 与 Release 资产
 
-on:
+'on':
   workflow_call:
     # inputs: 接收发布标签与发布目标开关，执行 Release / NuGet / GitHub Packages 发布。
     inputs:

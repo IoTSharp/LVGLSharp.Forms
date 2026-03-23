@@ -1,6 +1,6 @@
 name: 构建原生库资产
 
-on:
+'on':
   push:
     branches: [main, develop, master]
     paths-ignore:
