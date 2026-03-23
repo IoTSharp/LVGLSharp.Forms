@@ -9,10 +9,8 @@ name: 准备发布元数据
         type: string
     outputs:
       package_version:
-        description: "规范化后的包版本号"
         value: ${{ jobs.prepare.outputs.package_version }}
       release_tag:
-        description: "规范化后的发布标签"
         value: ${{ jobs.prepare.outputs.release_tag }}
 
 jobs:
