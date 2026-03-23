@@ -16,6 +16,10 @@ namespace LVGLSharp.Runtime.Remote.Vnc
         private TcpListener? _listener;
         private CancellationTokenSource? _cts;
         private Task? _acceptTask;
+        private readonly List<TcpClient> _clients = new();
+        private readonly object _clientsLock = new();
+        private RemoteFrame? _latestFrame;
+        private Task? _framePushTask;
 
         public VncTransport(VncSessionOptions options)
             : base("vnc", new RemoteTransportCapabilities(
@@ -34,6 +38,7 @@ namespace LVGLSharp.Runtime.Remote.Vnc
             _listener = new TcpListener(IPAddress.Parse(_options.Host), _options.Port);
             _listener.Start();
             _acceptTask = Task.Run(() => AcceptLoop(_cts.Token));
+            _framePushTask = Task.Run(() => FramePushLoop(_cts.Token));
         }
 
         public void Stop()
@@ -49,6 +54,7 @@ namespace LVGLSharp.Runtime.Remote.Vnc
                 try
                 {
                     var client = await _listener!.AcceptTcpClientAsync(token);
+                    lock (_clientsLock) _clients.Add(client);
                     _ = Task.Run(() => HandleClient(client, token));
                 }
                 catch (Exception)
@@ -60,42 +66,92 @@ namespace LVGLSharp.Runtime.Remote.Vnc
 
         private async Task HandleClient(TcpClient client, CancellationToken token)
         {
-            using (client)
-            using (var stream = client.GetStream())
+            try
             {
-                // 1. 发送 RFB 协议版本
-                var version = "RFB 003.003\n";
-                var versionBytes = System.Text.Encoding.ASCII.GetBytes(version);
-                await stream.WriteAsync(versionBytes, 0, versionBytes.Length, token);
-                await stream.FlushAsync(token);
-                // 2. 简单握手（无认证）
-                await stream.WriteAsync(new byte[] { 1, 1 }, 0, 2, token); // No auth
-                await stream.FlushAsync(token);
-                var clientInit = new byte[1];
-                await stream.ReadAsync(clientInit, 0, 1, token); // ClientInit
-                // 3. 发送服务端初始化（分辨率、像素格式等）
-                var width = (ushort)_options.Width;
-                var height = (ushort)_options.Height;
-                var serverInit = new byte[24];
-                serverInit[0] = (byte)(width >> 8);
-                serverInit[1] = (byte)(width & 0xFF);
-                serverInit[2] = (byte)(height >> 8);
-                serverInit[3] = (byte)(height & 0xFF);
-                // 其余像素格式、名称等可补充
-                await stream.WriteAsync(serverInit, 0, serverInit.Length, token);
-                await stream.FlushAsync(token);
-                // 4. 简单帧推送循环（演示用，未实现完整协议）
-                while (!token.IsCancellationRequested)
+                using (client)
+                using (var stream = client.GetStream())
                 {
-                    await Task.Delay(100, token);
-                    // TODO: 推送 RemoteFrame
+                    // 1. 发送 RFB 协议版本
+                    var version = "RFB 003.003\n";
+                    var versionBytes = System.Text.Encoding.ASCII.GetBytes(version);
+                    await stream.WriteAsync(versionBytes, 0, versionBytes.Length, token);
+                    await stream.FlushAsync(token);
+                    // 2. 简单握手（无认证）
+                    await stream.WriteAsync(new byte[] { 1, 1 }, 0, 2, token); // No auth
+                    await stream.FlushAsync(token);
+                    var clientInit = new byte[1];
+                    await stream.ReadAsync(clientInit, 0, 1, token); // ClientInit
+                    // 3. 发送服务端初始化（分辨率、像素格式等）
+                    var width = (ushort)_options.Width;
+                    var height = (ushort)_options.Height;
+                    var serverInit = new byte[24];
+                    serverInit[0] = (byte)(width >> 8);
+                    serverInit[1] = (byte)(width & 0xFF);
+                    serverInit[2] = (byte)(height >> 8);
+                    serverInit[3] = (byte)(height & 0xFF);
+                    // 其余像素格式、名称等可补充
+                    await stream.WriteAsync(serverInit, 0, serverInit.Length, token);
+                    await stream.FlushAsync(token);
+
+                    // 4. 客户端保持连接，循环读取输入事件
+                    var inputBuffer = new byte[32];
+                    while (!token.IsCancellationRequested)
+                    {
+                        // RFB 客户端消息类型：0=SetPixelFormat, 2=SetEncodings, 3=FramebufferUpdateRequest, 4=KeyEvent, 5=PointerEvent, 6=ClientCutText
+                        int read = await stream.ReadAsync(inputBuffer, 0, 1, token);
+                        if (read == 0) break; // 客户端断开
+                        byte msgType = inputBuffer[0];
+                        switch (msgType)
+                        {
+                            case 4: // KeyEvent
+                                await stream.ReadAsync(inputBuffer, 1, 7, token); // 1+7=8字节
+                                bool down = inputBuffer[1] != 0;
+                                uint key = (uint)((inputBuffer[4] << 24) | (inputBuffer[5] << 16) | (inputBuffer[6] << 8) | inputBuffer[7]);
+                                // 转为 RemoteInputEvent 并注入 LVGL
+                                InjectKeyEvent(key, down);
+                                break;
+                            case 5: // PointerEvent
+                                await stream.ReadAsync(inputBuffer, 1, 5, token); // 1+5=6字节
+                                byte buttonMask = inputBuffer[1];
+                                ushort x = (ushort)((inputBuffer[2] << 8) | inputBuffer[3]);
+                                ushort y = (ushort)((inputBuffer[4] << 8) | inputBuffer[5]);
+                                InjectPointerEvent(x, y, buttonMask);
+                                break;
+                            default:
+                                // 其它消息类型暂不处理，直接跳过
+                                await Task.Delay(10, token);
+                                break;
+                        }
+                    }
                 }
             }
+            catch (Exception)
+            {
+                // 忽略单个客户端异常
+            }
+            finally
+            {
+                lock (_clientsLock) _clients.Remove(client);
+            }
+
+        // 静态输入事件注入方法，AOT安全
+        private static void InjectKeyEvent(uint key, bool down)
+        {
+            // TODO: 结合 LVGLSharp 输入 API 注入按键事件
+            // 示例：LVGLSharp.Interop.Lvgl.lv_indev_send_key(...)
+        }
+
+        private static void InjectPointerEvent(ushort x, ushort y, byte buttonMask)
+        {
+            // TODO: 结合 LVGLSharp 输入 API 注入指针事件
+            // 示例：LVGLSharp.Interop.Lvgl.lv_indev_send_pointer(...)
+        }
         }
 
         public override Task SendFrameAsync(RemoteFrame frame, CancellationToken cancellationToken = default)
         {
-            // TODO: 推送帧到所有已连接客户端
+            // 记录最新帧，FramePushLoop 会自动分发
+            _latestFrame = frame;
             return Task.CompletedTask;
         }
 
@@ -108,6 +164,41 @@ namespace LVGLSharp.Runtime.Remote.Vnc
         public void Dispose()
         {
             Stop();
+
+        private async Task FramePushLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                RemoteFrame? frame = _latestFrame;
+                if (frame != null)
+                {
+                    List<TcpClient> clientsCopy;
+                    lock (_clientsLock)
+                        clientsCopy = new List<TcpClient>(_clients);
+                    foreach (var client in clientsCopy)
+                    {
+                        try
+                        {
+                            if (client.Connected)
+                            {
+                                var stream = client.GetStream();
+                                // 按RFB协议推送原始像素数据（极简实现，未分块/未压缩）
+                                // 这里只推送全量 ARGB8888 像素，客户端需自定义解析
+                                // 实际生产应严格按RFB协议分块、压缩、同步
+                                var pixelBytes = frame.Argb8888Bytes;
+                                await stream.WriteAsync(pixelBytes, 0, pixelBytes.Length, token);
+                                await stream.FlushAsync(token);
+                            }
+                        }
+                        catch
+                        {
+                            // 忽略单个客户端异常
+                        }
+                    }
+                }
+                await Task.Delay(100, token);
+            }
+        }
         }
     }
 }

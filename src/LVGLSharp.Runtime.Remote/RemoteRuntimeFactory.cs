@@ -14,7 +14,7 @@ public static class RemoteRuntimeFactory
 
     public static IRemoteTransport CreateVncTransport(VncSessionOptions options)
     {
-        return new VncTransportSkeleton(options);
+        return new Vnc.VncTransport(options);
     }
 
     public static IRemoteTransport CreateRdpTransport(RdpSessionOptions options)
