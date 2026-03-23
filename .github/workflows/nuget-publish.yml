@@ -46,7 +46,7 @@ jobs:
     name: 调用准备阶段
     uses: ./.github/workflows/prepare-release.yml
     with:
-      package_version: ${{ env.PACKAGE_VERSION }}
+      package_version: ${{ github.event.inputs.version || github.ref_name }}
     permissions:
       contents: read
 
