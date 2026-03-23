@@ -77,6 +77,7 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
         lv_display_set_flush_cb(_lvDisplay, &FlushCb);
 
         _root = lv_scr_act();
+        ApplyBackgroundStyle();
         _keyInputGroup = lv_group_create();
         _running = true;
         _initialized = true;
@@ -215,6 +216,20 @@ public unsafe sealed class OffscreenView : ViewLifetimeBase
         }
 
         RenderSnapshotToPng(_options.OutputPath);
+    }
+
+    private void ApplyBackgroundStyle()
+    {
+        if (_root == null)
+        {
+            return;
+        }
+
+        lv_obj_set_style_bg_opa(_root, 255, 0);
+        lv_obj_set_style_bg_color(
+            _root,
+            lv_color_make(_options.BackgroundColor.R, _options.BackgroundColor.G, _options.BackgroundColor.B),
+            0);
     }
 
     private void AllocateBuffers()

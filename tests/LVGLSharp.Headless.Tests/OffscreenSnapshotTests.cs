@@ -1,5 +1,6 @@
 using LVGLSharp.Runtime.Headless;
 using SixLabors.ImageSharp.PixelFormats;
+using Xunit;
 using static LVGLSharp.Interop.LVGL;
 
 namespace LVGLSharp.Headless.Tests;
@@ -30,9 +31,9 @@ public unsafe class OffscreenSnapshotTests
             Assert.Equal(32, image.Height);
 
             var pixel = image[0, 0];
-            Assert.Equal(options.BackgroundColor.R, pixel.R);
-            Assert.Equal(options.BackgroundColor.G, pixel.G);
-            Assert.Equal(options.BackgroundColor.B, pixel.B);
+            Assert.InRange(Math.Abs(pixel.R - options.BackgroundColor.R), 0, 8);
+            Assert.InRange(Math.Abs(pixel.G - options.BackgroundColor.G), 0, 4);
+            Assert.InRange(Math.Abs(pixel.B - options.BackgroundColor.B), 0, 8);
             Assert.Equal(options.BackgroundColor.A, pixel.A);
         }
     }

@@ -11,6 +11,7 @@ public unsafe sealed class MacOsView : ViewLifetimeBase
     private readonly int _height;
     private readonly float _dpi;
     private bool _running;
+    private bool _initialized;
 
     public MacOsView(string title = "LVGLSharp MacOs", int width = 800, int height = 600, float dpi = 96f)
     {
@@ -31,6 +32,7 @@ public unsafe sealed class MacOsView : ViewLifetimeBase
     protected override void OnOpenCore()
     {
         LvglNativeLibraryResolver.EnsureRegistered();
+        _initialized = true;
         _running = true;
 
         throw new NotSupportedException(
@@ -54,13 +56,14 @@ public unsafe sealed class MacOsView : ViewLifetimeBase
     protected override void OnCloseCore()
     {
         _running = false;
+        _initialized = false;
     }
 
     public override void RegisterTextInput(lv_obj_t* textArea)
     {
     }
 
-    protected override bool CanSkipClose() => !_running;
+    protected override bool CanSkipClose() => !_running && !_initialized;
 
-    public override string ToString() => $"Host=MacOs, Title={_title}, Size={_width}x{_height}, Dpi={_dpi:0.##}, Running={_running}";
+    public override string ToString() => $"Host=MacOs, Title={_title}, Size={_width}x{_height}, Dpi={_dpi:0.##}, Initialized={_initialized}, Running={_running}";
 }

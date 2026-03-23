@@ -15,8 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - 在 `LVGLSharp.Runtime.Linux` 中新增 `DrmView` 骨架，为后续 `DRM/KMS` 路线铺设入口。
 - 新增 `src/LVGLSharp.Runtime.Headless` 项目，并将 `OffscreenView` 收敛为独立无头渲染运行时，用于截图回归、自动化验证与远程运行时复用。
 - 新增独立示例 `src/Demos/OffscreenDemo`，用于演示 `OffscreenView` 的无头渲染与 PNG 输出。
+- 新增 `tests/LVGLSharp.Headless.Tests`，提供首批基于 `OffscreenView` 的快照回归测试入口。
 - 新增 `src/LVGLSharp.Runtime.MacOs` 项目骨架，为后续 macOS 运行时实现预留入口。
 - 新增 `src/LVGLSharp.Runtime.Remote` 项目骨架，承载跨平台远程运行时抽象，为后续 `VNC` / `RDP` 路线预留会话与帧源接口。
+- 在 `LVGLSharp.Runtime.Remote` 中新增协议无关层：`RemoteSessionOptions`、`IRemoteTransport`、`RemoteInputEvent`、`RemoteFrameEncoding` 与 `RemoteFrameEncoder`，为后续 `VNC` / `RDP` 协议实现铺路。
+- 在 `LVGLSharp.Runtime.Remote` 中新增 `VNC` / `RDP` 第一版 transport skeleton、对应会话选项，以及 `RemoteRuntimeFactory` 工厂入口。
+- 在 `LVGLSharp.Runtime.Remote` 中新增 `HeadlessRemoteFrameSource`，打通 `OffscreenView` 到 Remote 帧源的基础适配链路。
 
 ### 变更 / Changed
 - `LVGLSharp.Interop` 与部分 demo 工程对 `LVGLSharp.Native` 改为按构建配置拆分依赖：非 `Release` 默认引用已发布包，`Release` 引用本地项目，并统一引入 `LVGLSharpNativePackageVersion` 属性。
@@ -25,9 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - 文档对 Linux 宿主状态的描述已更新：`Wayland` 与 `SDL` 不再只作为未来规划，而是标记为“已实现、当前偏实验性”的路径。
 - `LinuxEnvironmentDetector` 与 `LinuxView` 当前保留 `drm` / `kms` 宿主入口；`Offscreen` 已从 Linux 宿主选择中拆出，改为独立 `Headless` 运行时。
 - `PictureBoxDemo` 不再混入 Offscreen 截图入口；Offscreen 示例已拆分为独立 demo，降低示例职责耦合。
+- `Headless` 运行时引入 `OffscreenOptions`，将宽高、DPI、背景色与输出路径等配置从位置参数收敛到显式选项对象。
+- `MacOsView` 骨架补充初始化状态与诊断输出，便于后续宿主实现逐步替换占位逻辑。
 
 ### 修复 / Fixed
 - 修复了多处指向不存在路线图或调试手册文件的文档链接。
+- 修复 `LVGLSharp.Runtime.Headless` 中 `OffscreenView` 对背景色配置未真正应用到 root 的问题，并为基于 `RGB565` 的快照回归测试补充量化容差断言。
 
 ---
 

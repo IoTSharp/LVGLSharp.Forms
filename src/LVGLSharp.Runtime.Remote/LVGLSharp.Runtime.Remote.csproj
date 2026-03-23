@@ -13,4 +13,12 @@
     <Description>Cross-platform remote runtime abstractions for LVGLSharp.</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LVGLSharp.Runtime.Headless\LVGLSharp.Runtime.Headless.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  </ItemGroup>
+
 </Project>

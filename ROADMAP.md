@@ -82,9 +82,9 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Linux X11 / WSLg | Available | Current desktop-oriented Linux path |
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
 | Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
-| Headless Offscreen | In progress | Basic headless rendering path exists in `LVGLSharp.Runtime.Headless`, with reusable snapshot export APIs and an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
-| MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, but no native macOS host backend is implemented yet |
-| Remote runtimes (`VNC` / `RDP`) | Planned (skeleton) | Cross-platform remote runtime project exists; protocol/server implementations are not started yet |
+| Headless Offscreen | In progress | Basic headless rendering path exists in `LVGLSharp.Runtime.Headless`, with `OffscreenOptions`, reusable snapshot export APIs, an isolated PNG snapshot demo, and first-step regression tests; reusable validation coverage still needs to grow |
+| MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, with clearer lifecycle/diagnostic shape, but no native macOS host backend is implemented yet |
+| Remote runtimes (`VNC` / `RDP`) | Planned (skeleton) | Cross-platform remote runtime project now includes protocol-agnostic session options, frame encoding/input abstractions, `Headless -> Remote` frame-source bridging, plus first-step `VNC` / `RDP` transport skeletons; protocol/server implementations are not started yet |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |
 | Linux SDL | Experimental | Implemented, but still needs more validation and release discipline |
 | Native packaging / CI | Available | Multi-stage workflows and native artifacts are already in place |

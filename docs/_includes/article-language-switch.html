@@ -1,0 +1,25 @@
+{% assign translation_url = nil %}
+{% assign translation_label = nil %}
+{% assign translation_caption = nil %}
+
+{% if page.url contains '/zh/' %}
+  {% assign translation_url = page.url | replace_first: '/zh/', '/en/' %}
+  {% assign translation_label = 'English' %}
+  {% assign translation_caption = '切换语言' %}
+{% elsif page.url contains '/en/' %}
+  {% assign translation_url = page.url | replace_first: '/en/', '/zh/' %}
+  {% assign translation_label = '中文' %}
+  {% assign translation_caption = 'Language' %}
+{% endif %}
+
+{% if translation_url %}
+  <div class="article-tools">
+    <div class="article-language-switch">
+      <span>{{ translation_caption }}</span>
+      <a href="{{ translation_url | relative_url }}">
+        <small>{% if page.lang == 'en' %}Also available in{% else %}同时提供{% endif %}</small>
+        <strong>{{ translation_label }}</strong>
+      </a>
+    </div>
+  </div>
+{% endif %}

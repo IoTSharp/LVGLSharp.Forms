@@ -11,6 +11,7 @@
           {% include structured-page.html %}
         {% else %}
           <article class="doc-article">
+            {% include article-language-switch.html %}
             {{ content }}
           </article>
         {% endif %}
