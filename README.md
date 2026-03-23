@@ -190,6 +190,8 @@ src/
 ├── LVGLSharp.Core/         # 公共核心库
 ├── LVGLSharp.Runtime.Windows/ # Windows 平台运行时
 ├── LVGLSharp.Runtime.Linux/# Linux 平台运行时
+├── LVGLSharp.Runtime.MacOs/# MacOs 平台运行时骨架
+├── LVGLSharp.Runtime.Remote/# 跨平台远程运行时抽象骨架
 ├── LVGLSharp.Interop/      # LVGL P/Invoke 自动生成绑定
 ├── LVGLSharp.Native/       # 各平台原生库
 └── Demos/
@@ -213,7 +215,7 @@ libs/
 
 当前 Linux 宿主选择补充说明：
 
-- 可通过环境变量 `LVGLSHARP_LINUX_HOST` 显式指定宿主。
+- 当前 `LinuxView` 会自动探测并选择宿主；后续会进一步收敛到统一的显式选项对象。
 - 目前已识别值包括：`wslg`、`wayland`、`x11`、`sdl`、`framebuffer`、`drm` / `kms`、`offscreen`。
 - 其中 `drm` / `kms` 与 `offscreen` 当前为骨架入口，尚未完成原生后端实现。
 
@@ -221,6 +223,11 @@ libs/
 
 - `src/Demos/OffscreenDemo/OffscreenDemo.csproj`：演示 `OffscreenView` 的无头渲染与 PNG 导出。
 - 可通过命令行参数显式指定输出文件路径、宽高与 DPI。
+
+当前新增骨架能力：
+
+- `src/LVGLSharp.Runtime.MacOs/`：macOS 运行时骨架。
+- `src/LVGLSharp.Runtime.Remote/`：跨平台远程运行时抽象骨架，用于后续 `VNC` / `RDP`。
 
 ---
 

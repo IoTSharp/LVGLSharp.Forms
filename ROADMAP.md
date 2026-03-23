@@ -55,6 +55,11 @@ The demo layer also now contains an isolated validation path for headless render
 
 - `OffscreenDemo`
 
+The repository now also contains first-step expansion skeletons beyond Linux desktop hosts:
+
+- `LVGLSharp.Runtime.MacOs`
+- `LVGLSharp.Runtime.Remote`
+
 This means the roadmap should no longer describe `Wayland` and `SDL` as "not started". They are implemented, but not yet at the same maturity level as the more established paths.
 
 ### Documentation and release expression
@@ -74,6 +79,8 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
 | Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
 | Linux Offscreen | In progress | Basic headless rendering path exists, along with an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
+| MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, but no native macOS host backend is implemented yet |
+| Remote runtimes (`VNC` / `RDP`) | Planned (skeleton) | Cross-platform remote runtime project exists; protocol/server implementations are not started yet |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |
 | Linux SDL | Experimental | Implemented, but still needs more validation and release discipline |
 | Native packaging / CI | Available | Multi-stage workflows and native artifacts are already in place |
@@ -144,6 +151,9 @@ These remain valid later-stage directions, but they are not the best immediate n
 
 - `DirectFB`
 - `Mir`
+
+These now have skeleton scaffolding but still need full implementation:
+
 - `LVGLSharp.Runtime.MacOs`
 - remote runtimes such as `VNC` / `RDP`
 

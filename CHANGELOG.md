@@ -14,13 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - 新增 `ROADMAP.md`，用于统一记录当前已完成的里程碑、宿主成熟度与下一阶段建议优先项。
 - 在 `LVGLSharp.Runtime.Linux` 中新增 `DrmView` 与 `OffscreenView` 骨架，为后续 `DRM/KMS`、无头渲染、截图回归与远程运行时铺设入口。
 - 新增独立示例 `src/Demos/OffscreenDemo`，用于演示 `OffscreenView` 的无头渲染与 PNG 输出。
+- 新增 `src/LVGLSharp.Runtime.MacOs` 项目骨架，为后续 macOS 运行时实现预留入口。
+- 新增 `src/LVGLSharp.Runtime.Remote` 项目骨架，承载跨平台远程运行时抽象，为后续 `VNC` / `RDP` 路线预留会话与帧源接口。
 
 ### 变更 / Changed
 - `LVGLSharp.Interop` 与部分 demo 工程对 `LVGLSharp.Native` 改为按构建配置拆分依赖：非 `Release` 默认引用已发布包，`Release` 引用本地项目，并统一引入 `LVGLSharpNativePackageVersion` 属性。
 - `LVGLSharp.Forms` 改为通过 `buildTransitive` 自动生成平台运行时注册代码，在 `ApplicationConfiguration.Initialize()` 中按当前平台完成初始化，不再依赖 demo 侧显式调用运行时配置辅助类。
 - 文档首页、导航页与 README 的入口统一对齐到真实存在的 `ROADMAP.md`、`docs/WSL-Developer-Guide*.md` 与 `docs/navigation*.md`。
 - 文档对 Linux 宿主状态的描述已更新：`Wayland` 与 `SDL` 不再只作为未来规划，而是标记为“已实现、当前偏实验性”的路径。
-- `LinuxEnvironmentDetector` 与 `LinuxView` 现已支持通过 `LVGLSHARP_LINUX_HOST` 显式选择 `drm` / `kms` 与 `offscreen` 宿主入口，并保留现有自动探测策略。
+- `LinuxEnvironmentDetector` 与 `LinuxView` 已补充 `drm` / `kms` 与 `offscreen` 宿主入口，当前仍保留自动探测路径，后续会统一收敛到显式选项对象。
 - `PictureBoxDemo` 不再混入 Offscreen 截图入口；Offscreen 示例已拆分为独立 demo，降低示例职责耦合。
 
 ### 修复 / Fixed
