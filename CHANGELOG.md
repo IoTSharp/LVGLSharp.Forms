@@ -15,12 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - 在 `LVGLSharp.Runtime.Linux` 中新增 `DrmView` 骨架，为后续 `DRM/KMS` 路线铺设入口。
 - 新增 `src/LVGLSharp.Runtime.Headless` 项目，并将 `OffscreenView` 收敛为独立无头渲染运行时，用于截图回归、自动化验证与远程运行时复用。
 - 新增独立示例 `src/Demos/OffscreenDemo`，用于演示 `OffscreenView` 的无头渲染与 PNG 输出。
+- 新增独立示例 `src/Demos/MacOsAotDemo`，用于演示基于 `LVGLSharp.Forms` 的 macOS AOT 入口与宿主骨架摘要。
 - 新增 `tests/LVGLSharp.Headless.Tests`，提供首批基于 `OffscreenView` 的快照回归测试入口。
 - 新增 `src/LVGLSharp.Runtime.MacOs` 项目骨架，为后续 macOS 运行时实现预留入口。
 - 新增 `src/LVGLSharp.Runtime.Remote` 项目骨架，承载跨平台远程运行时抽象，为后续 `VNC` / `RDP` 路线预留会话与帧源接口。
 - 在 `LVGLSharp.Runtime.Remote` 中新增协议无关层：`RemoteSessionOptions`、`IRemoteTransport`、`RemoteInputEvent`、`RemoteFrameEncoding` 与 `RemoteFrameEncoder`，为后续 `VNC` / `RDP` 协议实现铺路。
 - 在 `LVGLSharp.Runtime.Remote` 中新增 `VNC` / `RDP` 第一版 transport skeleton、对应会话选项，以及 `RemoteRuntimeFactory` 工厂入口。
 - 在 `LVGLSharp.Runtime.Remote` 中新增 `HeadlessRemoteFrameSource`，打通 `OffscreenView` 到 Remote 帧源的基础适配链路。
+- 在 `LVGLSharp.Runtime.MacOs` 中新增 `MacOsViewOptions`、`IMacOsSurface` 与 `MacOsSurfaceSkeleton`，让 macOS 宿主骨架更接近真实运行时结构。
+- 在 `LVGLSharp.Runtime.MacOs` 中新增 `MacOsHostDiagnostics` 与 `MacOsFrameBuffer`，让 macOS 宿主骨架具备更清晰的诊断与帧缓冲占位结构。
+- 在 `LVGLSharp.Runtime.MacOs` 中新增 `MacOsHostContext`，并让 `MacOsAotDemo` 直接展示 `MacOsHostDiagnostics` / `MacOsHostContext` 摘要。
 
 ### 变更 / Changed
 - `LVGLSharp.Interop` 与部分 demo 工程对 `LVGLSharp.Native` 改为按构建配置拆分依赖：非 `Release` 默认引用已发布包，`Release` 引用本地项目，并统一引入 `LVGLSharpNativePackageVersion` 属性。

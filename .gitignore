@@ -368,3 +368,6 @@ FodyWeavers.xsd
 dist/
 /.dotnet_cli
 /_site
+/_site_*
+/pages-src
+

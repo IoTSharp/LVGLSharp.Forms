@@ -1,4 +1,8 @@
-{% assign is_en = page.lang == 'en' %}
+{% assign current_url = page.url | default: '' %}
+{% assign is_en = false %}
+{% if current_url contains '/en/' or page.lang == 'en' %}
+  {% assign is_en = true %}
+{% endif %}
 {% if is_en %}
   {% assign docs_url = '/en/navigation.html' %}
   {% assign blog_url = '/en/blog/' %}

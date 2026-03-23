@@ -158,6 +158,28 @@
           {% endfor %}
         </div>
 
+      {% when 'showcase' %}
+        <div class="card-grid section-columns-{{ columns }}">
+          {% for item in section.items %}
+            <article class="panel showcase-card">
+              <a class="showcase-media" href="{{ item.image | relative_url }}" target="_blank" rel="noreferrer">
+                <img src="{{ item.image | relative_url }}" alt="{{ item.alt | default: item.title }}">
+              </a>
+              <div class="showcase-body">
+                {% if item.badge %}
+                  <span class="showcase-badge">{{ item.badge }}</span>
+                {% endif %}
+                <h3>{{ item.title }}</h3>
+                {% if item.description %}
+                  <div class="card-copy">
+                    {{ item.description | markdownify }}
+                  </div>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
       {% when 'list' %}
         {% if section.ordered %}
           <ol class="stack-list">

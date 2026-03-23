@@ -167,9 +167,11 @@ a:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
 }
 
-.site-nav a {
+.site-nav a,
+.nav-menu summary {
   padding: 10px 14px;
   border-radius: 999px;
   color: var(--muted);
@@ -177,9 +179,60 @@ a:hover {
 }
 
 .site-nav a:hover,
-.site-nav a.is-active {
+.site-nav a.is-active,
+.nav-menu summary:hover,
+.nav-menu[open] summary {
   color: var(--ink);
   background: rgba(60, 101, 248, 0.1);
+}
+
+.nav-menu {
+  position: relative;
+}
+
+.nav-menu summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.nav-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-menu summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 0.18s ease;
+}
+
+.nav-menu[open] summary::after {
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.nav-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 156px;
+  padding: 8px;
+  border: 1px solid rgba(60, 101, 248, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 36px rgba(36, 51, 89, 0.14);
+}
+
+.nav-menu-panel a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 .site-main {
@@ -448,6 +501,51 @@ a:hover {
   margin-top: 10px;
 }
 
+.showcase-card {
+  padding: 14px;
+  overflow: hidden;
+}
+
+.showcase-card h3 {
+  display: block;
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: 1.06rem;
+}
+
+.showcase-media {
+  display: block;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(60, 101, 248, 0.09), rgba(98, 211, 103, 0.09));
+  border: 1px solid rgba(60, 101, 248, 0.12);
+}
+
+.showcase-media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.showcase-body {
+  padding: 16px 10px 8px;
+}
+
+.showcase-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(60, 101, 248, 0.08);
+  color: var(--primary-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
 .stack-list {
   margin: 0;
   padding-left: 22px;
@@ -685,7 +783,17 @@ a:hover {
     gap: 8px;
   }
 
-  .site-nav a {
+  .site-nav a,
+  .nav-menu summary {
     padding: 8px 12px;
+  }
+
+  .nav-menu-panel {
+    right: auto;
+    left: 0;
+  }
+
+  .showcase-card {
+    padding: 12px;
   }
 }

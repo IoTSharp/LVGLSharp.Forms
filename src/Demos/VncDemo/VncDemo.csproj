@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <UseLVGLSharpForms>true</UseLVGLSharpForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LVGLSharp.Forms\LVGLSharp.Forms.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Native\LVGLSharp.Native.csproj" />
+  </ItemGroup>
+</Project>

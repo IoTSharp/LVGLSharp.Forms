@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PublishAot>true</PublishAot>
+    <UseLVGLSharpForms>true</UseLVGLSharpForms>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseLVGLSharpForms)' == 'true'">
+    <ProjectReference Include="..\..\LVGLSharp.WinForms\LVGLSharp.Forms.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.MacOs\LVGLSharp.Runtime.MacOs.csproj" />
+    <Using Include="LVGLSharp.Forms" />
+    <Using Include="LVGLSharp.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Share\lvgl64x64.png" Link="Assets\lvgl64x64.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\Share\lvgl128x128.png" Link="Assets\lvgl128x128.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\LVGLSharp.Native\LVGLSharp.Native.csproj" />
+  </ItemGroup>
+</Project>

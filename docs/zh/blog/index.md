@@ -39,19 +39,19 @@ sections:
         url: "/zh/blog/nativeaot-gui.html"
       - label: "Linux 图形宿主路线"
         url: "/zh/blog/linux-hosts.html"
-  - title: "对照阅读"
-    description: "需要英文版本时，可以直接从这里切换。"
+  - title: "继续阅读"
+    description: "如果你已经看完核心文章，可以继续从这些入口往下读。"
     variant: quick-links
     columns: 3
     items:
-      - title: "English Blog Index"
-        description: "浏览全部英文文章入口。"
-        url: "/en/blog/"
-      - title: "Why WinForms over LVGL"
-        description: "阅读项目定位的英文版说明。"
-        url: "/en/blog/why-winforms-over-lvgl.html"
-      - title: "Architecture Breakdown"
-        description: "查看工程结构与模块职责的英文版说明。"
-        url: "/en/blog/architecture.html"
+      - title: "文档导航"
+        description: "回到中文文档地图，按主题重新选择阅读路径。"
+        url: "/zh/navigation.html"
+      - title: "界面截图"
+        description: "查看当前已整理的 Demo 与宿主环境截图。"
+        url: "/zh/preview-local.html"
+      - title: "NuGet 安装"
+        description: "如果你准备实际接入项目，可以从安装说明开始。"
+        url: "/zh/nuget.html"
 ---
 

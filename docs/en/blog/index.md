@@ -39,19 +39,19 @@ sections:
         url: "/en/blog/nativeaot-gui.html"
       - label: "Linux Host Strategy"
         url: "/en/blog/linux-hosts.html"
-  - title: "Bilingual reading"
-    description: "Switch to the Chinese entry points here when you need bilingual comparison or local sharing."
+  - title: "Continue reading"
+    description: "Once you finish the core articles, these pages are the next best places to continue."
     variant: quick-links
     columns: 3
     items:
-      - title: "中文博客索引"
-        description: "浏览全部中文文章入口。"
-        url: "/zh/blog/"
-      - title: "为什么要做 WinForms over LVGL"
-        description: "查看项目定位与动机的中文版本。"
-        url: "/zh/blog/why-winforms-over-lvgl.html"
-      - title: "项目架构拆解"
-        description: "查看工程结构与模块职责的中文版本。"
-        url: "/zh/blog/architecture.html"
+      - title: "Documentation Navigation"
+        description: "Return to the English docs map and choose the next reading path by topic."
+        url: "/en/navigation.html"
+      - title: "Screenshot Gallery"
+        description: "Review the currently curated demo and runtime-host screenshots."
+        url: "/en/preview-local.html"
+      - title: "NuGet Guide"
+        description: "Start here if you are ready to install packages and try a minimal setup."
+        url: "/en/nuget.html"
 ---
 

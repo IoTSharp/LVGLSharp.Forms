@@ -64,6 +64,10 @@ The repository now also contains first-step expansion skeletons beyond Linux des
 - `LVGLSharp.Runtime.MacOs`
 - `LVGLSharp.Runtime.Remote`
 
+The demo layer now also contains an isolated AOT-oriented macOS Forms entry:
+
+- `MacOsAotDemo`
+
 This means the roadmap should no longer describe `Wayland` and `SDL` as "not started". They are implemented, but not yet at the same maturity level as the more established paths.
 
 ### Documentation and release expression
@@ -83,7 +87,7 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
 | Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
 | Headless Offscreen | In progress | Basic headless rendering path exists in `LVGLSharp.Runtime.Headless`, with `OffscreenOptions`, reusable snapshot export APIs, an isolated PNG snapshot demo, and first-step regression tests; reusable validation coverage still needs to grow |
-| MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, with clearer lifecycle/diagnostic shape, but no native macOS host backend is implemented yet |
+| MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, with `MacOsViewOptions`, `IMacOsSurface`, `MacOsHostDiagnostics`, `MacOsFrameBuffer`, `MacOsHostContext`, and clearer lifecycle/diagnostic shape, but no native macOS host backend is implemented yet |
 | Remote runtimes (`VNC` / `RDP`) | Planned (skeleton) | Cross-platform remote runtime project now includes protocol-agnostic session options, frame encoding/input abstractions, `Headless -> Remote` frame-source bridging, plus first-step `VNC` / `RDP` transport skeletons; protocol/server implementations are not started yet |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |
 | Linux SDL | Experimental | Implemented, but still needs more validation and release discipline |

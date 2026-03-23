@@ -79,8 +79,8 @@ sections:
         links:
           - label: "Why WinForms over LVGL"
             url: "/en/blog/why-winforms-over-lvgl.html"
-          - label: "中文首页"
-            url: "/zh/"
+          - label: "Blog Index"
+            url: "/en/blog/"
       - title: "Architecture and engineering"
         description: "Best if you care about module boundaries, runtime layering, and repository organization."
         links:

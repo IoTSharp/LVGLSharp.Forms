@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\LVGLSharp.Runtime.Headless\LVGLSharp.Runtime.Headless.csproj" />
     <ProjectReference Include="..\..\src\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj" />
+    <ProjectReference Include="..\..\src\LVGLSharp.Runtime.MacOs\LVGLSharp.Runtime.MacOs.csproj" />
     <ProjectReference Include="..\..\src\LVGLSharp.Interop\LVGLSharp.Interop.csproj" />
   </ItemGroup>
 

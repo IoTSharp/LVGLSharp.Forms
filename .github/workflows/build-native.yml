@@ -63,6 +63,9 @@ jobs:
             apt_packages: gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
             cmake_extra: >-
               -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/libs/cmake/toolchains/aarch64-linux-gnu.cmake
+          - rid: osx-arm64
+            os: macos-latest
+            cmake_extra: ""
 
     steps:
       - name: Checkout
@@ -79,6 +82,10 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y cmake ninja-build ${{ matrix.apt_packages }}
+
+      - name: Install macOS build dependencies
+        if: runner.os == 'macOS'
+        run: brew install cmake ninja
 
       - name: Configure with CMake on Windows
         if: runner.os == 'Windows'
@@ -112,8 +119,27 @@ jobs:
             -DBUILD_SHARED_LIBS=ON \
             -DCONFIG_LV_USE_PRIVATE_API=ON
 
+      - name: Configure with CMake on macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          cmake -S libs/lvgl -B libs/lvgl/build_shared \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCONFIG_LV_BUILD_EXAMPLES=OFF \
+            -DCONFIG_LV_BUILD_DEMOS=OFF \
+            -DCONFIG_LV_USE_THORVG_INTERNAL=OFF \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCONFIG_LV_USE_PRIVATE_API=ON
+
       - name: Build on Linux
         if: runner.os == 'Linux'
+        shell: bash
+        run: cmake --build libs/lvgl/build_shared
+
+      - name: Build on macOS
+        if: runner.os == 'macOS'
         shell: bash
         run: cmake --build libs/lvgl/build_shared
 
@@ -125,6 +151,10 @@ jobs:
           so=$(find libs/lvgl/build_shared -name "liblvgl.so" | head -1)
           if [ -n "$so" ]; then
             cp "$so" native_output/liblvgl.so
+          fi
+          dylib=$(find libs/lvgl/build_shared -name "liblvgl.dylib" | head -1)
+          if [ -n "$dylib" ]; then
+            cp "$dylib" native_output/liblvgl.dylib
           fi
           ls -la native_output/
 
@@ -157,6 +187,39 @@ jobs:
             echo "Error: missing exports: ${missing[*]}"
             echo "===== nm -D $lib ====="
             nm -D "$lib" || true
+            exit 1
+          fi
+
+          echo "Validated exports: ${expected_symbols[*]}"
+
+      - name: Validate exported symbols on macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          lib="native_output/liblvgl.dylib"
+          if [ ! -f "$lib" ]; then
+            echo "Error: missing $lib"
+            exit 1
+          fi
+
+          expected_symbols=(
+            _lv_init
+            _lv_timer_handler
+            _lv_display_create
+            _lv_indev_create
+          )
+
+          missing=()
+          for symbol in "${expected_symbols[@]}"; do
+            if ! nm -gU "$lib" | grep -w "$symbol" >/dev/null; then
+              missing+=("$symbol")
+            fi
+          done
+
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "Error: missing exports: ${missing[*]}"
+            echo "===== nm -gU $lib ====="
+            nm -gU "$lib" || true
             exit 1
           fi
 
@@ -216,7 +279,7 @@ jobs:
       - name: Generate sha256 files
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path native_output -File | Where-Object { $_.Extension -in '.dll', '.so' }
+          $files = Get-ChildItem -Path native_output -File | Where-Object { $_.Extension -in '.dll', '.so', '.dylib' }
           if (-not $files) {
             throw 'No native binaries were found in native_output.'
           }

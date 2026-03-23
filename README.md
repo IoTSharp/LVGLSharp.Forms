@@ -225,6 +225,7 @@ libs/
 当前新增独立示例：
 
 - `src/Demos/OffscreenDemo/OffscreenDemo.csproj`：演示 `OffscreenView` 的无头渲染与 PNG 导出。
+- `src/Demos/MacOsAotDemo/MacOsAotDemo.csproj`：基于 `LVGLSharp.Forms` 的 macOS AOT demo，当前用于验证 Forms 入口、`MacOsHostDiagnostics` / `MacOsHostContext` 摘要与占位骨架链路。
 - 可通过命令行参数显式指定输出文件路径、宽高、DPI、快照文本内容与背景色。
 - `OffscreenDemo`、`LVGLSharp.Runtime.Headless`、`LVGLSharp.Runtime.Remote` 与 `LVGLSharp.Runtime.MacOs` 已纳入 `LVGLSharp.sln`，可直接参与统一解决方案构建。
 - `tests/LVGLSharp.Headless.Tests` 提供了首批无头快照回归测试入口，用于验证尺寸、背景色与基础渲染流程。
@@ -232,7 +233,7 @@ libs/
 当前新增骨架能力：
 
 - `src/LVGLSharp.Runtime.Headless/`：无头渲染运行时，当前承载 `OffscreenView` 与 `OffscreenOptions`，已提供 `RenderFrame()`、`RenderSnapshot()`、`CaptureImage()`、`RenderSnapshotToPng()`、`SavePng()` 与 `SaveSnapshot()` 等基础快照导出入口。
-- `src/LVGLSharp.Runtime.MacOs/`：macOS 运行时骨架，已补充更明确的生命周期状态与宿主诊断信息。
+- `src/LVGLSharp.Runtime.MacOs/`：macOS 运行时骨架，已补充 `MacOsViewOptions`、`IMacOsSurface`、`MacOsSurfaceSkeleton`、`MacOsHostDiagnostics`、`MacOsFrameBuffer`，以及更明确的生命周期状态与宿主诊断信息。
 - `src/LVGLSharp.Runtime.Remote/`：跨平台远程运行时抽象骨架，当前已补充协议无关会话选项、输入事件、传输接口、帧编码入口、`Headless -> Remote` 帧源适配器，以及 `VNC` / `RDP` 的第一版 transport skeleton 与工厂入口。
 
 ---

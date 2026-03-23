@@ -1,19 +1,15 @@
-name: 发布 GitHub Pages 文档站点
+name: Publish GitHub Pages Docs
 
-'on':
+on:
   push:
     branches: [main, develop, master]
     paths:
       - 'docs/**'
       - '.github/workflows/docs-pages.yml'
-      - 'README.md'
-      - 'README_en.md'
-      - 'ROADMAP.md'
-      - 'CHANGELOG.md'
   workflow_dispatch:
     inputs:
       note:
-        description: "可选备注：用于说明本次手动发布 Pages 的目的"
+        description: Optional note for the manual Pages publish
         required: false
         default: ""
 
@@ -31,45 +27,36 @@ concurrency:
 
 jobs:
   build-pages-site:
-    name: 生成 Pages 文档站点
+    name: Build Pages Site
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
-      - name: 检出代码
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 配置 Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: 准备 Jekyll 源目录
-        shell: bash
-        run: |
-          rm -rf pages-src _site
-          mkdir -p pages-src
-          cp -R docs/. pages-src/
-          cp ROADMAP.md pages-src/ROADMAP.md
-          cp CHANGELOG.md pages-src/CHANGELOG.md
-
-      - name: 构建 Jekyll 站点
+      - name: Build Jekyll site
         uses: actions/jekyll-build-pages@v1
         with:
-          source: pages-src
+          source: docs
           destination: _site
 
-      - name: 上传 Pages 产物
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
   deploy-pages-site:
-    name: 发布 Pages 文档站点
+    name: Deploy Pages Site
     environment: github-pages
     runs-on: ubuntu-latest
     needs: build-pages-site
 
     steps:
-      - name: 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

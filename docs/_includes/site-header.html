@@ -1,14 +1,22 @@
-{% assign is_en = page.lang == 'en' %}
+{% assign current_url = page.url | default: '' %}
+{% assign is_en = false %}
+{% if current_url contains '/en/' or page.lang == 'en' %}
+  {% assign is_en = true %}
+{% endif %}
 {% if is_en %}
   {% assign home_url = '/en/' %}
   {% assign docs_url = '/en/navigation.html' %}
   {% assign blog_url = '/en/blog/' %}
   {% assign preview_url = '/en/preview-local.html' %}
+  {% assign nuget_url = '/en/nuget.html' %}
+  {% assign about_url = '/en/about.html' %}
 {% else %}
   {% assign home_url = '/zh/' %}
   {% assign docs_url = '/zh/navigation.html' %}
   {% assign blog_url = '/zh/blog/' %}
   {% assign preview_url = '/zh/preview-local.html' %}
+  {% assign nuget_url = '/zh/nuget.html' %}
+  {% assign about_url = '/zh/about.html' %}
 {% endif %}
 <header class="site-header">
   <div class="container header-shell">
@@ -32,8 +40,18 @@
     <nav class="site-nav" aria-label="{% if is_en %}Primary navigation{% else %}主导航{% endif %}">
       <a href="{{ docs_url | relative_url }}" class="{% if page.url contains '/navigation' %}is-active{% endif %}">{% if is_en %}Docs{% else %}导航{% endif %}</a>
       <a href="{{ blog_url | relative_url }}" class="{% if page.url contains '/blog/' %}is-active{% endif %}">{% if is_en %}Blog{% else %}博客{% endif %}</a>
-      <a href="{{ preview_url | relative_url }}" class="{% if page.url contains '/preview-local' %}is-active{% endif %}">{% if is_en %}Preview{% else %}预览{% endif %}</a>
-      <a href="https://github.com/IoTSharp/LVGLSharp">GitHub</a>
+      <a href="{{ preview_url | relative_url }}" class="{% if page.url contains '/preview-local' %}is-active{% endif %}">{% if is_en %}Gallery{% else %}截图{% endif %}</a>
+      <a href="{{ nuget_url | relative_url }}" class="{% if page.url contains '/nuget' %}is-active{% endif %}">NuGet</a>
+
+      <details class="nav-menu">
+        <summary>{% if is_en %}Source{% else %}源码{% endif %}</summary>
+        <div class="nav-menu-panel">
+          <a href="https://github.com/IoTSharp/LVGLSharp" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://gitee.com/IoTSharp/LVGLSharp" target="_blank" rel="noreferrer">Gitee</a>
+        </div>
+      </details>
+
+      <a href="{{ about_url | relative_url }}" class="{% if page.url contains '/about' %}is-active{% endif %}">{% if is_en %}About{% else %}关于{% endif %}</a>
     </nav>
   </div>
 </header>

@@ -79,8 +79,8 @@ sections:
         links:
           - label: "为什么要做 WinForms over LVGL"
             url: "/zh/blog/why-winforms-over-lvgl.html"
-          - label: "English Home"
-            url: "/en/"
+          - label: "博客索引"
+            url: "/zh/blog/"
       - title: "关注架构与工程化"
         description: "适合想快速理解模块边界、运行时分层与工程结构的读者。"
         links:

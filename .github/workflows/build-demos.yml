@@ -116,3 +116,23 @@ jobs:
           name: demo-release-win-x64
           path: release_assets/LVGLSharp-demos-win-x64-${{ env.DEMO_PACKAGE_VERSION }}.zip
           if-no-files-found: error
+
+  build-macos-demo-skeleton:
+    name: Build demo skeleton (osx-arm64)
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build macOS AOT demo skeleton
+        run: dotnet build ./src/Demos/MacOsAotDemo/MacOsAotDemo.csproj -c Release -r osx-arm64
