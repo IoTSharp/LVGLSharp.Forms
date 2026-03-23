@@ -51,6 +51,10 @@ The repository also now contains first-step skeleton hosts for future expansion:
 - `DrmView`
 - `OffscreenView`
 
+The demo layer also now contains an isolated validation path for headless rendering:
+
+- `OffscreenDemo`
+
 This means the roadmap should no longer describe `Wayland` and `SDL` as "not started". They are implemented, but not yet at the same maturity level as the more established paths.
 
 ### Documentation and release expression
@@ -69,7 +73,7 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Linux X11 / WSLg | Available | Current desktop-oriented Linux path |
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
 | Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
-| Linux Offscreen | Planned (skeleton) | Reserved for headless rendering, snapshot validation, and future remote runtimes |
+| Linux Offscreen | In progress | Basic headless rendering path exists, along with an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |
 | Linux SDL | Experimental | Implemented, but still needs more validation and release discipline |
 | Native packaging / CI | Available | Multi-stage workflows and native artifacts are already in place |
@@ -102,6 +106,7 @@ Current active sequence:
 
 - flesh out `DRM / KMS`
 - flesh out `Offscreen`
+- extend `OffscreenDemo` into repeatable snapshot validation coverage
 - keep `DirectFB` and `Mir` for later, after the first two paths have verification coverage
 
 ### 2. Clarify the host support matrix
@@ -147,5 +152,5 @@ These remain valid later-stage directions, but they are not the best immediate n
 If we want to start the next piece of work now, the best place to begin is:
 
 1. finish the native implementation behind `DrmView`
-2. turn `OffscreenView` into a reusable headless rendering path
+2. turn `OffscreenView` and `OffscreenDemo` into a reusable headless rendering and validation path
 3. then add host-specific validation and release-matrix clarity on top

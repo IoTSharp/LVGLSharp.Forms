@@ -23,10 +23,7 @@ public unsafe class LinuxView : ViewLifetimeBase
             LinuxHostEnvironment.Wayland => new WaylandView(title, width, height, dpi, detectedWaylandDisplay, detectedX11Display, borderless),
             LinuxHostEnvironment.Sdl => new SdlView(title, width, height, dpi, borderless),
             LinuxHostEnvironment.FrameBuffer => new FrameBufferView(fbdev, indev, dpi),
-            LinuxHostEnvironment.Drm => new DrmView(
-                LinuxEnvironmentDetector.GetDrmDevicePath() ?? "/dev/dri/card0",
-                LinuxEnvironmentDetector.GetDrmConnectorId(),
-                dpi),
+            LinuxHostEnvironment.Drm => CreateDrmView(dpi),
             LinuxHostEnvironment.Offscreen => new OffscreenView(width, height, dpi),
             LinuxHostEnvironment.X11 => new X11View(title, width, height, dpi, detectedX11Display, borderless),
             _ => throw new InvalidOperationException($"Unsupported Linux view mode: {_environment}"),
@@ -80,4 +77,10 @@ public unsafe class LinuxView : ViewLifetimeBase
     }
 
     protected override bool CanSkipClose() => false;
+
+    private static DrmView CreateDrmView(float dpi)
+    {
+        var options = LinuxEnvironmentDetector.GetDefaultDrmOptions(dpi);
+        return new DrmView(options.DevicePath, options.ConnectorId, options.Dpi, options.ModePreference);
+    }
 }

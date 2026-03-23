@@ -1,8 +1,14 @@
+---
+title: WSL 开发者手册
+description: 说明如何在 WSL2 和 WSLg 中运行、发布和调试仓库里的 Linux 路径 demo。
+lang: zh-CN
+---
+
 # WSL 开发者手册
 
 本文面向本仓库开发者，说明如何在 `WSL2/WSLg` 中运行和调试 Linux 路径下的 demo。
 
-如果你想同时了解当前已完成的工程范围和下一阶段优先事项，可以同时参考：[`ROADMAP.md`](../ROADMAP.md) 和 [`navigation.md`](./navigation.md)。
+如果你想同时了解当前已完成的工程范围和下一阶段优先事项，可以同时参考：[ROADMAP](https://github.com/IoTSharp/LVGLSharp/blob/main/ROADMAP.md) 和 [`navigation.md`](./navigation.md)。
 
 ## 先说结论
 
@@ -587,3 +593,4 @@ ls
 - Windows 侧开发效率
 - Linux 侧真实运行环境验证
 - 最少的工程与 IDE 配置复杂度
+

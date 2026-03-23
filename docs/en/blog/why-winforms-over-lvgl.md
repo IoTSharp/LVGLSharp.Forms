@@ -1,3 +1,9 @@
+---
+title: Why Build WinForms over LVGL
+description: Explains why the project combines a WinForms-style API with the LVGL rendering stack.
+lang: en
+---
+
 # Why Build WinForms over LVGL
 
 ## A long-standing gap

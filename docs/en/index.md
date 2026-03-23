@@ -1,4 +1,4 @@
----
+﻿---
 title: LVGLSharp Home
 description: Bring a WinForms-style development experience to LVGL-powered cross-platform UI.
 lang: en
@@ -9,10 +9,10 @@ hero:
   lead: "LVGLSharp uses **LVGL** as the rendering core while exposing a .NET-friendly, WinForms-style development model. The goal is to bridge desktop productivity with Windows, Linux, and device-oriented runtime environments, while continuing to improve **NativeAOT**, lightweight deployment, and host portability."
   actions:
     - label: "Start with docs"
-      url: "/navigation.en.html"
+      url: "/en/navigation.html"
       style: primary
     - label: "Read the blog"
-      url: "/blog/index.en.html"
+      url: "/en/blog/"
       style: secondary
     - label: "GitHub repository"
       url: "https://github.com/IoTSharp/LVGLSharp"
@@ -62,13 +62,13 @@ sections:
     items:
       - title: "Documentation map"
         description: "Jump into the right reading path by topic, audience, and language."
-        url: "/navigation.en.html"
+        url: "/en/navigation.html"
       - title: "Engineering and CI"
         description: "Understand the build, packaging, publishing, and automation structure."
-        url: "/ci-workflows.en.html"
+        url: "/en/ci-workflows.html"
       - title: "WSL / Linux development"
         description: "Start here if your main interest is Linux graphics hosts and development workflow."
-        url: "/WSL-Developer-Guide.en.html"
+        url: "/en/WSL-Developer-Guide.html"
   - title: "Recommended reading paths"
     description: "Choose a path based on your interest instead of browsing everything manually."
     variant: link-lists
@@ -78,28 +78,28 @@ sections:
         description: "Best if you want to understand why the project exists and what it is trying to achieve."
         links:
           - label: "Why WinForms over LVGL"
-            url: "/blog/why-winforms-over-lvgl.en.html"
+            url: "/en/blog/why-winforms-over-lvgl.html"
           - label: "中文首页"
-            url: "/"
+            url: "/zh/"
       - title: "Architecture and engineering"
         description: "Best if you care about module boundaries, runtime layering, and repository organization."
         links:
           - label: "Architecture Breakdown"
-            url: "/blog/architecture.en.html"
+            url: "/en/blog/architecture.html"
           - label: "CI Workflow Guide"
-            url: "/ci-workflows.en.html"
+            url: "/en/ci-workflows.html"
       - title: "Linux and host strategy"
         description: "Best if you care about X11, WSLg, FrameBuffer, Wayland, and future display-host paths."
         links:
           - label: "Linux Host Strategy"
-            url: "/blog/linux-hosts.en.html"
+            url: "/en/blog/linux-hosts.html"
           - label: "WSL Developer Guide"
-            url: "/WSL-Developer-Guide.en.html"
+            url: "/en/WSL-Developer-Guide.html"
       - title: "AOT and publishing"
         description: "Best if you care about trimming, self-contained deployments, runtime size, and publishing shape."
         links:
           - label: "NativeAOT and GUI"
-            url: "/blog/nativeaot-gui.en.html"
+            url: "/en/blog/nativeaot-gui.html"
           - label: "Changelog"
             url: "https://github.com/IoTSharp/LVGLSharp/blob/main/CHANGELOG.md"
   - title: "Capability map"
@@ -132,9 +132,9 @@ sections:
       - label: "Inspect the GitHub repository for project structure"
         url: "https://github.com/IoTSharp/LVGLSharp"
       - label: "Use the documentation map to choose a reading path"
-        url: "/navigation.en.html"
+        url: "/en/navigation.html"
       - label: "Read the blog index for rationale and architecture tradeoffs"
-        url: "/blog/index.en.html"
+        url: "/en/blog/"
       - label: "Study the demo projects under src/Demos for practical usage patterns"
   - title: "Start with these"
     description: "If you only read three pieces first, use this shortlist."
@@ -142,9 +142,10 @@ sections:
     surface: true
     items:
       - label: "Why WinForms over LVGL"
-        url: "/blog/why-winforms-over-lvgl.en.html"
+        url: "/en/blog/why-winforms-over-lvgl.html"
       - label: "Architecture Breakdown"
-        url: "/blog/architecture.en.html"
+        url: "/en/blog/architecture.html"
       - label: "NativeAOT and GUI"
-        url: "/blog/nativeaot-gui.en.html"
+        url: "/en/blog/nativeaot-gui.html"
 ---
+

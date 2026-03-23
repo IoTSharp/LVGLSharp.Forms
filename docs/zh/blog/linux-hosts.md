@@ -61,3 +61,4 @@ lang: zh-CN
 Linux 支持从来不是一句话，而是一条路线。
 
 `LVGLSharp.Forms` 当前最值得关注的，不只是“已经支持 Linux”，而是它已经开始把 Linux 图形环境问题作为一条独立工程路线认真处理。
+

@@ -1,4 +1,10 @@
-﻿# NativeAOT and GUI: Why This Direction Matters
+---
+title: NativeAOT and GUI: Why This Direction Matters
+description: Explains why NativeAOT is a strategic fit for the LVGLSharp runtime and packaging model.
+lang: en
+---
+
+# NativeAOT and GUI: Why This Direction Matters
 
 ## Why GUI should care about AOT
 
@@ -63,3 +69,4 @@ NativeAOT aligns naturally with all of those goals.
 For a project like `LVGLSharp.Forms`, NativeAOT is not a bonus feature. It is part of the project’s long-term engineering value.
 
 If a cross-platform GUI compatibility layer cannot move toward AOT safely, its future on device targets will always be limited. If it can, it becomes much more than a UI demo project.
+

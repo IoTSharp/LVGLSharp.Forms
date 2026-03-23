@@ -195,12 +195,6 @@ public unsafe sealed class DrmView : ViewLifetimeBase
             return _devicePath;
         }
 
-        var autoDetected = LinuxEnvironmentDetector.GetDrmDevicePath();
-        if (!string.IsNullOrWhiteSpace(autoDetected))
-        {
-            return autoDetected;
-        }
-
         var nativePath = lv_linux_drm_find_device_path_native();
         if (nativePath != null)
         {

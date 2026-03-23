@@ -1,4 +1,10 @@
-﻿# Linux Host Strategy: From X11 to Wayland and Beyond
+---
+title: Linux Host Strategy: From X11 to Wayland and Beyond
+description: Reviews the Linux host options and how the runtime evolves from desktop to device-side environments.
+lang: en
+---
+
+# Linux Host Strategy: From X11 to Wayland and Beyond
 
 ## The real question is not whether Linux supports GUI
 
@@ -53,3 +59,4 @@ That matters because it means:
 Linux support is not a checkbox. It is a roadmap.
 
 What is most interesting about `LVGLSharp.Forms` is not only that it already runs on Linux, but that it has started treating Linux host diversity as a real engineering problem with a structured solution path.
+

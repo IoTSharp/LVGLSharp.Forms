@@ -8,16 +8,9 @@ internal static unsafe class Program
 {
     private static void Main(string[] args)
     {
-        var outputPath = args.Length > 0
-            ? args[0]
-            : Environment.GetEnvironmentVariable("LVGLSHARP_OFFSCREEN_SNAPSHOT_PATH");
+        var options = OffscreenDemoOptions.Parse(args);
 
-        if (string.IsNullOrWhiteSpace(outputPath))
-        {
-            outputPath = Path.Combine(AppContext.BaseDirectory, "offscreen-snapshot.png");
-        }
-
-        using var view = new OffscreenView(480, 320, 96f);
+        using var view = new OffscreenView(options.Width, options.Height, options.Dpi);
         view.Open();
 
         var root = view.Root;
@@ -41,8 +34,34 @@ internal static unsafe class Program
         lv_obj_center(label);
         view.RenderFrame();
 
-        Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
-        view.SavePng(outputPath);
-        Console.WriteLine($"Offscreen snapshot saved: {outputPath}");
+        Directory.CreateDirectory(Path.GetDirectoryName(options.OutputPath)!);
+        view.SavePng(options.OutputPath);
+        Console.WriteLine($"Offscreen snapshot saved: {options.OutputPath}");
+    }
+
+    private sealed record OffscreenDemoOptions(string OutputPath, int Width, int Height, float Dpi)
+    {
+        public static OffscreenDemoOptions Parse(string[] args)
+        {
+            var outputPath = args.Length > 0 && !string.IsNullOrWhiteSpace(args[0])
+                ? args[0]
+                : Path.Combine(AppContext.BaseDirectory, "offscreen-snapshot.png");
+
+            var width = TryParseInt(args, 1, 480);
+            var height = TryParseInt(args, 2, 320);
+            var dpi = TryParseFloat(args, 3, 96f);
+
+            return new OffscreenDemoOptions(outputPath, width, height, dpi);
+        }
+
+        private static int TryParseInt(string[] args, int index, int fallback)
+        {
+            return args.Length > index && int.TryParse(args[index], out var value) ? value : fallback;
+        }
+
+        private static float TryParseFloat(string[] args, int index, float fallback)
+        {
+            return args.Length > index && float.TryParse(args[index], out var value) ? value : fallback;
+        }
     }
 }

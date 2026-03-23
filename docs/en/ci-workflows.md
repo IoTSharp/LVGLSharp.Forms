@@ -1,4 +1,10 @@
-﻿# LVGLSharp CI Workflow Guide
+---
+title: LVGLSharp CI Workflow Guide
+description: Explains how the current GitHub Actions CI/CD pipeline is structured and how the workflows relate to each other.
+lang: en
+---
+
+# LVGLSharp CI Workflow Guide
 
 This document explains how the current GitHub Actions CI/CD pipeline in the `LVGLSharp` repository is split, how the workflows depend on each other, what triggers them, and what each workflow is responsible for.
 
@@ -287,3 +293,4 @@ Recommended conventions going forward:
 ---
 
 If the repository later adds a GitHub Pages documentation publishing workflow, it can continue to build on this same decomposed CI structure.
+

@@ -1,8 +1,14 @@
+---
+title: WSL Developer Guide
+description: Explains how to run, publish, and debug Linux-path demos inside WSL2 and WSLg.
+lang: en
+---
+
 # WSL Developer Guide
 
 This document explains how developers in this repository can run and debug Linux-path demos inside `WSL2/WSLg`.
 
-If you also want the current completion status and the recommended next engineering step, see [`ROADMAP.md`](../ROADMAP.md) and [`navigation.en.md`](./navigation.en.md).
+If you also want the current completion status and the recommended next engineering step, see the [ROADMAP](https://github.com/IoTSharp/LVGLSharp/blob/main/ROADMAP.md) and [`navigation.md`](./navigation.md).
 
 ## Short Conclusion First
 

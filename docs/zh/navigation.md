@@ -1,4 +1,4 @@
----
+﻿---
 title: 文档导航
 description: 按主题、角色和语言快速浏览 LVGLSharp 文档与博客内容。
 lang: zh-CN
@@ -16,13 +16,13 @@ sections:
       - title: "首页与语言切换"
         links:
           - label: "中文首页"
-            url: "/"
+            url: "/zh/"
           - label: "English Home"
-            url: "/index.en.html"
+            url: "/en/"
           - label: "English Navigation"
-            url: "/navigation.en.html"
+            url: "/en/navigation.html"
           - label: "博客索引"
-            url: "/blog/index.html"
+            url: "/zh/blog/"
       - title: "项目文档"
         links:
           - label: "路线图"
@@ -30,11 +30,11 @@ sections:
           - label: "更新记录"
             url: "https://github.com/IoTSharp/LVGLSharp/blob/main/CHANGELOG.md"
           - label: "CI 工作流说明"
-            url: "/ci-workflows.html"
+            url: "/zh/ci-workflows.html"
           - label: "WSL 开发指南"
-            url: "/WSL-Developer-Guide.html"
+            url: "/zh/WSL-Developer-Guide.html"
           - label: "本地预览说明"
-            url: "/preview-local.html"
+            url: "/zh/preview-local.html"
   - title: "按读者类型进入"
     description: "从你的关注点出发，而不是从文件名猜内容。"
     variant: link-lists
@@ -43,31 +43,31 @@ sections:
       - title: "第一次了解项目"
         links:
           - label: "项目首页"
-            url: "/"
+            url: "/zh/"
           - label: "为什么要做 WinForms over LVGL"
-            url: "/blog-winforms-over-lvgl.html"
+            url: "/zh/blog/why-winforms-over-lvgl.html"
           - label: "英文首页"
-            url: "/index.en.html"
+            url: "/en/"
       - title: "架构与工程化"
         links:
           - label: "项目架构拆解"
-            url: "/blog-architecture.html"
+            url: "/zh/blog/architecture.html"
           - label: "CI 工作流说明"
-            url: "/ci-workflows.html"
+            url: "/zh/ci-workflows.html"
           - label: "CI Workflow Guide"
-            url: "/ci-workflows.en.html"
+            url: "/en/ci-workflows.html"
       - title: "Linux / 运行时宿主"
         links:
           - label: "Linux 图形宿主路线"
-            url: "/blog-linux-hosts.html"
+            url: "/zh/blog/linux-hosts.html"
           - label: "WSL 开发指南"
-            url: "/WSL-Developer-Guide.html"
+            url: "/zh/WSL-Developer-Guide.html"
           - label: "WSL Developer Guide"
-            url: "/WSL-Developer-Guide.en.html"
+            url: "/en/WSL-Developer-Guide.html"
       - title: "AOT / 发布"
         links:
           - label: "NativeAOT 与 GUI"
-            url: "/blog-nativeaot-gui.html"
+            url: "/zh/blog/nativeaot-gui.html"
           - label: "更新记录"
             url: "https://github.com/IoTSharp/LVGLSharp/blob/main/CHANGELOG.md"
           - label: "路线图"
@@ -78,9 +78,10 @@ sections:
     surface: true
     items:
       - label: "English Navigation"
-        url: "/navigation.en.html"
+        url: "/en/navigation.html"
       - label: "English Blog Index"
-        url: "/blog/index.en.html"
+        url: "/en/blog/"
       - label: "README English"
         url: "https://github.com/IoTSharp/LVGLSharp/blob/main/README_en.md"
 ---
+

@@ -1,4 +1,10 @@
-﻿# LVGLSharp CI 工作流说明
+---
+title: LVGLSharp CI 工作流说明
+description: 说明仓库当前 GitHub Actions CI/CD 的拆分方式、依赖关系和发布职责。
+lang: zh-CN
+---
+
+# LVGLSharp CI 工作流说明
 
 本文档用于说明 `LVGLSharp` 仓库当前 GitHub Actions CI/CD 的拆分方式、依赖关系、触发条件，以及各工作流承担的职责。
 
@@ -296,3 +302,4 @@ prepare + pack + build-demos
 ---
 
 如果后续还要补 GitHub Pages 文档站点工作流，可以在这套拆分基础上继续增加 `docs-pages.yml`，直接复用当前构建与发布体系。
+

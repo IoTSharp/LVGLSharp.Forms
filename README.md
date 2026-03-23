@@ -196,6 +196,7 @@ src/
     ├── WinFormsDemo/       # 基础 WinForms / LVGLSharp.Forms 对照演示
     ├── PictureBoxDemo/     # PictureBox 控件演示
     ├── MusicDemo/          # MusicDemo 演示项目
+  ├── OffscreenDemo/      # Offscreen 无头渲染与 PNG 输出演示
     ├── SmartWatchDemo/     # SmartWatch 界面演示
     └── SerialPort/         # SerialPort 演示项目
 libs/
@@ -215,6 +216,11 @@ libs/
 - 可通过环境变量 `LVGLSHARP_LINUX_HOST` 显式指定宿主。
 - 目前已识别值包括：`wslg`、`wayland`、`x11`、`sdl`、`framebuffer`、`drm` / `kms`、`offscreen`。
 - 其中 `drm` / `kms` 与 `offscreen` 当前为骨架入口，尚未完成原生后端实现。
+
+当前新增独立示例：
+
+- `src/Demos/OffscreenDemo/OffscreenDemo.csproj`：演示 `OffscreenView` 的无头渲染与 PNG 导出。
+- 可通过命令行参数显式指定输出文件路径、宽高与 DPI。
 
 ---
 

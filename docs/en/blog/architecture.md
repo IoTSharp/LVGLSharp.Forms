@@ -1,4 +1,10 @@
-﻿# LVGLSharp.Forms Architecture Breakdown
+---
+title: LVGLSharp.Forms Architecture Breakdown
+description: Describes how Forms, Core, Interop, Native, and Runtime are layered in the project.
+lang: en
+---
+
+# LVGLSharp.Forms Architecture Breakdown
 
 ## Why the project needs layering
 
@@ -83,3 +89,4 @@ What makes `LVGLSharp.Forms` interesting is not only that it connects WinForms a
 - release and documentation layer
 
 That is the kind of structure a project needs if it wants to grow beyond a prototype.
+

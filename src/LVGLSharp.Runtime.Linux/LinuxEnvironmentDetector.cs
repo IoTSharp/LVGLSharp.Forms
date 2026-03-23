@@ -113,27 +113,10 @@ internal static class LinuxEnvironmentDetector
         return LinuxHostEnvironment.X11;
     }
 
-    internal static string? GetDrmDevicePath()
+    internal static LinuxDrmOptions GetDefaultDrmOptions(float dpi)
     {
-        var configuredDevice = Environment.GetEnvironmentVariable("LVGLSHARP_DRM_DEVICE");
-        if (!string.IsNullOrWhiteSpace(configuredDevice))
-        {
-            return configuredDevice;
-        }
-
         const string defaultDrmDevice = "/dev/dri/card0";
-        return File.Exists(defaultDrmDevice) ? defaultDrmDevice : null;
-    }
-
-    internal static int GetDrmConnectorId(int fallbackConnectorId = -1)
-    {
-        var configuredConnector = Environment.GetEnvironmentVariable("LVGLSHARP_DRM_CONNECTOR");
-        if (int.TryParse(configuredConnector, out var connectorId))
-        {
-            return connectorId;
-        }
-
-        return fallbackConnectorId;
+        return new LinuxDrmOptions(defaultDrmDevice, -1, dpi, DrmView.DrmModePreference.Default);
     }
 
     internal static bool ShouldUseSdl()
@@ -321,3 +304,5 @@ internal static class LinuxEnvironmentDetector
         return string.IsNullOrWhiteSpace(value) ? "<unset>" : value;
     }
 }
+
+internal readonly record struct LinuxDrmOptions(string DevicePath, int ConnectorId, float Dpi, DrmView.DrmModePreference ModePreference);
