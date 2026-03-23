@@ -12,6 +12,8 @@ internal enum LinuxHostEnvironment
     Sdl,
     X11,
     FrameBuffer,
+    Drm,
+    Offscreen,
 }
 
 internal static class LinuxEnvironmentDetector
@@ -77,6 +79,12 @@ internal static class LinuxEnvironmentDetector
 
     internal static LinuxHostEnvironment ResolveHostEnvironment(string? detectedWaylandDisplay, string? detectedX11Display, string fbdev)
     {
+        var explicitHost = GetExplicitHost();
+        if (explicitHost is not null)
+        {
+            return explicitHost.Value;
+        }
+
         if (ShouldUseSdl())
         {
             return LinuxHostEnvironment.Sdl;
@@ -105,11 +113,23 @@ internal static class LinuxEnvironmentDetector
         return LinuxHostEnvironment.X11;
     }
 
+    internal static string? GetDrmDevicePath()
+    {
+        var configuredDevice = Environment.GetEnvironmentVariable("LVGLSHARP_DRM_DEVICE");
+        if (!string.IsNullOrWhiteSpace(configuredDevice))
+        {
+            return configuredDevice;
+        }
+
+        const string defaultDrmDevice = "/dev/dri/card0";
+        return File.Exists(defaultDrmDevice) ? defaultDrmDevice : null;
+    }
+
     internal static bool ShouldUseSdl()
     {
-        var explicitHost = Environment.GetEnvironmentVariable("LVGLSHARP_LINUX_HOST");
-        if (!string.IsNullOrWhiteSpace(explicitHost) &&
-            string.Equals(explicitHost, "sdl", StringComparison.OrdinalIgnoreCase))
+        var explicitHostName = Environment.GetEnvironmentVariable("LVGLSHARP_LINUX_HOST");
+        if (!string.IsNullOrWhiteSpace(explicitHostName) &&
+            string.Equals(explicitHostName, "sdl", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
@@ -118,6 +138,27 @@ internal static class LinuxEnvironmentDetector
         return string.Equals(useSdl, "1", StringComparison.OrdinalIgnoreCase) ||
                string.Equals(useSdl, "true", StringComparison.OrdinalIgnoreCase) ||
                string.Equals(useSdl, "yes", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static LinuxHostEnvironment? GetExplicitHost()
+    {
+        var explicitHostName = Environment.GetEnvironmentVariable("LVGLSHARP_LINUX_HOST");
+        if (string.IsNullOrWhiteSpace(explicitHostName))
+        {
+            return null;
+        }
+
+        return explicitHostName.Trim().ToLowerInvariant() switch
+        {
+            "wslg" => LinuxHostEnvironment.Wslg,
+            "wayland" => LinuxHostEnvironment.Wayland,
+            "sdl" => LinuxHostEnvironment.Sdl,
+            "x11" => LinuxHostEnvironment.X11,
+            "fb" or "framebuffer" => LinuxHostEnvironment.FrameBuffer,
+            "drm" or "kms" => LinuxHostEnvironment.Drm,
+            "offscreen" or "headless" => LinuxHostEnvironment.Offscreen,
+            _ => null,
+        };
     }
 
     internal static string? DetectWaylandDisplay()

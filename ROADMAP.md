@@ -46,6 +46,11 @@ The repository already contains these Linux-side hosts:
 - `SdlView`
 - `FrameBufferView`
 
+The repository also now contains first-step skeleton hosts for future expansion:
+
+- `DrmView`
+- `OffscreenView`
+
 This means the roadmap should no longer describe `Wayland` and `SDL` as "not started". They are implemented, but not yet at the same maturity level as the more established paths.
 
 ### Documentation and release expression
@@ -63,6 +68,8 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Windows runtime | Available | `Win32View` is part of the current supported path |
 | Linux X11 / WSLg | Available | Current desktop-oriented Linux path |
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
+| Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
+| Linux Offscreen | Planned (skeleton) | Reserved for headless rendering, snapshot validation, and future remote runtimes |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |
 | Linux SDL | Experimental | Implemented, but still needs more validation and release discipline |
 | Native packaging / CI | Available | Multi-stage workflows and native artifacts are already in place |
@@ -89,7 +96,15 @@ Why this should go next:
 
 ## After the immediate next step
 
-### 1. Clarify the host support matrix
+### 1. Implement the first new Linux hosts
+
+Current active sequence:
+
+- flesh out `DRM / KMS`
+- flesh out `Offscreen`
+- keep `DirectFB` and `Mir` for later, after the first two paths have verification coverage
+
+### 2. Clarify the host support matrix
 
 Document and enforce a distinction between:
 
@@ -97,7 +112,7 @@ Document and enforce a distinction between:
 - experimental but implemented paths
 - future host targets that are not yet started
 
-### 2. Add stronger host validation
+### 3. Add stronger host validation
 
 Focus especially on:
 
@@ -109,7 +124,7 @@ Focus especially on:
 
 The goal is not only "can launch", but also "can be regression-checked".
 
-### 3. Keep release docs and docs site aligned
+### 4. Keep release docs and docs site aligned
 
 Continue using the same language across:
 
@@ -122,9 +137,6 @@ Continue using the same language across:
 
 These remain valid later-stage directions, but they are not the best immediate next step:
 
-- `DRM`
-- `KMS`
-- `Offscreen`
 - `DirectFB`
 - `Mir`
 - `LVGLSharp.Runtime.MacOs`
@@ -134,6 +146,6 @@ These remain valid later-stage directions, but they are not the best immediate n
 
 If we want to start the next piece of work now, the best place to begin is:
 
-1. move `LVGLSharp.Native` from the current `Interop` / demo-facing dependency edges into the runtime packages
-2. update the package graph docs to match
+1. finish the native implementation behind `DrmView`
+2. turn `OffscreenView` into a reusable headless rendering path
 3. then add host-specific validation and release-matrix clarity on top

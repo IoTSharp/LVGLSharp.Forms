@@ -120,6 +120,7 @@
 - 引用 `LVGLSharp.Runtime.Windows`
 - 引用 `LVGLSharp.Runtime.Linux`
 - `buildTransitive` 会根据已引用的运行时包自动生成对应平台的注册代码，并在 `ApplicationConfiguration.Initialize()` 中完成运行时初始化
+- Linux 侧当前默认宿主仍以 `WSLg`、`X11`、`Wayland`、`SDL`、`FrameBuffer` 为主；同时已加入 `DRM/KMS` 与 `Offscreen` 的首批骨架入口，供后续逐步实现与验证
 
 可参考示例工程：[`src/Demos/PictureBoxDemo/PictureBoxDemo.csproj`](./src/Demos/PictureBoxDemo/PictureBoxDemo.csproj)。
 
@@ -208,6 +209,12 @@ libs/
 - [`ROADMAP.md`](./ROADMAP.md)：汇总当前已完成的里程碑、各运行时路径状态与下一阶段建议优先项。
 - [`docs/WSL-Developer-Guide.md`](./docs/WSL-Developer-Guide.md)：`WSL2/WSLg` 下运行、验证与调试 demo 的开发者手册。
 - [`docs/navigation.md`](./docs/navigation.md)：文档站点导航页，可快速跳转到首页、专题文档、博客和更新记录。
+
+当前 Linux 宿主选择补充说明：
+
+- 可通过环境变量 `LVGLSHARP_LINUX_HOST` 显式指定宿主。
+- 目前已识别值包括：`wslg`、`wayland`、`x11`、`sdl`、`framebuffer`、`drm` / `kms`、`offscreen`。
+- 其中 `drm` / `kms` 与 `offscreen` 当前为骨架入口，尚未完成原生后端实现。
 
 ---
 
