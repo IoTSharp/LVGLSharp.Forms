@@ -24,7 +24,6 @@ public unsafe class LinuxView : ViewLifetimeBase
             LinuxHostEnvironment.Sdl => new SdlView(title, width, height, dpi, borderless),
             LinuxHostEnvironment.FrameBuffer => new FrameBufferView(fbdev, indev, dpi),
             LinuxHostEnvironment.Drm => CreateDrmView(dpi),
-            LinuxHostEnvironment.Offscreen => new OffscreenView(width, height, dpi),
             LinuxHostEnvironment.X11 => new X11View(title, width, height, dpi, detectedX11Display, borderless),
             _ => throw new InvalidOperationException($"Unsupported Linux view mode: {_environment}"),
         };

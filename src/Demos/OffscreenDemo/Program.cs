@@ -1,4 +1,4 @@
-using LVGLSharp.Runtime.Linux;
+using LVGLSharp.Runtime.Headless;
 using System.Text;
 using static LVGLSharp.Interop.LVGL;
 

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>LVGLSharp.Runtime.Headless</PackageId>
+    <Title>LVGLSharp Headless Runtime</Title>
+    <Description>Headless runtime for offscreen rendering, snapshots, and automation in LVGLSharp.</Description>
+    <DefaultItemExcludes>$(DefaultItemExcludes);buildTransitive\**\*.cs</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
+    <ProjectReference Include="..\LVGLSharp.Interop\LVGLSharp.Interop.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="buildTransitive\" />
+  </ItemGroup>
+
+</Project>

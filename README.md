@@ -81,6 +81,7 @@
 | `LVGLSharp.Core` | 运行时共享抽象与公共字体/宿主辅助能力 |
 | `LVGLSharp.Runtime.Windows` | Windows 平台运行时 |
 | `LVGLSharp.Runtime.Linux` | Linux 平台运行时 |
+| `LVGLSharp.Runtime.Headless` | 无头渲染运行时 |
 | `LVGLSharp.Interop` | LVGL P/Invoke 绑定（自动生成） |
 | `LVGLSharp.Native` | 各平台 LVGL 原生库（win-x86 / win-x64 / win-arm64、linux-arm 等） |
 
@@ -119,8 +120,9 @@
 - 引用 `LVGLSharp.Forms`
 - 引用 `LVGLSharp.Runtime.Windows`
 - 引用 `LVGLSharp.Runtime.Linux`
+- 如需无头渲染 / 截图 / 自动化验证，单独引用 `LVGLSharp.Runtime.Headless`
 - `buildTransitive` 会根据已引用的运行时包自动生成对应平台的注册代码，并在 `ApplicationConfiguration.Initialize()` 中完成运行时初始化
-- Linux 侧当前默认宿主仍以 `WSLg`、`X11`、`Wayland`、`SDL`、`FrameBuffer` 为主；同时已加入 `DRM/KMS` 与 `Offscreen` 的首批骨架入口，供后续逐步实现与验证
+- Linux 侧当前默认宿主仍以 `WSLg`、`X11`、`Wayland`、`SDL`、`FrameBuffer` 为主；`DRM/KMS` 已进入首批扩展实现。`Offscreen` 已独立收敛到 `LVGLSharp.Runtime.Headless`，不再作为 `LinuxView` 的宿主分支
 
 可参考示例工程：[`src/Demos/PictureBoxDemo/PictureBoxDemo.csproj`](./src/Demos/PictureBoxDemo/PictureBoxDemo.csproj)。
 
@@ -188,6 +190,7 @@ src/
 │   ├── Drawing/            # 跨平台绘图类型（Size、Point、Color 等）
 │   └── Runtime/            # 公共运行时注册入口与共享胶水代码
 ├── LVGLSharp.Core/         # 公共核心库
+├── LVGLSharp.Runtime.Headless/# 无头渲染运行时
 ├── LVGLSharp.Runtime.Windows/ # Windows 平台运行时
 ├── LVGLSharp.Runtime.Linux/# Linux 平台运行时
 ├── LVGLSharp.Runtime.MacOs/# MacOs 平台运行时骨架
@@ -216,8 +219,8 @@ libs/
 当前 Linux 宿主选择补充说明：
 
 - 当前 `LinuxView` 会自动探测并选择宿主；后续会进一步收敛到统一的显式选项对象。
-- 目前已识别值包括：`wslg`、`wayland`、`x11`、`sdl`、`framebuffer`、`drm` / `kms`、`offscreen`。
-- 其中 `drm` / `kms` 与 `offscreen` 当前为骨架入口，尚未完成原生后端实现。
+- 目前已识别值包括：`wslg`、`wayland`、`x11`、`sdl`、`framebuffer`、`drm` / `kms`。
+- 其中 `drm` / `kms` 当前为扩展中的 Linux 宿主；无头渲染请直接使用 `LVGLSharp.Runtime.Headless` 中的 `OffscreenView`。
 
 当前新增独立示例：
 

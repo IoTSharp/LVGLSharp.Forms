@@ -49,6 +49,10 @@ The repository already contains these Linux-side hosts:
 The repository also now contains first-step skeleton hosts for future expansion:
 
 - `DrmView`
+
+The repository now also contains a dedicated headless runtime path:
+
+- `LVGLSharp.Runtime.Headless`
 - `OffscreenView`
 
 The demo layer also now contains an isolated validation path for headless rendering:
@@ -78,7 +82,7 @@ This means the roadmap should no longer describe `Wayland` and `SDL` as "not sta
 | Linux X11 / WSLg | Available | Current desktop-oriented Linux path |
 | Linux FrameBuffer | Available | Current device-oriented Linux path |
 | Linux DRM / KMS | Planned (skeleton) | Host selection and placeholder runtime type are in place; native backend is not implemented yet |
-| Linux Offscreen | In progress | Basic headless rendering path exists, along with an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
+| Headless Offscreen | In progress | Basic headless rendering path exists in `LVGLSharp.Runtime.Headless`, along with an isolated PNG snapshot demo; reusable validation coverage still needs to grow |
 | MacOs runtime | Planned (skeleton) | Dedicated project skeleton exists, but no native macOS host backend is implemented yet |
 | Remote runtimes (`VNC` / `RDP`) | Planned (skeleton) | Cross-platform remote runtime project exists; protocol/server implementations are not started yet |
 | Linux Wayland | Experimental | Implemented, but still needs more validation and release discipline |
@@ -112,7 +116,7 @@ Why this should go next:
 Current active sequence:
 
 - flesh out `DRM / KMS`
-- flesh out `Offscreen`
+- flesh out `Offscreen` / Headless validation coverage
 - extend `OffscreenDemo` into repeatable snapshot validation coverage
 - keep `DirectFB` and `Mir` for later, after the first two paths have verification coverage
 

@@ -11,7 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\LVGLSharp.Core\LVGLSharp.Core.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Interop\LVGLSharp.Interop.csproj" />
-    <ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Headless\LVGLSharp.Runtime.Headless.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' != 'Release'">

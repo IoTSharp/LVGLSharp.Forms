@@ -6,7 +6,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace LVGLSharp.Runtime.Linux;
+namespace LVGLSharp.Runtime.Headless;
 
 public unsafe sealed class OffscreenView : ViewLifetimeBase
 {

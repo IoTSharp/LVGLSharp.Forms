@@ -13,7 +13,6 @@ internal enum LinuxHostEnvironment
     X11,
     FrameBuffer,
     Drm,
-    Offscreen,
 }
 
 internal static class LinuxEnvironmentDetector
@@ -150,7 +149,6 @@ internal static class LinuxEnvironmentDetector
             "x11" => LinuxHostEnvironment.X11,
             "fb" or "framebuffer" => LinuxHostEnvironment.FrameBuffer,
             "drm" or "kms" => LinuxHostEnvironment.Drm,
-            "offscreen" or "headless" => LinuxHostEnvironment.Offscreen,
             _ => null,
         };
     }
