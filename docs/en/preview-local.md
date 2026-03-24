@@ -1,12 +1,12 @@
 ---
 title: Screenshot Gallery
-description: A visual preview page for current LVGLSharp screenshots, ready to grow as more demos and hosts are captured.
+description: If you want a quick look at the UI we already have running, this page collects the screenshot previews in one place.
 lang: en
 template: structured
 intro:
   eyebrow: "Screenshots"
   title: "Screenshot Gallery"
-  description: "This page is meant to collect the current `LVGLSharp` visual previews in one place. As more demos, runtime hosts, and UI states are captured, they can be added here without mixing them into regular articles."
+  description: "If you want a quick look at the `LVGLSharp` UI we already have running, start here. As we capture more demos, runtime hosts, and UI states, we will keep adding them to this page."
 sections:
   - title: "Current screenshots"
     description: "Use this area for representative runtime, host, and UI screenshots. Click an image to open the original file."
@@ -28,8 +28,8 @@ sections:
         image: "/images/wslg-pictureboxdemo-wayland-embedded-font-check.png"
         alt: "WSLg Wayland PictureBox embedded font check"
         description: "Tracks Linux-host rendering and embedded-font validation in a real WSLg / Wayland scenario."
-  - title: "This round of X11 validation"
-    description: "These screenshots came from the current X11 bring-up work and pair well with the [X11 Demo Bring-up Notes](/en/blog/x11-demo-bringup.html)."
+  - title: "The X11 screenshots we added in this round"
+    description: "If you want to read the [X11 Demo Bring-up Notes](/en/blog/x11-demo-bringup.html) side by side with the actual results, these are the matching screenshots."
     variant: showcase
     columns: 3
     items:
@@ -37,19 +37,19 @@ sections:
         badge: "X11"
         image: "/images/x11-pictureboxdemo.png"
         alt: "PictureBoxDemo running on X11"
-        description: "`PictureBoxDemo` is now launchable on X11 and has a reusable screenshot asset. The current stable capture uses the built-in font fallback path, so CJK labels still need a later recovery pass."
+        description: "We can now launch `PictureBoxDemo` on X11 and keep a reusable screenshot asset for it. The current stable capture uses the built-in font fallback path, so CJK labels still need a later recovery pass."
       - title: "MusicDemo on X11"
         badge: "X11"
         image: "/images/x11-musicdemo.png"
         alt: "MusicDemo running on X11"
-        description: "After fixing default font installation and the glyph bitmap callback contract, `MusicDemo` can now open stably on X11 and be captured."
+        description: "After fixing default font installation and the glyph bitmap callback contract, we can now open `MusicDemo` stably on X11 and capture it."
       - title: "SmartWatchDemo on X11"
         badge: "X11"
         image: "/images/x11-smartwatchdemo.png"
         alt: "SmartWatchDemo running on X11"
-        description: "`SmartWatchDemo` now has a working X11 first-screen capture path and serves as the representative multi-page UI case from this round."
-  - title: "What to add next"
-    description: "This page can grow over time without turning screenshots into top-level navigation clutter."
+        description: "We also now have a working X11 first-screen capture path for `SmartWatchDemo`, and it has become the representative multi-page UI case from this round."
+  - title: "If you want to see this gallery grow"
+    description: "As we keep extending the gallery, these are the most useful directions to add next."
     variant: cards
     columns: 3
     items:
@@ -58,9 +58,9 @@ sections:
       - title: "Multi-host comparisons"
         description: "Capture the same UI across Windows, WSLg, X11, Wayland, FrameBuffer, and Offscreen environments."
       - title: "Before / after UI changes"
-        description: "Use side-by-side progress shots to record rendering improvements, theme updates, and control refinements."
+        description: "Use side-by-side progress shots if you want to show rendering improvements, theme updates, and control refinements more clearly."
   - title: "How to maintain it"
-    description: "Keep future additions simple and consistent."
+    description: "If you add more screenshots later, keep them simple and consistent with this structure."
     variant: list
     surface: true
     items:

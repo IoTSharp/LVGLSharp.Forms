@@ -9,7 +9,7 @@ intro:
   description: "A structured map for the homepage, blog, engineering notes, and runtime strategy documents."
 sections:
   - title: "Site entry points"
-    description: "A quick overview of the main places readers usually need first."
+    description: "Start here if you want a quick overview of the main places you will usually need first."
     variant: link-lists
     columns: 2
     items:

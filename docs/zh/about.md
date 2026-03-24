@@ -45,19 +45,19 @@ sections:
         description: "不把项目做成一次性的 API 包装，而是持续围绕分层运行时、宿主扩展、AOT 和设备端场景打基础。"
       - title: "工程可落地"
         description: "强调真实运行时、真实宿主、真实构建发布链路，而不是停留在概念 Demo 或单平台演示上。"
-  - title: "适合谁使用 / 面向哪些场景"
-    description: "`LVGLSharp` 不是所有 GUI 项目的通用答案，但对下面这些读者和场景会特别有价值。"
+  - title: "如果你准备这样使用它"
+    description: "`LVGLSharp` 不是所有 GUI 项目的通用答案，但如果你的场景接近下面这些方向，它会更值得你继续往下看。"
     variant: cards
     columns: 4
     items:
       - title: ".NET 桌面开发者"
-        description: "适合熟悉 WinForms、想把现有开发经验延伸到跨平台和设备侧运行环境的开发者。"
+        description: "如果你熟悉 WinForms，又想把现有开发经验延伸到跨平台和设备侧运行环境，这一类场景会很契合。"
       - title: "设备与边缘端项目"
-        description: "适合需要本地交互界面、状态显示面板、控制台界面或轻量部署 UI 的设备端场景。"
+        description: "如果你需要本地交互界面、状态显示面板、控制台界面或轻量部署 UI，这一类设备端场景会很合适。"
       - title: "跨平台运行时探索"
-        description: "适合关注 Windows、Linux、Headless、Remote 等多宿主运行时路线的团队和个人。"
+        description: "如果你正在关注 Windows、Linux、Headless、Remote 等多宿主运行时路线，这个方向会更值得你投入。"
       - title: "AOT 与轻量部署"
-        description: "适合在意 NativeAOT、自包含发布、裁剪、启动速度和运行时依赖控制的工程场景。"
+        description: "如果你在意 NativeAOT、自包含发布、裁剪、启动速度和运行时依赖控制，这里会更贴近你的工程需求。"
   - title: "为什么 IoTSharp 会做 GUI / LVGLSharp"
     description: "从团队已有项目结构看，`LVGLSharp` 并不是孤立出现的，它更像是 IoTSharp 在设备端工程能力上的自然延伸。"
     variant: cards

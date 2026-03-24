@@ -75,28 +75,28 @@ sections:
     columns: 4
     items:
       - title: "First-time readers"
-        description: "Best if you want to understand why the project exists and what it is trying to achieve."
+        description: "Start here if you want to understand why the project exists and what it is trying to achieve."
         links:
           - label: "Why WinForms over LVGL"
             url: "/en/blog/why-winforms-over-lvgl.html"
           - label: "Blog Index"
             url: "/en/blog/"
       - title: "Architecture and engineering"
-        description: "Best if you care about module boundaries, runtime layering, and repository organization."
+        description: "Start here if you care about module boundaries, runtime layering, and repository organization."
         links:
           - label: "Architecture Breakdown"
             url: "/en/blog/architecture.html"
           - label: "CI Workflow Guide"
             url: "/en/ci-workflows.html"
       - title: "Linux and host strategy"
-        description: "Best if you care about X11, WSLg, FrameBuffer, Wayland, and future display-host paths."
+        description: "Start here if you care about X11, WSLg, FrameBuffer, Wayland, and future display-host paths."
         links:
           - label: "Linux Host Strategy"
             url: "/en/blog/linux-hosts.html"
           - label: "WSL Developer Guide"
             url: "/en/WSL-Developer-Guide.html"
       - title: "AOT and publishing"
-        description: "Best if you care about trimming, self-contained deployments, runtime size, and publishing shape."
+        description: "Start here if you care about trimming, self-contained deployments, runtime size, and publishing shape."
         links:
           - label: "NativeAOT and GUI"
             url: "/en/blog/nativeaot-gui.html"
@@ -148,4 +148,3 @@ sections:
       - label: "NativeAOT and GUI"
         url: "/en/blog/nativeaot-gui.html"
 ---
-

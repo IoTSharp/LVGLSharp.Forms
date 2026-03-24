@@ -9,7 +9,7 @@ intro:
   description: "把首页、博客、工程说明和运行时路线整理成可快速跳转的阅读地图。"
 sections:
   - title: "站点入口"
-    description: "适合第一次进入站点时快速建立路径感。"
+    description: "如果你第一次进入站点，可以先从这里快速建立路径感。"
     variant: link-lists
     columns: 2
     items:

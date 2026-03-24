@@ -1,21 +1,21 @@
 ---
 title: X11 Demo 带起记录：把 PictureBox、MusicDemo 和 SmartWatchDemo 跑起来
-description: 记录这轮在 Linux X11 下带起多个 Demo 时踩到的显示选择、字体样式、字形位图和稳定回退路径问题。
+description: 如果你也在 Linux X11 下带 Demo，这篇记录会直接带你看我们怎么处理显示选择、字体样式、字形位图和稳定回退路径问题。
 lang: zh-CN
 ---
 
 # X11 Demo 带起记录：把 PictureBox、MusicDemo 和 SmartWatchDemo 跑起来
 
-> 这篇文章适合关注 Linux 宿主调试、X11 首帧验证、字体渲染链路和 Demo 稳定性带起过程的读者。
+> 如果你也在排 Linux 宿主调试、X11 首帧验证、字体渲染链路和 Demo 稳定性问题，这篇文章会直接带你看我们是怎么一路排下来的。
 
-这轮工作的目标很直接：
+我们这轮的目标很直接：
 
 - 在 `X11` 下跑起 `PictureBoxDemo`
 - 在 `X11` 下跑起 `MusicDemo`
 - 在 `X11` 下跑起 `SmartWatchDemo`
 - 给这三个 Demo 留下可复用的截图资产
 
-真正做下去以后，问题并不只是“窗口能不能创建出来”，而是整条链路里有好几层都在互相影响：
+但我们真正做下去以后，很快就发现问题并不只是“窗口能不能创建出来”，而是整条链路里有好几层都在互相影响：
 
 - 运行时到底连到了哪个 `DISPLAY`
 - 根对象字体是怎么挂到 LVGL 样式树上的
@@ -35,7 +35,7 @@ lang: zh-CN
 - 要用真实窗口树或窗口信息确认最终连上的显示
 - 截图工具也必须对准真实显示，否则你会在错误环境里排错
 
-这也是为什么这轮最终所有有效截图，都是围绕 `DISPLAY=:1` 完成的。
+这也是为什么我们最后保留下来的有效截图，都是围绕 `DISPLAY=:1` 完成的。
 
 ## 第二层经验：托管侧手动分配 `lv_style_t` 很脆弱
 
@@ -56,7 +56,7 @@ lang: zh-CN
 
 这条路的问题不在于 API 名字不对，而在于 `lv_style_t` 是一个完全由原生侧定义和演进的数据结构。只要托管侧的布局、对齐、生命周期管理里有一点点偏差，这种“自己 malloc 一个 native style 再交回去”的方式就会非常脆弱。
 
-这轮修复里，`[LvglHostDefaults.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Runtime.Linux/LvglHostDefaults.cs)` 改成了更保守的做法：不再手动创建 `lv_style_t`，而是直接把字体挂到 root 对象上：
+我们在 `[LvglHostDefaults.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Runtime.Linux/LvglHostDefaults.cs)` 里改成了更保守的做法：不再手动创建 `lv_style_t`，而是直接把字体挂到 root 对象上：
 
 ```csharp
 lv_obj_set_style_text_font(root, font, 0);
@@ -75,7 +75,7 @@ lv_obj_set_style_text_font(root, font, 0);
 
 这会带来一个很典型的问题：LVGL 以为自己拿到的是字形像素数据地址，实际却拿到了别的结构体地址，或者拿到了一份和当前绘制缓冲生命周期不一致的缓存。
 
-这轮修复做了两件事：
+我们这轮主要做了两件事：
 
 - 直接把字形渲染到 `draw_buf->data`
 - 返回值改成 `draw_buf->data`
@@ -94,7 +94,7 @@ lv_obj_set_style_text_font(root, font, 0);
 
 根因落在 WinForms 样式辅助逻辑上：控件创建时会从 root 样式里再查一次当前字体，然后把这个值再设置给新控件。理论上这听起来合理，但在当前 X11 带起阶段，这个查询返回值并不稳定。
 
-这轮对应的修复是：
+我们这轮对应的修复是：
 
 - 新增 `[LvglRuntimeFontRegistry.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Core/LvglRuntimeFontRegistry.cs)`
 - 在安装默认字体时，把“当前活动字体指针”缓存到托管侧
@@ -117,7 +117,7 @@ lv_obj_set_style_text_font(root, font, 0);
 - “能创建窗口”不等于“整条字体绘制链路已经完全正确”
 - “第一屏能出内容”不等于“所有 Label 都已经稳定”
 
-所以这轮没有把“彻底修完自定义字体渲染”伪装成已经完成，而是补了一条明确的稳定回退路径：
+所以我们没有把“彻底修完自定义字体渲染”伪装成已经完成，而是补了一条明确的稳定回退路径：
 
 - 在 `[X11View.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Runtime.Linux/X11View.cs)` 增加 `LVGLSHARP_DISABLE_CUSTOM_FONT=1`
 
@@ -135,7 +135,7 @@ lv_obj_set_style_text_font(root, font, 0);
 
 ## 当前推荐的 X11 启动方式
 
-如果目标是“先稳定跑起来并截图”，当前建议优先使用下面这组环境变量：
+如果你现在的目标是“先稳定跑起来并截图”，我们建议你先用下面这组环境变量：
 
 ```bash
 DISPLAY=:1 \
@@ -146,13 +146,13 @@ LVGLSHARP_DISABLE_CUSTOM_FONT=1 \
 dotnet run -f net10.0 --project src/Demos/SmartWatchDemo/SmartWatchDemo.csproj -p:EnableWindowsTargeting=true
 ```
 
-`MusicDemo` 也是同样思路，只需要把项目路径换成自己的 `csproj`。
+如果你要跑 `MusicDemo`，也是同样思路，只需要把项目路径换成对应的 `csproj`。
 
-如果你现在是在做复杂页面、截图沉淀或回归验证，建议先走这条稳定路径。等自定义字体绘制链路完全修稳，再把这个开关逐步收回。
+如果你现在在做复杂页面、截图沉淀或回归验证，建议先走这条稳定路径。等我们把自定义字体绘制链路完全修稳，再把这个开关逐步收回。
 
-## 这轮最终拿到的结果
+## 这次我们已经拿到的结果
 
-这轮已经产出了三张可归档的 X11 截图：
+我们已经产出了三张可归档的 X11 截图：
 
 - `PictureBoxDemo`: `/images/x11-pictureboxdemo.png`
 - `MusicDemo`: `/images/x11-musicdemo.png`
@@ -163,7 +163,7 @@ dotnet run -f net10.0 --project src/Demos/SmartWatchDemo/SmartWatchDemo.csproj -
 - [中文界面截图页](/zh/preview-local.html)
 - [English Screenshot Gallery](/en/preview-local.html)
 
-## 这轮最值得记住的几条经验
+## 如果你也要带 X11，可以先记住这几条
 
 - X11 带起不是单点问题，而是显示选择、样式安装、字体查询、字形位图和截图链路一起工作的结果。
 - 只要 native 结构体的 ABI 不是你自己完全控制的，就要谨慎对待“托管侧手动分配再交回原生侧”的做法。
@@ -173,13 +173,13 @@ dotnet run -f net10.0 --project src/Demos/SmartWatchDemo/SmartWatchDemo.csproj -
 
 ## 下一步还要做什么
 
-这次工作把 X11 路线从“有的 Demo 黑屏、有的 Demo 崩溃”推进到了“复杂 Demo 可以稳定起窗并沉淀截图”。
+我们这次把 X11 路线从“有的 Demo 黑屏、有的 Demo 崩溃”推进到了“复杂 Demo 可以稳定起窗并沉淀截图”。
 
-但它还不是终点。后面真正值得继续收尾的是：
+但这还不是终点。如果你后面也要继续跟进，这几项最值得继续收尾：
 
 - 把自定义字体路径在 X11 下的软件绘制崩溃彻底修掉
 - 让 `MusicDemo` 和 `SmartWatchDemo` 在不关闭自定义字体时也能稳定运行
 - 恢复 `PictureBoxDemo` 这类界面的 CJK 文本显示质量
 - 最终把 `LVGLSHARP_DISABLE_CUSTOM_FONT=1` 从“稳定回退路径”收敛成“排障开关”
 
-如果这一步走通，X11 路线就不再只是“文档里有截图”，而是会真正成为 Linux 图形宿主验证的一条稳定工程路径。
+如果我们把这一步走通，X11 路线就不再只是“文档里有截图”，而是会真正成为 Linux 图形宿主验证的一条稳定工程路径。

@@ -59,13 +59,13 @@ sections:
     columns: 3
     items:
       - title: "只跑 Windows"
-        description: "先装 `LVGLSharp.Forms` + `LVGLSharp.Runtime.Windows`，最适合桌面开发验证。"
+        description: "如果你现在只想先在 Windows 上跑通，先装 `LVGLSharp.Forms` + `LVGLSharp.Runtime.Windows` 就够了。"
         url: "https://github.com/IoTSharp/LVGLSharp"
       - title: "做跨平台验证"
         description: "同时加上 Windows 和 Linux 运行时，方便多目标构建和宿主切换。"
         url: "/zh/navigation.html"
       - title: "做截图与自动化"
-        description: "额外加入 `LVGLSharp.Runtime.Headless`，适合快照、测试和无头渲染。"
+        description: "如果你要做快照、测试和无头渲染，再额外加入 `LVGLSharp.Runtime.Headless`。"
         url: "/zh/preview-local.html"
   - title: "推荐安装路径"
     description: "如果你是第一次接入，建议按这个顺序走。"

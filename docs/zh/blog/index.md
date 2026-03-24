@@ -1,32 +1,32 @@
 ﻿---
 title: 博客索引
-description: 汇总 LVGLSharp 当前的设计、架构、运行时、X11 带起记录与 NativeAOT 相关文章。
+description: 如果你想系统了解 LVGLSharp 的设计、架构、运行时、X11 带起记录与 NativeAOT 方向，可以从这里开始。
 lang: zh-CN
 template: structured
 intro:
   eyebrow: "Design Notes"
   title: "博客索引"
-  description: "集中查看项目的设计背景、架构拆解、Linux 宿主路线、X11 带起记录和 NativeAOT 方向。"
+  description: "如果你想从一个入口把设计背景、架构拆解、Linux 宿主路线、X11 带起记录和 NativeAOT 方向串起来，可以先从这里读。"
 sections:
   - title: "文章入口"
-    description: "先从这些文章建立项目的技术背景和长期路线。"
+    description: "如果你想先建立项目的技术背景和长期路线，可以先从这些文章开始。"
     variant: quick-links
     columns: 2
     items:
       - title: "为什么要做 WinForms over LVGL"
-        description: "适合第一次理解项目定位与价值，回答“为什么这个项目值得做”。"
+        description: "如果你第一次了解这个项目，先看这篇最容易回答“为什么这个项目值得做”。"
         url: "/zh/blog/why-winforms-over-lvgl.html"
       - title: "项目架构拆解"
-        description: "适合快速理解模块职责、工程边界和运行时分层思路。"
+        description: "如果你想快速看清模块职责、工程边界和运行时分层，可以从这篇开始。"
         url: "/zh/blog/architecture.html"
       - title: "NativeAOT 与 GUI"
-        description: "适合关注设备部署、运行时体积、裁剪与 AOT 约束的读者。"
+        description: "如果你关心设备部署、运行时体积、裁剪和 AOT 约束，这篇会更对路。"
         url: "/zh/blog/nativeaot-gui.html"
       - title: "Linux 图形宿主路线"
-        description: "适合关注 Linux 桌面、设备侧图形宿主与未来演进方向的读者。"
+        description: "如果你主要在看 Linux 桌面、设备侧图形宿主和后续演进方向，先读这篇。"
         url: "/zh/blog/linux-hosts.html"
       - title: "X11 Demo 带起记录"
-        description: "记录把 `PictureBoxDemo`、`MusicDemo`、`SmartWatchDemo` 带起来时踩到的显示、字体和截图链路问题。"
+        description: "如果你想看我们怎么把 `PictureBoxDemo`、`MusicDemo`、`SmartWatchDemo` 带起来，这篇会把显示、字体和截图链路里的关键问题讲清楚。"
         url: "/zh/blog/x11-demo-bringup.html"
   - title: "推荐阅读顺序"
     description: "如果你第一次来到项目博客，按这个顺序最容易建立整体认知。"

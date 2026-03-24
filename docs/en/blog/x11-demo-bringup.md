@@ -1,21 +1,21 @@
 ---
 title: "X11 Demo Bring-up Notes: Making PictureBox, MusicDemo, and SmartWatchDemo Run"
-description: Records what we learned while bringing multiple demos up on Linux X11, especially around display selection, font styling, glyph callbacks, and stable fallback paths.
+description: If you are bringing demos up on Linux X11, this write-up walks you through how we handled display selection, font styling, glyph callbacks, and the fallback path that made capture stable.
 lang: en
 ---
 
 # X11 Demo Bring-up Notes: Making PictureBox, MusicDemo, and SmartWatchDemo Run
 
-> This article is for readers following Linux host debugging, X11 validation, font-rendering issues, and the practical work of making real demos stable enough to capture.
+> If you are debugging Linux hosts, validating the first X11 frame, or trying to make real demos stable enough to capture, this write-up shows you exactly how we worked through it.
 
-The goal of this round was straightforward:
+Our goal in this round was straightforward:
 
 - bring `PictureBoxDemo` up under `X11`
 - bring `MusicDemo` up under `X11`
 - bring `SmartWatchDemo` up under `X11`
 - preserve reusable screenshot assets for all three
 
-In practice, this turned out to be much more than “does the window open or not?”. Several layers had to line up at the same time:
+Once we got into it, this turned out to be much more than “does the window open or not?”. Several layers had to line up at the same time:
 
 - which `DISPLAY` the runtime actually connected to
 - how the root font was attached into the LVGL style tree
@@ -37,7 +37,7 @@ That sounds like an operational detail, but it matters a lot:
 - screenshot capture must target the same display
 - otherwise you can end up debugging the wrong environment
 
-That is why the final working screenshots from this round all came from `DISPLAY=:1`.
+That is why every screenshot we kept from this round came from `DISPLAY=:1`.
 
 ## Lesson 2: Manually allocating `lv_style_t` from managed code is fragile
 
@@ -58,7 +58,7 @@ The old Linux default-font path manually allocated an `lv_style_t` from managed 
 
 That approach is risky because `lv_style_t` is a native-owned structure. If managed layout, alignment, or lifecycle assumptions drift even slightly from what the native library expects, the whole path becomes brittle.
 
-The fix in `[LvglHostDefaults.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Runtime.Linux/LvglHostDefaults.cs)` was intentionally simpler and safer:
+We changed `[LvglHostDefaults.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Runtime.Linux/LvglHostDefaults.cs)` to use a simpler and safer path:
 
 ```csharp
 lv_obj_set_style_text_font(root, font, 0);
@@ -77,7 +77,7 @@ In `[SixLaborsFontManager.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/s
 
 That is the kind of bug that often survives the first few steps and only explodes deeper in the render stack. LVGL expects a pointer to glyph pixel data. If it instead receives a struct pointer or a buffer with the wrong ownership model, later blending code becomes vulnerable.
 
-The fix was to do less:
+We fixed that by doing less:
 
 - render directly into `draw_buf->data`
 - return `draw_buf->data`
@@ -96,7 +96,7 @@ At that point the issue was no longer “the font file is bad”. It was “some
 
 The root cause landed in the WinForms-side style helper. During control creation, the helper was querying the current font from the root style and then reapplying that value to newly created controls. That sounds reasonable in theory, but during the current X11 bring-up lifecycle, that query result was not stable enough to trust.
 
-The fix was to introduce a managed registry for the active runtime font:
+We fixed that by introducing a managed registry for the active runtime font:
 
 - add `[LvglRuntimeFontRegistry.cs](/home/admin/openclaw/workspace/LVGLSharp.Forms_1/src/LVGLSharp.Core/LvglRuntimeFontRegistry.cs)`
 - cache the active font pointer at the moment the Linux runtime installs it
@@ -110,7 +110,7 @@ The key idea is simple:
 
 ## Lesson 5: “Stable enough to bring up” and “fully fixed” are not the same thing
 
-By this point all three demos had moved forward substantially, but one more reality had to be acknowledged:
+By this point we had moved all three demos forward substantially, but one more reality had to be acknowledged:
 
 the custom font path could still crash later in the draw pipeline, especially inside software blending paths such as `lv_draw_sw_blend_color_to_rgb565`.
 
@@ -134,7 +134,7 @@ That is not the final state we want, but it is a valid engineering move for brin
 
 ## The currently recommended X11 launch command
 
-If your goal is “make it run stably first and capture the UI”, the current recommended X11 command is:
+If your goal right now is “make it run stably first and capture the UI”, the current recommended X11 command is:
 
 ```bash
 DISPLAY=:1 \
@@ -147,11 +147,11 @@ dotnet run -f net10.0 --project src/Demos/SmartWatchDemo/SmartWatchDemo.csproj -
 
 `MusicDemo` follows the same pattern with its own `csproj`.
 
-For layout validation, screenshot collection, and UI regression work, that stable path is the best current baseline. The deeper custom-font path can keep improving in parallel.
+If you are doing layout validation, screenshot collection, or UI regression work, that stable path is the best current baseline. We can keep improving the deeper custom-font path in parallel.
 
-## What this round produced
+## What we have now
 
-This bring-up round produced three X11 screenshot assets:
+We now have three X11 screenshot assets:
 
 - `PictureBoxDemo`: `/images/x11-pictureboxdemo.png`
 - `MusicDemo`: `/images/x11-musicdemo.png`
@@ -162,7 +162,7 @@ They have also been added to the curated screenshot pages:
 - [Chinese Screenshot Page](/zh/preview-local.html)
 - [English Screenshot Gallery](/en/preview-local.html)
 
-## The most useful takeaways from this round
+## What you should keep in mind if you are bringing up X11
 
 - X11 bring-up is not a single bug. It is the combined result of display selection, style installation, font ownership, glyph callback correctness, and capture tooling.
 - If a native structure ABI is not fully under your control, managed-side manual allocation should be treated with great caution.
@@ -170,15 +170,15 @@ They have also been added to the curated screenshot pages:
 - If style lookups are unstable during early control creation, keeping a trusted active font pointer on the managed side is safer than repeatedly querying the style tree.
 - A deliberate stability fallback switch is not a failure. It is often what lets demos, screenshots, validation, and deeper debugging move forward at the same time.
 
-## What still needs to happen next
+## What we still need to finish
 
-This round moved the X11 path from “some demos are black or crashing” to “complex demos can launch and be captured”.
+We moved the X11 path from “some demos are black or crashing” to “complex demos can launch and be captured”.
 
-But it is not the endpoint yet. The real follow-up work is:
+But we are not at the finish line yet. If you keep following this path, these are the next items we still need to close:
 
 - fully fix the deeper custom-font rendering crash on X11
 - make `MusicDemo` and `SmartWatchDemo` stable without disabling the custom font path
 - restore CJK text quality for views such as `PictureBoxDemo`
 - eventually reduce `LVGLSHARP_DISABLE_CUSTOM_FONT=1` from a stability path to a debugging-only switch
 
-If that next step lands, X11 stops being just “something we managed to screenshot once” and becomes a solid engineering-grade validation path for Linux host work.
+If we land that next step, X11 stops being just “something we managed to screenshot once” and becomes a solid engineering-grade validation path for Linux host work.

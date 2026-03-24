@@ -75,28 +75,28 @@ sections:
     columns: 4
     items:
       - title: "第一次了解项目"
-        description: "适合先理解“为什么存在”和“整体目标是什么”。"
+        description: "如果你想先理解“为什么存在”和“整体目标是什么”，就从这里开始。"
         links:
           - label: "为什么要做 WinForms over LVGL"
             url: "/zh/blog/why-winforms-over-lvgl.html"
           - label: "博客索引"
             url: "/zh/blog/"
       - title: "关注架构与工程化"
-        description: "适合想快速理解模块边界、运行时分层与工程结构的读者。"
+        description: "如果你想快速看清模块边界、运行时分层和工程结构，就看这一组。"
         links:
           - label: "项目架构拆解"
             url: "/zh/blog/architecture.html"
           - label: "CI 工作流说明"
             url: "/zh/ci-workflows.html"
       - title: "关注 Linux / 宿主路线"
-        description: "适合关心 X11、WSLg、FrameBuffer、Wayland 和后续显示宿主方向的读者。"
+        description: "如果你关心 X11、WSLg、FrameBuffer、Wayland 和后续显示宿主方向，就从这一组进入。"
         links:
           - label: "Linux 图形宿主路线"
             url: "/zh/blog/linux-hosts.html"
           - label: "WSL 开发指南"
             url: "/zh/WSL-Developer-Guide.html"
       - title: "关注 AOT / 发布"
-        description: "适合关注裁剪、自包含发布、运行时体积和部署方式的读者。"
+        description: "如果你主要关心裁剪、自包含发布、运行时体积和部署方式，这一组最适合你。"
         links:
           - label: "NativeAOT 与 GUI"
             url: "/zh/blog/nativeaot-gui.html"
@@ -148,4 +148,3 @@ sections:
       - label: "NativeAOT 与 GUI"
         url: "/zh/blog/nativeaot-gui.html"
 ---
-
