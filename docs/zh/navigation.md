@@ -72,6 +72,8 @@ sections:
             url: "/zh/blog/linux-hosts.html"
           - label: "X11 Demo 带起记录"
             url: "/zh/blog/x11-demo-bringup.html"
+          - label: "全志 T113-S3 + Tina Linux 成功移植案例"
+            url: "/zh/news/allwinner-t113-s3-tina-linux-case.html"
           - label: "WSL 开发指南"
             url: "/zh/WSL-Developer-Guide.html"
           - label: "界面截图"

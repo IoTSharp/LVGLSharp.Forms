@@ -13,6 +13,9 @@ sections:
     variant: quick-links
     columns: 1
     items:
+      - title: "LVGLSharp 全志 T113-S3 成功移植案例（.NET 10 + Tina Linux）"
+        description: "这篇案例记录了 LVGLSharp 在全志 T113-S3、128MB 内存与 Tina Linux 5.0 环境中的真实落地结果，包括 1024x600 渲染、触摸和中文显示验证。"
+        url: "/zh/news/allwinner-t113-s3-tina-linux-case.html"
       - title: "我把 WinFormsVncDemo 真正带到了 VNC 链路上"
         description: "这一篇用第一人称记录了远程运行时整理、Demo 简化、Windows 发布补强，以及案例截图正式进入文档的结果。"
         url: "/zh/news/winformsvncdemo-vnc-update.html"
