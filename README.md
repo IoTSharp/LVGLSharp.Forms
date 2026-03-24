@@ -124,8 +124,11 @@ dotnet publish -f net10.0-windows -r win-x64 -c Release
 
 欢迎通过文档站、Issue 或微信群交流项目使用、跨平台适配与问题排查经验。
 
-![LVGLSharp 微信交流群](https://raw.githubusercontent.com/IoTSharp/LVGLSharp/main/preview/wechat-group.png)
+![LVGLSharp 微信交流群](./preview/wechat-group.png)
+
+
+
 
 ## 许可证
 
-本项目基于 [MIT License](https://github.com/IoTSharp/LVGLSharp/blob/main/LICENSE.txt) 开源。
+本项目基于 [MIT License](./LICENSE.txt) 开源。
