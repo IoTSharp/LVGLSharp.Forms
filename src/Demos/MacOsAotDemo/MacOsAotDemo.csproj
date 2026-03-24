@@ -8,7 +8,7 @@
     <PublishAot>true</PublishAot>
     <SelfContained>true</SelfContained>
     <StripSymbols>true</StripSymbols>
-    <RuntimeIdentifiers>osx-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>osx-arm64;osx-x64</RuntimeIdentifiers>
     <UseLVGLSharpForms>true</UseLVGLSharpForms>
   </PropertyGroup>
 

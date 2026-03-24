@@ -21,6 +21,9 @@ sections:
     variant: quick-links
     columns: 1
     items:
+      - title: "自 v9.3.0.5 至当前 9.5 线：项目演进纪要"
+        description: "此文综述自 `v9.3.0.5` 至当前 `9.5` 文档基线之间，项目在运行时矩阵、示例、验证、文档与发布体系上的主要变化。"
+        url: "/zh/news/v9305-to-v95-evolution.html"
       - title: "v9.5.0.2 发布纪要：述 LVGL 9.5 基线下运行时、文档与依赖之整饬"
         description: "此文述 `Headless`、`MacOs`、`Remote`、`OffscreenDemo`、结构化文档站及 Native 依赖切换逻辑，何以并见于此版。"
         url: "/zh/news/v9502-release-notes.html"

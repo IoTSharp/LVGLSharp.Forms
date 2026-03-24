@@ -118,10 +118,18 @@ jobs:
           if-no-files-found: error
 
   build-macos-demo-skeleton:
-    name: Build macOS AOT demo (osx-arm64)
-    runs-on: macos-latest
+    name: Build macOS AOT demo (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: osx-arm64
+            os: macos-15
+          - rid: osx-x64
+            os: macos-15-intel
 
     steps:
       - name: Checkout
@@ -139,18 +147,18 @@ jobs:
 
       - name: Build macOS demo
         shell: bash
-        run: bash ./build-macos-demo.sh --clean --rid osx-arm64
+        run: bash ./build-macos-demo.sh --clean --rid ${{ matrix.rid }}
 
       - name: Archive macOS demo
         shell: bash
         run: |
           mkdir -p release_assets
-          tar -C dist/osx-arm64 -czf "release_assets/LVGLSharp-demos-osx-arm64-${{ env.DEMO_PACKAGE_VERSION }}.tar.gz" MacOsAotDemo
+          tar -C "dist/${{ matrix.rid }}" -czf "release_assets/LVGLSharp-demos-${{ matrix.rid }}-${{ env.DEMO_PACKAGE_VERSION }}.tar.gz" MacOsAotDemo
           ls -lh release_assets
 
       - name: Upload macOS demo artifact
         uses: actions/upload-artifact@v4
         with:
-          name: demo-release-osx-arm64
-          path: release_assets/LVGLSharp-demos-osx-arm64-${{ env.DEMO_PACKAGE_VERSION }}.tar.gz
+          name: demo-release-${{ matrix.rid }}
+          path: release_assets/LVGLSharp-demos-${{ matrix.rid }}-${{ env.DEMO_PACKAGE_VERSION }}.tar.gz
           if-no-files-found: error

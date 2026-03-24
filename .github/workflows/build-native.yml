@@ -64,7 +64,12 @@ jobs:
             cmake_extra: >-
               -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/libs/cmake/toolchains/aarch64-linux-gnu.cmake
           - rid: osx-arm64
-            os: macos-latest
+            os: macos-15
+            cmake_osx_architectures: arm64
+            cmake_extra: ""
+          - rid: osx-x64
+            os: macos-15-intel
+            cmake_osx_architectures: x86_64
             cmake_extra: ""
 
     steps:
@@ -126,7 +131,7 @@ jobs:
           cmake -S libs/lvgl -B libs/lvgl/build_shared \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_osx_architectures }} \
             -DCONFIG_LV_BUILD_EXAMPLES=OFF \
             -DCONFIG_LV_BUILD_DEMOS=OFF \
             -DCONFIG_LV_USE_THORVG_INTERNAL=OFF \

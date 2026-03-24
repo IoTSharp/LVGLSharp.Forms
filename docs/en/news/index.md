@@ -21,6 +21,9 @@ sections:
     variant: quick-links
     columns: 1
     items:
+      - title: "From v9.3.0.5 to the current 9.5 line"
+        description: "This article summarizes how the project moved from the `v9.3.0.5` baseline into the broader runtime, validation, documentation, and release structure that now defines the 9.5 line."
+        url: "/en/news/v9305-to-v95-evolution.html"
       - title: "v9.5.0.2 Release Notes: where the LVGL 9.5 line gained clearer runtime, docs, and dependency boundaries"
         description: "This article looks back at why `Headless`, `MacOs`, `Remote`, `OffscreenDemo`, the structured docs site, and the Native dependency split all converged in that version."
         url: "/en/news/v9502-release-notes.html"

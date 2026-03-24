@@ -12,7 +12,7 @@
 
     <PackageId>LVGLSharp.Native</PackageId>
     <Title>LVGLSharp Native Libraries</Title>
-    <Description>Platform-native shared libraries (DLL/SO) for LVGL used by LVGLSharp. Supports win-x64, win-x86, win-arm64, linux-x64, linux-arm, and linux-arm64.</Description>
+    <Description>Platform-native shared libraries (DLL/SO/dylib) for LVGL used by LVGLSharp. Supports win-x64, win-x86, win-arm64, linux-x64, linux-arm, linux-arm64, osx-x64, and osx-arm64.</Description>
     <PackageTags>lvgl;native;embedded;ui</PackageTags>
   </PropertyGroup>
 

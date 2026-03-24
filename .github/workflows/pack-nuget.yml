@@ -48,6 +48,8 @@ jobs:
             [linux-x64]="liblvgl.so"
             [linux-arm]="liblvgl.so"
             [linux-arm64]="liblvgl.so"
+            [osx-arm64]="liblvgl.dylib"
+            [osx-x64]="liblvgl.dylib"
           )
 
           missing=()
@@ -63,7 +65,7 @@ jobs:
               echo "Placed ${lib} -> ${dst_dir}/"
               placed=true
             else
-              first=$(find "$src_dir" \( -name "*.dll" -o -name "*.so" \) | head -1)
+              first=$(find "$src_dir" \( -name "*.dll" -o -name "*.so" -o -name "*.dylib" \) | head -1)
               if [ -n "$first" ]; then
                 cp "$first" "${dst_dir}/${lib}"
                 echo "Placed fallback $(basename "$first") -> ${dst_dir}/${lib}"
