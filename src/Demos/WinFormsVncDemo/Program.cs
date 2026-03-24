@@ -1,17 +1,12 @@
-
-
-namespace WinFormsVncDemo
+﻿namespace WinFormsVncDemo
 {
     internal static class Program
     {
         [STAThread]
         static void Main(string[] args)
         {
-            Application.Initialize();
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            ApplicationConfiguration.Initialize();
             Application.Run(new frmMain());
         }
     }
 }
-      

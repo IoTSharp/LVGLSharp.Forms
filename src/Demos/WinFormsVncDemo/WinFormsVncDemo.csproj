@@ -8,8 +8,16 @@
     <UseLVGLSharpForms>true</UseLVGLSharpForms>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LVGLSharp.Forms\LVGLSharp.Forms.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.WinForms\LVGLSharp.Forms.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Windows\LVGLSharp.Runtime.Windows.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Native\LVGLSharp.Native.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="LVGLSharp.Forms" />
+    <Using Include="LVGLSharp.Drawing" />
+    <Using Include="LVGLSharp.Runtime.Windows" />
+    <Using Include="LVGLSharp.Runtime.Linux" />
   </ItemGroup>
 </Project>

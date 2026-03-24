@@ -1,16 +1,16 @@
-namespace WinFormsVncDemo
+ï»¿namespace WinFormsVncDemo
 {
     partial class frmMain
     {
         /// <summary>
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,69 +20,62 @@ namespace WinFormsVncDemo
             base.Dispose(disposing);
         }
 
-        #region Windows ´°ÌåÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region Windows çª—ä½“è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
-        /// <summary>
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
-        /// </summary>
-
-        private System.Windows.Forms.TableLayoutPanel tpMain;
-        private System.Windows.Forms.FlowLayoutPanel pnlTop;
-        private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.FlowLayoutPanel pnlContent;
-        private System.Windows.Forms.Panel lvglHostPanel;
+        private LVGLSharp.Forms.TableLayoutPanel tpMain;
+        private LVGLSharp.Forms.FlowLayoutPanel pnlTop;
+        private LVGLSharp.Forms.Label lblTitle;
+        private LVGLSharp.Forms.FlowLayoutPanel pnlContent;
+        private LVGLSharp.Forms.Panel lvglHostPanel;
 
         private void InitializeComponent()
         {
-            this.tpMain = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlTop = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.pnlContent = new System.Windows.Forms.FlowLayoutPanel();
-            this.lvglHostPanel = new System.Windows.Forms.Panel();
+            this.tpMain = new LVGLSharp.Forms.TableLayoutPanel();
+            this.pnlTop = new LVGLSharp.Forms.FlowLayoutPanel();
+            this.lblTitle = new LVGLSharp.Forms.Label();
+            this.pnlContent = new LVGLSharp.Forms.FlowLayoutPanel();
+            this.lvglHostPanel = new LVGLSharp.Forms.Panel();
             this.SuspendLayout();
             // 
             // tpMain
             // 
             this.tpMain.ColumnCount = 1;
-            this.tpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tpMain.ColumnStyles.Add(new LVGLSharp.Forms.ColumnStyle(LVGLSharp.Forms.SizeType.Percent, 100F));
             this.tpMain.RowCount = 2;
-            this.tpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
-            this.tpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tpMain.RowStyles.Add(new LVGLSharp.Forms.RowStyle(LVGLSharp.Forms.SizeType.Absolute, 48F));
+            this.tpMain.RowStyles.Add(new LVGLSharp.Forms.RowStyle(LVGLSharp.Forms.SizeType.Percent, 100F));
+            this.tpMain.Dock = LVGLSharp.Forms.DockStyle.Fill;
             this.tpMain.Controls.Add(this.pnlTop, 0, 0);
             this.tpMain.Controls.Add(this.pnlContent, 0, 1);
             // 
             // pnlTop
             // 
-            this.pnlTop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTop.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.pnlTop.Dock = LVGLSharp.Forms.DockStyle.Fill;
             this.pnlTop.Controls.Add(this.lblTitle);
             // 
             // lblTitle
             // 
             this.lblTitle.Text = "LVGLSharp VNC Demo";
-            this.lblTitle.Font = new System.Drawing.Font("Î¢ÈíÑÅºÚ", 14F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Font = new LVGLSharp.Drawing.Font("Microsoft YaHei", 14F);
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Margin = new System.Windows.Forms.Padding(10, 8, 0, 0);
+            this.lblTitle.Margin = new LVGLSharp.Forms.Padding(10, 8, 0, 0);
             // 
             // pnlContent
             // 
-            this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlContent.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.pnlContent.Dock = LVGLSharp.Forms.DockStyle.Fill;
             this.pnlContent.Controls.Add(this.lvglHostPanel);
             // 
             // lvglHostPanel
             // 
             this.lvglHostPanel.Name = "lvglHostPanel";
-            this.lvglHostPanel.Size = new System.Drawing.Size(640, 400);
-            this.lvglHostPanel.BackColor = System.Drawing.Color.Black;
+            this.lvglHostPanel.Size = new LVGLSharp.Drawing.Size(640, 400);
+            this.lvglHostPanel.BackColor = new LVGLSharp.Drawing.Color(0, 0, 0);
             // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 480);
+            this.AutoScaleDimensions = new LVGLSharp.Drawing.SizeF(8F, 15F);
+            this.AutoScaleMode = LVGLSharp.Forms.AutoScaleMode.Font;
+            this.ClientSize = new LVGLSharp.Drawing.Size(800, 480);
             this.Controls.Add(this.tpMain);
             this.Name = "frmMain";
             this.Text = "WinFormsVncDemo";

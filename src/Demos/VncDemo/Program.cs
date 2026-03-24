@@ -1,4 +1,4 @@
-using LVGLSharp.Runtime.Remote;
+Ôªøusing LVGLSharp.Runtime.Remote;
 using LVGLSharp.Runtime.Remote.Vnc;
 using System;
 
@@ -8,7 +8,7 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("LVGLSharp VNC Demo ∆Ù∂Ø÷–...");
+        Console.WriteLine("LVGLSharp VNC Demo ÂêØÂä®‰∏≠...");
         string host = "0.0.0.0";
         int port = 5900;
         string? password = null;
@@ -18,16 +18,25 @@ internal class Program
             else if (arg.StartsWith("--port=")) int.TryParse(arg[7..], out port);
             else if (arg.StartsWith("--password=")) password = arg[11..];
         }
+
         var options = new VncSessionOptions
         {
             Host = host,
             Port = port,
-            Password = password
+            Password = password,
         };
-        var vnc = new VncTransportSkeleton(options);
-        Console.WriteLine($"VNC ∑˛ŒÒ“—º‡Ã˝ {options.Host}:{options.Port}£¨√‹¬Î£∫{(string.IsNullOrEmpty(options.Password) ? "<Œﬁ>" : options.Password)}£¨«Î”√ VNC øÕªß∂À¡¨Ω”≤‚ ‘°£");
-        Console.WriteLine("÷ß≥÷≤Œ ˝£∫--host=IP --port=∂Àø⁄ --password=√‹¬Î");
-        Console.WriteLine("∞¥ Ctrl+C ÕÀ≥ˆ°£");
-        while (true) { Thread.Sleep(1000); }
+
+        using var view = new VncView(options);
+        view.Open();
+        Console.CancelKeyPress += (_, e) =>
+        {
+            e.Cancel = true;
+            view.Close();
+        };
+
+        Console.WriteLine($"VNC ÊúçÂä°Â∑≤ÁõëÂê¨ {options.Host}:{options.Port}ÔºåÂØÜÁ†ÅÔºö{(string.IsNullOrEmpty(options.Password) ? "<Êó†>" : options.Password)}ÔºåËØ∑Áî® VNC ÂÆ¢Êà∑Á´ØËøûÊé•ÊµãËØï„ÄÇ");
+        Console.WriteLine("ÊîØÊåÅÂèÇÊï∞Ôºö--host=IP --port=Á´ØÂè£ --password=ÂØÜÁ†Å");
+        Console.WriteLine("Êåâ Ctrl+C ÈÄÄÂá∫„ÄÇ");
+        view.RunLoop(() => { });
     }
 }

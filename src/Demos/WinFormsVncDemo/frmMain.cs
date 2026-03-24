@@ -1,23 +1,33 @@
-using System;
+锘縰sing System;
+using LVGLSharp.Drawing;
+using LVGLSharp.Runtime.Remote.Vnc;
 
 namespace WinFormsVncDemo
 {
     public partial class frmMain : Form
     {
+        private LVGLSharp.Runtime.Remote.VncView? _remoteView;
+
         public frmMain()
         {
             InitializeComponent();
-            // 可选：在这里初始化 LVGLSharp.WinForms 控件或桥接逻辑
         }
-
-        private LVGLSharp.Runtime.Remote.Vnc.VncView? _vncView;
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            // 只需创建 VncView 并挂载到宿主面板，由 VncView 内部负责 VNC 连接和 LVGLSharp runtime 桥接
-            _vncView = new LVGLSharp.Runtime.Remote.Vnc.VncView();
-            _vncView.Dock = System.Windows.Forms.DockStyle.Fill;
-            lvglHostPanel.Controls.Add(_vncView);
+            var options = new VncSessionOptions
+            {
+                Host = "0.0.0.0",
+                Port = 5900,
+                Width = 640,
+                Height = 400,
+            };
+
+            _remoteView = new LVGLSharp.Runtime.Remote.VncView(options);
+            _remoteView.Open();
+
+            lblTitle.Text = $"LVGLSharp VNC Demo - {options.Host}:{options.Port}";
+            lvglHostPanel.BackColor = new Color(18, 18, 18);
         }
     }
 }

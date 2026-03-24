@@ -5,10 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <UseLVGLSharpForms>true</UseLVGLSharpForms>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LVGLSharp.Forms\LVGLSharp.Forms.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Native\LVGLSharp.Native.csproj" />
   </ItemGroup>

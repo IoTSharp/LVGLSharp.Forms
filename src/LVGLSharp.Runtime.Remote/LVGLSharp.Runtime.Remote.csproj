@@ -5,6 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,6 +16,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LVGLSharp.Runtime.Headless\LVGLSharp.Runtime.Headless.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="RdpView.cs" />
+    <Compile Remove="WinFormsRemoteFrameSource.cs" />
+    <Compile Remove="Rdp\RdpView.cs" />
+    <Compile Remove="Vnc\VncTransport.cs" />
+    <Compile Remove="Vnc\VncView.cs" />
   </ItemGroup>
 
   <ItemGroup>
