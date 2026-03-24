@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using LVGLSharp.Interop;
@@ -240,8 +241,20 @@ public sealed class VncTransport : RemoteTransportBase, IRemoteHostedTransport, 
         var clientVersion = new byte[12];
         await ReadExactAsync(stream, clientVersion, 0, clientVersion.Length, token);
 
-        var securityType = new byte[] { 0, 0, 0, 1 };
+        var requiresAuth = !string.IsNullOrEmpty(_options.Password);
+        var securityType = requiresAuth
+            ? new byte[] { 0, 0, 0, 2 }
+            : new byte[] { 0, 0, 0, 1 };
         await stream.WriteAsync(securityType.AsMemory(0, securityType.Length), token);
+
+        if (requiresAuth)
+        {
+            var authSucceeded = await PerformVncAuthenticationAsync(stream, _options.Password!, token);
+            if (!authSucceeded)
+            {
+                throw new InvalidOperationException("VNC password authentication failed.");
+            }
+        }
 
         var clientInit = new byte[1];
         await ReadExactAsync(stream, clientInit, 0, 1, token);
@@ -264,6 +277,25 @@ public sealed class VncTransport : RemoteTransportBase, IRemoteHostedTransport, 
         Buffer.BlockCopy(nameBytes, 0, serverInit, 24, nameBytes.Length);
         await stream.WriteAsync(serverInit.AsMemory(0, serverInit.Length), token);
         await stream.FlushAsync(token);
+    }
+
+    private static async Task<bool> PerformVncAuthenticationAsync(NetworkStream stream, string password, CancellationToken token)
+    {
+        var challenge = new byte[16];
+        RandomNumberGenerator.Fill(challenge);
+        await stream.WriteAsync(challenge.AsMemory(0, challenge.Length), token);
+
+        var response = new byte[16];
+        await ReadExactAsync(stream, response, 0, response.Length, token);
+
+        var expectedResponse = EncryptVncChallenge(challenge, password);
+        var success = CryptographicOperations.FixedTimeEquals(expectedResponse, response);
+
+        var securityResult = new byte[4];
+        WriteInt32(securityResult, 0, success ? 0 : 1);
+        await stream.WriteAsync(securityResult.AsMemory(0, securityResult.Length), token);
+        await stream.FlushAsync(token);
+        return success;
     }
 
     private RemoteInputEvent BuildPointerEvent(ClientSession session, ushort x, ushort y, byte buttonMask)
@@ -367,12 +399,47 @@ public sealed class VncTransport : RemoteTransportBase, IRemoteHostedTransport, 
             var read = await stream.ReadAsync(buffer.AsMemory(offset, count), token);
             if (read == 0)
             {
-                throw new IOException("VNC 客户端连接已断开。");
+                throw new IOException("VNC client disconnected.");
             }
 
             offset += read;
             count -= read;
         }
+    }
+
+    private static byte[] EncryptVncChallenge(byte[] challenge, string password)
+    {
+        var key = CreatePasswordKey(password);
+        using var des = DES.Create();
+        des.Mode = CipherMode.ECB;
+        des.Padding = PaddingMode.None;
+        des.Key = key;
+
+        using var encryptor = des.CreateEncryptor();
+        return encryptor.TransformFinalBlock(challenge, 0, challenge.Length);
+    }
+
+    private static byte[] CreatePasswordKey(string password)
+    {
+        var passwordBytes = System.Text.Encoding.Latin1.GetBytes(password);
+        var key = new byte[8];
+        var count = Math.Min(passwordBytes.Length, key.Length);
+        Array.Copy(passwordBytes, key, count);
+
+        for (var i = 0; i < key.Length; i++)
+        {
+            key[i] = ReverseBits(key[i]);
+        }
+
+        return key;
+    }
+
+    private static byte ReverseBits(byte value)
+    {
+        value = (byte)(((value & 0xF0) >> 4) | ((value & 0x0F) << 4));
+        value = (byte)(((value & 0xCC) >> 2) | ((value & 0x33) << 2));
+        value = (byte)(((value & 0xAA) >> 1) | ((value & 0x55) << 1));
+        return value;
     }
 
     private static uint NormalizeVncKey(uint key)
