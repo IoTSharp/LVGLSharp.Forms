@@ -62,6 +62,8 @@ sections:
         links:
           - label: "项目架构拆解"
             url: "/zh/blog/architecture.html"
+          - label: "LVGL 编译参数说明"
+            url: "/zh/blog/lvgl-build-options.html"
           - label: "CI 工作流说明"
             url: "/zh/ci-workflows.html"
           - label: "NuGet 安装"
