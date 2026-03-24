@@ -162,4 +162,16 @@ sections:
       - title: "Gitee 镜像"
         description: "国内访问更方便的镜像与协作入口。"
         url: "https://gitee.com/IoTSharp/LVGLSharp"
+  - title: "企业微信联系"
+    description: "如果你想继续跟进项目动态、交流工程合作，或者直接和团队建立联系，可以扫描下面的企业微信二维码。"
+    variant: showcase
+    columns: 1
+    items:
+      - title: "LVGLSharp 企业微信二维码"
+        badge: "WeCom"
+        image: "/images/wechat-group.png"
+        alt: "LVGLSharp 企业微信二维码"
+        image_ratio: "1 / 1"
+        image_fit: contain
+        description: "扫码即可通过企业微信联系团队。"
 ---

@@ -459,6 +459,10 @@ a:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.section-columns-1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .section-columns-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -524,8 +528,8 @@ a:hover {
 .showcase-media img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  aspect-ratio: var(--showcase-ratio, 16 / 10);
+  object-fit: var(--showcase-fit, cover);
 }
 
 .showcase-body {

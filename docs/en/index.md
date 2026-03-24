@@ -1,4 +1,4 @@
-﻿---
+---
 title: LVGLSharp Home
 description: Bring a WinForms-style development experience to LVGL-powered cross-platform UI.
 lang: en
@@ -11,6 +11,9 @@ hero:
     - label: "Start with docs"
       url: "/en/navigation.html"
       style: primary
+    - label: "Project News"
+      url: "/en/news/"
+      style: secondary
     - label: "Read the blog"
       url: "/en/blog/"
       style: secondary
@@ -136,6 +139,8 @@ sections:
         url: "https://github.com/IoTSharp/LVGLSharp"
       - label: "Use the documentation map to choose a reading path"
         url: "/en/navigation.html"
+      - label: "Read the project news for the latest milestone-level progress"
+        url: "/en/news/"
       - label: "Read the blog index for rationale and architecture tradeoffs"
         url: "/en/blog/"
       - label: "Study the demo projects under src/Demos for practical usage patterns"

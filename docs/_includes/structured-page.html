@@ -162,7 +162,15 @@
         <div class="card-grid section-columns-{{ columns }}">
           {% for item in section.items %}
             <article class="panel showcase-card">
-              <a class="showcase-media" href="{{ item.image | relative_url }}" target="_blank" rel="noreferrer">
+              <a
+                class="showcase-media"
+                href="{{ item.image | relative_url }}"
+                target="_blank"
+                rel="noreferrer"
+                {% if item.image_ratio or item.image_fit %}
+                  style="{% if item.image_ratio %}--showcase-ratio: {{ item.image_ratio }};{% endif %}{% if item.image_fit %} --showcase-fit: {{ item.image_fit }};{% endif %}"
+                {% endif %}
+              >
                 <img src="{{ item.image | relative_url }}" alt="{{ item.alt | default: item.title }}">
               </a>
               <div class="showcase-body">

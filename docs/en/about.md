@@ -162,4 +162,16 @@ sections:
       - title: "Gitee mirror"
         description: "A mirror and collaboration entry point that can be easier to access in some regions."
         url: "https://gitee.com/IoTSharp/LVGLSharp"
+  - title: "Contact on WeCom"
+    description: "If you would like to follow project updates, discuss engineering cooperation, or reach the team directly in China, scan the Enterprise WeChat QR code below."
+    variant: showcase
+    columns: 1
+    items:
+      - title: "LVGLSharp WeCom QR Code"
+        badge: "WeCom"
+        image: "/images/wechat-group.png"
+        alt: "WeCom QR code for LVGLSharp contact"
+        image_ratio: "1 / 1"
+        image_fit: contain
+        description: "Scan this code to reach the team on Enterprise WeChat."
 ---

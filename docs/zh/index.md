@@ -1,4 +1,4 @@
-﻿---
+---
 title: LVGLSharp 首页
 description: 用 WinForms 的开发体验，连接 LVGL 的跨平台渲染能力。
 lang: zh-CN
@@ -11,6 +11,9 @@ hero:
     - label: "开始阅读文档"
       url: "/zh/navigation.html"
       style: primary
+    - label: "查看项目新闻"
+      url: "/zh/news/"
+      style: secondary
     - label: "查看设计博客"
       url: "/zh/blog/"
       style: secondary
@@ -136,6 +139,8 @@ sections:
         url: "https://github.com/IoTSharp/LVGLSharp"
       - label: "阅读文档导航，选择你的阅读路线"
         url: "/zh/navigation.html"
+      - label: "先看项目新闻，快速把握最近一轮的重要推进"
+        url: "/zh/news/"
       - label: "进入博客索引，理解设计背景与架构取舍"
         url: "/zh/blog/"
       - label: "结合 src/Demos 下的示例项目理解实际使用场景"

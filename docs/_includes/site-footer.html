@@ -5,10 +5,12 @@
 {% endif %}
 {% if is_en %}
   {% assign docs_url = '/en/navigation.html' %}
+  {% assign news_url = '/en/news/' %}
   {% assign blog_url = '/en/blog/' %}
   {% assign ci_url = '/en/ci-workflows.html' %}
 {% else %}
   {% assign docs_url = '/zh/navigation.html' %}
+  {% assign news_url = '/zh/news/' %}
   {% assign blog_url = '/zh/blog/' %}
   {% assign ci_url = '/zh/ci-workflows.html' %}
 {% endif %}
@@ -29,6 +31,7 @@
       <h2>{% if is_en %}Docs{% else %}文档{% endif %}</h2>
       <ul>
         <li><a href="{{ docs_url | relative_url }}">{% if is_en %}Documentation map{% else %}文档导航{% endif %}</a></li>
+        <li><a href="{{ news_url | relative_url }}">{% if is_en %}Project News{% else %}项目新闻{% endif %}</a></li>
         <li><a href="{{ blog_url | relative_url }}">{% if is_en %}Blog index{% else %}博客索引{% endif %}</a></li>
         <li><a href="{{ ci_url | relative_url }}">CI / Workflow</a></li>
       </ul>
