@@ -137,31 +137,9 @@ jobs:
       - name: Install macOS build dependencies
         run: brew install cmake ninja
 
-      - name: Build native LVGL library for osx-arm64
+      - name: Build macOS demo
         shell: bash
-        run: |
-          cp libs/lv_conf.h libs/lvgl/lv_conf.h
-          cmake -S libs/lvgl -B libs/lvgl/build_demo_macos \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES=arm64 \
-            -DCONFIG_LV_BUILD_EXAMPLES=OFF \
-            -DCONFIG_LV_BUILD_DEMOS=OFF \
-            -DCONFIG_LV_USE_THORVG_INTERNAL=OFF \
-            -DBUILD_SHARED_LIBS=ON \
-            -DCONFIG_LV_USE_PRIVATE_API=ON
-          cmake --build libs/lvgl/build_demo_macos
-          mkdir -p src/LVGLSharp.Native/runtimes/osx-arm64/native
-          cp "$(find libs/lvgl/build_demo_macos -name liblvgl.dylib | head -1)" src/LVGLSharp.Native/runtimes/osx-arm64/native/liblvgl.dylib
-          ls -la src/LVGLSharp.Native/runtimes/osx-arm64/native
-
-      - name: Publish macOS AOT demo
-        shell: bash
-        run: |
-          dotnet publish ./src/Demos/MacOsAotDemo/MacOsAotDemo.csproj \
-            -c Release \
-            -r osx-arm64 \
-            -o dist/osx-arm64/MacOsAotDemo
+        run: bash ./build-macos-demo.sh --clean --rid osx-arm64
 
       - name: Archive macOS demo
         shell: bash
