@@ -17,6 +17,8 @@ sections:
         links:
           - label: "中文首页"
             url: "/zh/"
+          - label: "项目新闻"
+            url: "/zh/news/"
           - label: "博客索引"
             url: "/zh/blog/"
           - label: "界面截图"
@@ -48,6 +50,8 @@ sections:
         links:
           - label: "项目首页"
             url: "/zh/"
+          - label: "项目新闻"
+            url: "/zh/news/"
           - label: "为什么要做 WinForms over LVGL"
             url: "/zh/blog/why-winforms-over-lvgl.html"
           - label: "界面截图"
@@ -87,6 +91,8 @@ sections:
     variant: list
     surface: true
     items:
+      - label: "项目新闻"
+        url: "/zh/news/"
       - label: "界面截图"
         url: "/zh/preview-local.html"
       - label: "NuGet 安装"

@@ -49,6 +49,9 @@ sections:
     variant: quick-links
     columns: 3
     items:
+      - title: "Project News"
+        description: "Use the news section if you want the strongest recent changes in a faster, update-style format."
+        url: "/en/news/"
       - title: "Documentation Navigation"
         description: "Return to the English docs map and choose the next reading path by topic."
         url: "/en/navigation.html"

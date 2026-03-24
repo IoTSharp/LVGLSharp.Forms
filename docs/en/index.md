@@ -58,11 +58,14 @@ sections:
   - title: "Quick entry points"
     description: "If you want to evaluate the project quickly, these are the best places to start."
     variant: quick-links
-    columns: 3
+    columns: 4
     items:
       - title: "Documentation map"
         description: "Jump into the right reading path by topic, audience, and language."
         url: "/en/navigation.html"
+      - title: "Project News"
+        description: "Use this if you want the shortest path to the most important progress from the latest round."
+        url: "/en/news/"
       - title: "Engineering and CI"
         description: "Understand the build, packaging, publishing, and automation structure."
         url: "/en/ci-workflows.html"
@@ -141,6 +144,8 @@ sections:
     variant: list
     surface: true
     items:
+      - label: "Project News: I finally brought WinFormsVncDemo onto a real VNC path"
+        url: "/en/news/winformsvncdemo-vnc-update.html"
       - label: "Why WinForms over LVGL"
         url: "/en/blog/why-winforms-over-lvgl.html"
       - label: "Architecture Breakdown"

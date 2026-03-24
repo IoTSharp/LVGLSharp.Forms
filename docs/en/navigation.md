@@ -17,6 +17,8 @@ sections:
         links:
           - label: "English Home"
             url: "/en/"
+          - label: "Project News"
+            url: "/en/news/"
           - label: "Blog Index"
             url: "/en/blog/"
           - label: "Screenshot Gallery"
@@ -48,6 +50,8 @@ sections:
         links:
           - label: "English Home"
             url: "/en/"
+          - label: "Project News"
+            url: "/en/news/"
           - label: "Why WinForms over LVGL"
             url: "/en/blog/why-winforms-over-lvgl.html"
           - label: "Screenshot Gallery"
@@ -87,6 +91,8 @@ sections:
     variant: list
     surface: true
     items:
+      - label: "Project News"
+        url: "/en/news/"
       - label: "Screenshot Gallery"
         url: "/en/preview-local.html"
       - label: "NuGet Guide"

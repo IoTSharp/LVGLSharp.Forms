@@ -49,6 +49,9 @@ sections:
     variant: quick-links
     columns: 3
     items:
+      - title: "项目新闻"
+        description: "如果你想看最近一轮最值得关注的变更，可以从新闻栏目进入。"
+        url: "/zh/news/"
       - title: "文档导航"
         description: "回到中文文档地图，按主题重新选择阅读路径。"
         url: "/zh/navigation.html"

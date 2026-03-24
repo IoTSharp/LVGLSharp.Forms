@@ -58,11 +58,14 @@ sections:
   - title: "快速入口"
     description: "如果你想快速判断这个项目是否适合自己，可以先从下面几个入口开始。"
     variant: quick-links
-    columns: 3
+    columns: 4
     items:
       - title: "文档导航"
         description: "按主题、角色和语言快速找到合适的阅读顺序。"
         url: "/zh/navigation.html"
+      - title: "项目新闻"
+        description: "如果你想先看最近一轮最值得关注的推进，这里是最短入口。"
+        url: "/zh/news/"
       - title: "工程与 CI"
         description: "了解当前仓库的构建、打包、发布与自动化流程。"
         url: "/zh/ci-workflows.html"
@@ -141,6 +144,8 @@ sections:
     variant: list
     surface: true
     items:
+      - label: "项目新闻：我把 WinFormsVncDemo 真正带到了 VNC 链路上"
+        url: "/zh/news/winformsvncdemo-vnc-update.html"
       - label: "为什么要做 WinForms over LVGL"
         url: "/zh/blog/why-winforms-over-lvgl.html"
       - label: "项目架构拆解"
