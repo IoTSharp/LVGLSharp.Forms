@@ -24,11 +24,12 @@
 		<Using Include="LVGLSharp.WPF" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
 	  <None Remove="lvgl128x128.png" />
+	  <Resource Include="lvgl128x128.png" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Resource Include="lvgl128x128.png" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+	  <EmbeddedResource Include="lvgl128x128.png" />
 	</ItemGroup>
 </Project>

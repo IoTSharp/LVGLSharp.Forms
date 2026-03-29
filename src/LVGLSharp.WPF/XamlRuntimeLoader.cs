@@ -232,6 +232,12 @@ public static class XamlRuntimeLoader
             return normalized;
         }
 
+        var appBasePath = Path.Combine(AppContext.BaseDirectory, normalized);
+        if (File.Exists(appBasePath))
+        {
+            return appBasePath;
+        }
+
         if (!EmbeddedResourceFileSystem.Exists(assembly, normalized))
         {
             return normalized;
@@ -254,6 +260,12 @@ public static class XamlRuntimeLoader
 
     private static void ApplyMargin(Control control, Thickness margin)
     {
+        control.Margin = new Padding(
+            (int)Math.Round(margin.Left),
+            (int)Math.Round(margin.Top),
+            (int)Math.Round(margin.Right),
+            (int)Math.Round(margin.Bottom));
+
         switch (control)
         {
             case Controls.Button button:
@@ -585,7 +597,7 @@ public static class XamlRuntimeLoader
         return spec.Mode switch
         {
             GridDefinitionMode.Absolute => new RowStyle(SizeType.Absolute, (float)Math.Max(0d, spec.Value)),
-            GridDefinitionMode.Star => new RowStyle(),
+            GridDefinitionMode.Star => new RowStyle(SizeType.Percent, (float)Math.Max(0.1d, spec.Value)),
             _ => new RowStyle(),
         };
     }
@@ -595,7 +607,7 @@ public static class XamlRuntimeLoader
         return spec.Mode switch
         {
             GridDefinitionMode.Absolute => new ColumnStyle(SizeType.Absolute, (float)Math.Max(0d, spec.Value)),
-            GridDefinitionMode.Star => new ColumnStyle(),
+            GridDefinitionMode.Star => new ColumnStyle(SizeType.Percent, (float)Math.Max(0.1d, spec.Value)),
             _ => new ColumnStyle(),
         };
     }
@@ -624,7 +636,6 @@ public static class XamlRuntimeLoader
                 LayoutGridChild(grid, child, childElement, gridPlacement ?? throw new InvalidOperationException("Grid placement context is required."));
                 break;
             case Controls.StackPanel stackPanel:
-                LayoutStackPanelChild(stackPanel, child);
                 stackPanel.Children.Add(child);
                 break;
         }
@@ -682,29 +693,6 @@ public static class XamlRuntimeLoader
         if (columnSpan > 1 || rowSpan > 1)
         {
             grid.PerformLayout(child, nameof(Controls.Grid));
-        }
-    }
-
-    private static void LayoutStackPanelChild(Controls.StackPanel stackPanel, Control child)
-    {
-        if (stackPanel.Controls.Count == 0)
-        {
-            return;
-        }
-
-        var lastChild = stackPanel.Controls[stackPanel.Controls.Count - 1];
-        if (lastChild is null)
-        {
-            return;
-        }
-
-        if (stackPanel.Orientation == Orientation.Horizontal)
-        {
-            child.Left += lastChild.Right;
-        }
-        else
-        {
-            child.Top += lastChild.Bottom;
         }
     }
 

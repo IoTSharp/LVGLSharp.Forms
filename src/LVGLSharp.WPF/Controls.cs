@@ -40,7 +40,26 @@ public class Grid : LVGLSharp.Forms.TableLayoutPanel
 {
 }
 
-public class StackPanel : LVGLSharp.Forms.Panel
+public class StackPanel : LVGLSharp.Forms.FlowLayoutPanel
 {
-	public Orientation Orientation { get; set; } = Orientation.Vertical;
+    private Orientation _orientation = Orientation.Vertical;
+
+    public StackPanel()
+    {
+        PreserveChildLocations = false;
+        WrapContents = false;
+        AutoMeasureWidth = 96;
+        AutoMeasureHeight = 28;
+        FlowHorizontally = false;
+    }
+
+    public Orientation Orientation
+    {
+        get => _orientation;
+        set
+        {
+            _orientation = value;
+            FlowHorizontally = value == LVGLSharp.WPF.Orientation.Horizontal;
+        }
+    }
 }
