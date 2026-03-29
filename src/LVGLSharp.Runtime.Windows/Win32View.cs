@@ -27,6 +27,8 @@ namespace LVGLSharp.Runtime.Windows
         static uint g_bufSize = 1024 * 1024 * 4;
         static bool g_running;
         static volatile bool g_lvglReady;
+        static int g_timerCallCount;
+        static int g_flushCallCount;
         static lv_obj_t* label;
         static int startTick;
         static int mouseX = 0, mouseY = 0;
@@ -87,6 +89,12 @@ namespace LVGLSharp.Runtime.Windows
                 int width = area->x2 - area->x1 + 1;
                 int height = area->y2 - area->y1 + 1;
                 int pixelCount = width * height;
+                int flushIndex = Interlocked.Increment(ref g_flushCallCount);
+
+                if (flushIndex <= 5)
+                {
+                    Console.Error.WriteLine($"[lvgl] flush#{flushIndex} area=({area->x1},{area->y1})-({area->x2},{area->y2}) pixels={pixelCount} colorPtr=0x{((nuint)color_p):X}");
+                }
 
                 fixed (byte* pBGRA = bgraBuf)
                 {
@@ -301,6 +309,12 @@ namespace LVGLSharp.Runtime.Windows
             bool hadMessages = PumpPendingMessages();
             if (g_lvglReady && g_display != null && lv_is_initialized())
             {
+                int callIndex = Interlocked.Increment(ref g_timerCallCount);
+                if (callIndex <= 10)
+                {
+                    Console.Error.WriteLine($"[lvgl] timer#{callIndex} running display=0x{((nuint)g_display):X}");
+                }
+
                 lv_timer_handler();
             }
 
@@ -481,6 +495,8 @@ namespace LVGLSharp.Runtime.Windows
             mousePressed = false;
             mouseButton = 0;
             mouseWheelDelta = 0;
+            g_timerCallCount = 0;
+            g_flushCallCount = 0;
 
             while (keyQueue.TryDequeue(out _))
             {
@@ -552,6 +568,9 @@ namespace LVGLSharp.Runtime.Windows
             }
 
             lv_display_set_default(g_display);
+            var colorFormat = lv_display_get_color_format(g_display);
+            byte bytesPerPixel = lv_color_format_get_size(colorFormat);
+            Console.Error.WriteLine($"[lvgl] display={Width}x{Height} format={colorFormat} bpp={bytesPerPixel} buffer={g_bufSize}");
 
             // Mouse
             _pointerInputDevice = lv_indev_create();

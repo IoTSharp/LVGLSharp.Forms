@@ -71,18 +71,23 @@ namespace LVGLSharp.Forms
             OnHandleCreated(EventArgs.Empty);
             Application.RegisterOpenForm(this);
 
-            foreach (var child in Controls)
+            var skipChildCreate = string.Equals(Environment.GetEnvironmentVariable("LVGLSHARP_SKIP_CHILD_CREATE"), "1", StringComparison.OrdinalIgnoreCase);
+            if (!skipChildCreate)
             {
-                LvglCreateTrace.Before(child);
-                try
+                foreach (var child in Controls)
                 {
-                    child.CreateLvglObject(_lvglObjectHandle);
-                }
-                finally
-                {
-                    LvglCreateTrace.After();
+                    LvglCreateTrace.Before(child);
+                    try
+                    {
+                        child.CreateLvglObject(_lvglObjectHandle);
+                    }
+                    finally
+                    {
+                        LvglCreateTrace.After();
+                    }
                 }
             }
+
             OnLoad(EventArgs.Empty);
 
             if (RootObject != null)
