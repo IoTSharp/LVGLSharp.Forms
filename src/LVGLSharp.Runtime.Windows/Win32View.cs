@@ -26,6 +26,7 @@ namespace LVGLSharp.Runtime.Windows
 
         static uint g_bufSize = 1024 * 1024 * 4;
         static bool g_running;
+        static volatile bool g_lvglReady;
         static lv_obj_t* label;
         static int startTick;
         static int mouseX = 0, mouseY = 0;
@@ -298,7 +299,11 @@ namespace LVGLSharp.Runtime.Windows
         bool ProcessEventsCore()
         {
             bool hadMessages = PumpPendingMessages();
-            lv_timer_handler();
+            if (g_lvglReady && g_display != null && lv_is_initialized())
+            {
+                lv_timer_handler();
+            }
+
             return hadMessages;
         }
 
@@ -347,8 +352,11 @@ namespace LVGLSharp.Runtime.Windows
                         int newHeight = (lParam.ToInt32() >> 16) & 0xFFFF;
                         Width = newWidth;
                         Height = newHeight;
-                        // 更新分辨率
-                        lv_display_set_resolution(g_display, Width, Height);
+                        // CreateWindow/ShowWindow can send WM_SIZE before LVGL display initialization.
+                        if (g_lvglReady && g_display != null)
+                        {
+                            lv_display_set_resolution(g_display, Width, Height);
+                        }
                     }
                     break;
                 case 0x0201: // WM_LBUTTONDOWN
@@ -464,7 +472,19 @@ namespace LVGLSharp.Runtime.Windows
         {
             LvglNativeLibraryResolver.EnsureRegistered();
             g_running = true;
+            g_lvglReady = false;
             startTick = Environment.TickCount;
+            last_key_processed = 0;
+            last_key_state_processed = LV_INDEV_STATE_REL;
+            ime_composing = false;
+            pending_ime_char_skips = 0;
+            mousePressed = false;
+            mouseButton = 0;
+            mouseWheelDelta = 0;
+
+            while (keyQueue.TryDequeue(out _))
+            {
+            }
 
             wndProcDelegate = MyWndProc;
             wndProcPtr = Marshal.GetFunctionPointerForDelegate(wndProcDelegate);
@@ -510,24 +530,40 @@ namespace LVGLSharp.Runtime.Windows
                 IntPtr.Zero, IntPtr.Zero, GetModuleHandle(null), IntPtr.Zero
             );
 
+            if (g_hwnd == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Failed to create Win32 window.");
+            }
+
             ShowWindow(g_hwnd, 5);
             UpdateWindow(g_hwnd);
 
-            lv_init();
+            if (!lv_is_initialized())
+            {
+                lv_init();
+            }
 
             lv_tick_set_cb(&my_tick);
 
             g_display = lv_display_create(Width, Height);
+            if (g_display == null)
+            {
+                throw new InvalidOperationException("Failed to create LVGL display.");
+            }
+
+            lv_display_set_default(g_display);
 
             // Mouse
             _pointerInputDevice = lv_indev_create();
             lv_indev_set_type(_pointerInputDevice, lv_indev_type_t.LV_INDEV_TYPE_POINTER);
             lv_indev_set_read_cb(_pointerInputDevice, &MouseReadCb);
+            lv_indev_set_display(_pointerInputDevice, g_display);
 
             // Keyboard
             _keyboardInputDevice = lv_indev_create();
             lv_indev_set_type(_keyboardInputDevice, lv_indev_type_t.LV_INDEV_TYPE_KEYPAD);
             lv_indev_set_read_cb(_keyboardInputDevice, &KeyboardReadCb);
+            lv_indev_set_display(_keyboardInputDevice, g_display);
             KeyInputGroupObject = lv_group_create();
             lv_indev_set_group(_keyboardInputDevice, KeyInputGroupObject);
 
@@ -562,6 +598,7 @@ namespace LVGLSharp.Runtime.Windows
             lv_style_set_text_font(_defaultFontStyle, _defaultFont);
 
             lv_obj_add_style(RootObject, _defaultFontStyle, 0);
+            g_lvglReady = true;
         }
         protected override void RunLoopCore(Action iteration)
         {
@@ -585,6 +622,7 @@ namespace LVGLSharp.Runtime.Windows
         protected override void OnCloseCore()
         {
             g_running = false;
+            g_lvglReady = false;
 
             if (_keyboardInputDevice != null)
             {
