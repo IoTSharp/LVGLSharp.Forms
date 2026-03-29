@@ -54,6 +54,18 @@ public class Grid : LVGLSharp.WPF.Grid
     public UIElementCollection Children => _children;
 }
 
+public class StackPanel : LVGLSharp.WPF.StackPanel
+{
+    private readonly UIElementCollection _children;
+
+    public StackPanel()
+    {
+        _children = new UIElementCollection(Controls);
+    }
+
+    public UIElementCollection Children => _children;
+}
+
 public class Button : LVGLSharp.WPF.Button
 {
     public object? Content

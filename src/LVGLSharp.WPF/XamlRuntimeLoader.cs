@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using System.Xml.Linq;
 using LVGLSharp.Forms;
@@ -94,9 +95,17 @@ public static class XamlRuntimeLoader
 
         if (control is Controls.Grid grid)
         {
-            foreach (var childElement in element.Elements())
+            var gridLayout = CreateGridLayoutContext(grid, element);
+            foreach (var childElement in EnumerateContainerChildren(element, isGrid: true))
             {
-                grid.Children.Add(CreateControlTree(childElement, assembly));
+                AddChildControl(grid, CreateControlTree(childElement, assembly), childElement, gridLayout);
+            }
+        }
+        else if (control is Controls.StackPanel stackPanel)
+        {
+            foreach (var childElement in EnumerateContainerChildren(element, isGrid: false))
+            {
+                AddChildControl(stackPanel, CreateControlTree(childElement, assembly), childElement, gridLayout: null);
             }
         }
 
@@ -108,6 +117,7 @@ public static class XamlRuntimeLoader
         return elementName switch
         {
             "Grid" => new Controls.Grid(),
+            "StackPanel" => new Controls.StackPanel(),
             "Button" => new Controls.Button(),
             "CheckBox" => new Controls.CheckBox(),
             "ComboBox" => new Controls.ComboBox(),
@@ -177,6 +187,12 @@ public static class XamlRuntimeLoader
                 if (TryGetIntAttribute(element, "SelectedIndex", out var selectedIndex))
                 {
                     comboBox.SelectedIndex = selectedIndex;
+                }
+                break;
+            case Controls.StackPanel stackPanel:
+                if (TryGetEnumAttribute<Orientation>(element, "Orientation", out var orientation))
+                {
+                    stackPanel.Orientation = orientation;
                 }
                 break;
             case Controls.TextBlock textBlock:
@@ -407,7 +423,17 @@ public static class XamlRuntimeLoader
 
     private static string? GetAttribute(XElement element, string name)
     {
-        return element.Attribute(name)?.Value;
+        var direct = element.Attribute(name);
+        if (direct is not null)
+        {
+            return direct.Value;
+        }
+
+        var match = element.Attributes().FirstOrDefault(attribute =>
+            string.Equals(attribute.Name.LocalName, name, StringComparison.Ordinal) ||
+            string.Equals(attribute.Name.ToString(), name, StringComparison.Ordinal));
+
+        return match?.Value;
     }
 
     private static bool TryParseDouble(string text, out double value)
@@ -435,6 +461,342 @@ public static class XamlRuntimeLoader
                 }
             }
         }
+    }
+
+    private static IEnumerable<XElement> EnumerateContainerChildren(XElement containerElement, bool isGrid)
+    {
+        foreach (var child in containerElement.Elements())
+        {
+            if (isGrid && IsGridDefinitionCollectionElement(child))
+            {
+                continue;
+            }
+
+            yield return child;
+        }
+    }
+
+    private static bool IsGridDefinitionCollectionElement(XElement element)
+    {
+        var name = element.Name.LocalName;
+        return string.Equals(name, "Grid.RowDefinitions", StringComparison.Ordinal) ||
+               string.Equals(name, "Grid.ColumnDefinitions", StringComparison.Ordinal);
+    }
+
+    private static GridLayoutContext CreateGridLayoutContext(Controls.Grid grid, XElement gridElement)
+    {
+        var rowDefinitions = ReadGridDefinitions(gridElement, "Grid.RowDefinitions", "RowDefinition", "Height");
+        var columnDefinitions = ReadGridDefinitions(gridElement, "Grid.ColumnDefinitions", "ColumnDefinition", "Width");
+
+        var maxAttachedRow = 0;
+        var maxAttachedColumn = 0;
+        foreach (var child in EnumerateContainerChildren(gridElement, isGrid: true))
+        {
+            if (TryGetAttachedIntAttribute(child, "Grid.Row", out var row) && row > maxAttachedRow)
+            {
+                maxAttachedRow = row;
+            }
+
+            if (TryGetAttachedIntAttribute(child, "Grid.Column", out var column) && column > maxAttachedColumn)
+            {
+                maxAttachedColumn = column;
+            }
+        }
+
+        var rowCount = Math.Max(1, Math.Max(rowDefinitions.Count, maxAttachedRow + 1));
+        var columnCount = Math.Max(1, Math.Max(columnDefinitions.Count, maxAttachedColumn + 1));
+
+        var totalHeight = grid.Height > 0 ? grid.Height : 1;
+        var totalWidth = grid.Width > 0 ? grid.Width : 1;
+
+        var rowHeights = ComputeGridCellLengths(totalHeight, rowCount, rowDefinitions);
+        var columnWidths = ComputeGridCellLengths(totalWidth, columnCount, columnDefinitions);
+
+        return new GridLayoutContext(rowHeights, columnWidths);
+    }
+
+    private static List<GridDefinitionSpec> ReadGridDefinitions(XElement gridElement, string collectionElementName, string itemElementName, string valueAttributeName)
+    {
+        var result = new List<GridDefinitionSpec>();
+        var collectionElement = gridElement.Elements().FirstOrDefault(e => string.Equals(e.Name.LocalName, collectionElementName, StringComparison.Ordinal));
+        if (collectionElement is null)
+        {
+            return result;
+        }
+
+        foreach (var definition in collectionElement.Elements())
+        {
+            if (!string.Equals(definition.Name.LocalName, itemElementName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var raw = GetAttribute(definition, valueAttributeName);
+            result.Add(ParseGridDefinition(raw));
+        }
+
+        return result;
+    }
+
+    private static GridDefinitionSpec ParseGridDefinition(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return GridDefinitionSpec.Auto();
+        }
+
+        var text = value.Trim();
+        if (string.Equals(text, "Auto", StringComparison.OrdinalIgnoreCase))
+        {
+            return GridDefinitionSpec.Auto();
+        }
+
+        if (text.EndsWith('*'))
+        {
+            var weightText = text[..^1].Trim();
+            if (string.IsNullOrWhiteSpace(weightText))
+            {
+                return GridDefinitionSpec.Star(1d);
+            }
+
+            return TryParseDouble(weightText, out var starWeight)
+                ? GridDefinitionSpec.Star(Math.Max(0.1d, starWeight))
+                : GridDefinitionSpec.Star(1d);
+        }
+
+        return TryParseDouble(text, out var absolute)
+            ? GridDefinitionSpec.Absolute(Math.Max(0d, absolute))
+            : GridDefinitionSpec.Auto();
+    }
+
+    private static int[] ComputeGridCellLengths(int totalLength, int fallbackCount, List<GridDefinitionSpec> definitions)
+    {
+        var count = Math.Max(1, Math.Max(definitions.Count, fallbackCount));
+        var lengths = new int[count];
+
+        if (definitions.Count == 0)
+        {
+            var each = count > 0 ? totalLength / count : totalLength;
+            for (var i = 0; i < count; i++)
+            {
+                lengths[i] = each;
+            }
+
+            return lengths;
+        }
+
+        var remaining = totalLength;
+        var flexWeight = 0d;
+
+        for (var i = 0; i < count; i++)
+        {
+            var spec = i < definitions.Count ? definitions[i] : GridDefinitionSpec.Auto();
+            if (spec.Mode == GridDefinitionMode.Absolute)
+            {
+                lengths[i] = Math.Max(0, (int)Math.Round(spec.Value));
+                remaining -= lengths[i];
+            }
+            else
+            {
+                flexWeight += spec.Mode == GridDefinitionMode.Star ? spec.Value : 1d;
+            }
+        }
+
+        remaining = Math.Max(0, remaining);
+        if (flexWeight <= 0d)
+        {
+            return lengths;
+        }
+
+        for (var i = 0; i < count; i++)
+        {
+            var spec = i < definitions.Count ? definitions[i] : GridDefinitionSpec.Auto();
+            if (spec.Mode == GridDefinitionMode.Absolute)
+            {
+                continue;
+            }
+
+            var weight = spec.Mode == GridDefinitionMode.Star ? spec.Value : 1d;
+            lengths[i] = Math.Max(lengths[i], (int)Math.Round(remaining * (weight / flexWeight)));
+        }
+
+        return lengths;
+    }
+
+    private static bool TryGetAttachedIntAttribute(XElement element, string fullName, out int value)
+    {
+        value = default;
+        var text = GetAttribute(element, fullName);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            var dotIndex = fullName.IndexOf('.', StringComparison.Ordinal);
+            if (dotIndex >= 0 && dotIndex < fullName.Length - 1)
+            {
+                text = GetAttribute(element, fullName[(dotIndex + 1)..]);
+            }
+        }
+
+        return !string.IsNullOrWhiteSpace(text) && int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static int SumRange(IReadOnlyList<int> values, int start, int length)
+    {
+        var end = Math.Min(values.Count, start + Math.Max(0, length));
+        var total = 0;
+        for (var i = start; i < end; i++)
+        {
+            total += values[i];
+        }
+
+        return total;
+    }
+
+    private static int OffsetOf(IReadOnlyList<int> values, int index)
+    {
+        var total = 0;
+        var limit = Math.Min(values.Count, Math.Max(0, index));
+        for (var i = 0; i < limit; i++)
+        {
+            total += values[i];
+        }
+
+        return total;
+    }
+
+    private static void AddChildControl(Control parent, Control child, XElement childElement, GridLayoutContext? gridLayout)
+    {
+        switch (parent)
+        {
+            case Controls.Grid grid:
+                LayoutGridChild(child, childElement, gridLayout ?? throw new InvalidOperationException("Grid layout context is required."));
+                grid.Children.Add(child);
+                break;
+            case Controls.StackPanel stackPanel:
+                LayoutStackPanelChild(stackPanel, child);
+                stackPanel.Children.Add(child);
+                break;
+        }
+    }
+
+    private static void LayoutGridChild(Control child, XElement childElement, GridLayoutContext gridLayout)
+    {
+        var hasRow = TryGetAttachedIntAttribute(childElement, "Grid.Row", out var row);
+        var hasColumn = TryGetAttachedIntAttribute(childElement, "Grid.Column", out var column);
+
+        if (!hasRow && !hasColumn)
+        {
+            row = gridLayout.NextAutoIndex / gridLayout.ColumnCount;
+            column = gridLayout.NextAutoIndex % gridLayout.ColumnCount;
+            gridLayout.NextAutoIndex++;
+        }
+        else
+        {
+            if (!hasRow)
+            {
+                row = 0;
+            }
+
+            if (!hasColumn)
+            {
+                column = 0;
+            }
+        }
+
+        row = Math.Clamp(row, 0, gridLayout.RowCount - 1);
+        column = Math.Clamp(column, 0, gridLayout.ColumnCount - 1);
+
+        var rowSpan = TryGetAttachedIntAttribute(childElement, "Grid.RowSpan", out var parsedRowSpan)
+            ? Math.Max(1, parsedRowSpan)
+            : 1;
+        var columnSpan = TryGetAttachedIntAttribute(childElement, "Grid.ColumnSpan", out var parsedColumnSpan)
+            ? Math.Max(1, parsedColumnSpan)
+            : 1;
+
+        var x = OffsetOf(gridLayout.ColumnWidths, column);
+        var y = OffsetOf(gridLayout.RowHeights, row);
+        var width = SumRange(gridLayout.ColumnWidths, column, columnSpan);
+        var height = SumRange(gridLayout.RowHeights, row, rowSpan);
+
+        child.Left += x;
+        child.Top += y;
+
+        if (child.Width <= 0 && width > 0)
+        {
+            child.Width = width;
+        }
+
+        if (child.Height <= 0 && height > 0)
+        {
+            child.Height = height;
+        }
+    }
+
+    private static void LayoutStackPanelChild(Controls.StackPanel stackPanel, Control child)
+    {
+        if (stackPanel.Controls.Count == 0)
+        {
+            return;
+        }
+
+        var lastChild = stackPanel.Controls[stackPanel.Controls.Count - 1];
+        if (lastChild is null)
+        {
+            return;
+        }
+
+        if (stackPanel.Orientation == Orientation.Horizontal)
+        {
+            child.Left += lastChild.Right;
+        }
+        else
+        {
+            child.Top += lastChild.Bottom;
+        }
+    }
+
+    private sealed class GridLayoutContext
+    {
+        public GridLayoutContext(int[] rowHeights, int[] columnWidths)
+        {
+            RowHeights = rowHeights;
+            ColumnWidths = columnWidths;
+        }
+
+        public int[] RowHeights { get; }
+
+        public int[] ColumnWidths { get; }
+
+        public int RowCount => RowHeights.Length;
+
+        public int ColumnCount => ColumnWidths.Length;
+
+        public int NextAutoIndex { get; set; }
+    }
+
+    private enum GridDefinitionMode
+    {
+        Absolute,
+        Star,
+        Auto,
+    }
+
+    private readonly struct GridDefinitionSpec
+    {
+        private GridDefinitionSpec(GridDefinitionMode mode, double value)
+        {
+            Mode = mode;
+            Value = value;
+        }
+
+        public GridDefinitionMode Mode { get; }
+
+        public double Value { get; }
+
+        public static GridDefinitionSpec Absolute(double value) => new(GridDefinitionMode.Absolute, value);
+
+        public static GridDefinitionSpec Star(double value) => new(GridDefinitionMode.Star, value);
+
+        public static GridDefinitionSpec Auto() => new(GridDefinitionMode.Auto, 0d);
     }
 
     public sealed class ApplicationDefinition
