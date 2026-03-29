@@ -1,11 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<UseLVGLWpf>true</UseLVGLWpf>
+		<EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+		<EnableDefaultPageItems>false</EnableDefaultPageItems>
+		<LVGLSharpWpfProjectPath>..\..\LVGLSharp.WPF\LVGLSharp.WPF.csproj</LVGLSharpWpfProjectPath>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+		<Using Include="System.Windows" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<Compile Remove="App.xaml.cs" />
+		<Compile Remove="MainWindow.xaml.cs" />
+		<Compile Remove="AssemblyInfo.cs" />
+		<Page Remove="App.xaml" />
+		<Page Remove="MainWindow.xaml" />
+		<Using Include="LVGLSharp.WPF" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0' And Exists('$(LVGLSharpWpfProjectPath)')">
+		<ProjectReference Include="$(LVGLSharpWpfProjectPath)" />
+	</ItemGroup>
+
+	<Target Name="ValidateLVGLWpfReference" BeforeTargets="CoreCompile" Condition="'$(TargetFramework)' == 'net10.0' And !Exists('$(LVGLSharpWpfProjectPath)')">
+		<Error Text="UseLVGLWpf=true 需要可用的 LVGLSharp.WPF 项目引用。请先提供 $(LVGLSharpWpfProjectPath)，然后再构建 net10.0 目标。" />
+	</Target>
+
+
 
 </Project>
