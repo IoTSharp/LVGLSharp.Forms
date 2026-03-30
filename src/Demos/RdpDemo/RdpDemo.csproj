@@ -5,11 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <UseLVGLSharpForms>true</UseLVGLSharpForms>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LVGLSharp.Forms\LVGLSharp.Forms.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj" />
-    <ProjectReference Include="..\..\LVGLSharp.Native\LVGLSharp.Native.csproj" />
+    <Using Include="LVGLSharp.Runtime.Remote" />
+    <Using Include="LVGLSharp.Runtime.Remote.Rdp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

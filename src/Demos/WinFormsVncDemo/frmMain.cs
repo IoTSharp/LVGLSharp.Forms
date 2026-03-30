@@ -1,5 +1,3 @@
-﻿using LVGLSharp.Drawing;
-
 namespace WinFormsVncDemo;
 
 public partial class frmMain : Form

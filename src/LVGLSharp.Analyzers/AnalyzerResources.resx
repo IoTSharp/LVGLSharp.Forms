@@ -39,4 +39,22 @@
   <data name="MissingRuntimeRuleDescription" xml:space="preserve">
     <value>LVGLSharp.Forms needs a platform runtime package reference to provide the host window implementation and automatic runtime registration.</value>
   </data>
+  <data name="RemoteDemoNonGlobalUsingRuleTitle" xml:space="preserve">
+    <value>Remote demos should use project-level global usings for LVGLSharp namespaces</value>
+  </data>
+  <data name="RemoteDemoNonGlobalUsingRuleMessage" xml:space="preserve">
+    <value>Move '{0}' to a project-level global using so the remote demo follows the shared LVGLSharp namespace style.</value>
+  </data>
+  <data name="RemoteDemoNonGlobalUsingRuleDescription" xml:space="preserve">
+    <value>Remote demos should declare LVGLSharp namespaces once at the project level, for example with &lt;Using Include="..." /&gt;, instead of repeating file-level using directives.</value>
+  </data>
+  <data name="RemoteDemoQualifiedNameRuleTitle" xml:space="preserve">
+    <value>Remote demos should rely on global usings instead of fully qualified LVGLSharp type names</value>
+  </data>
+  <data name="RemoteDemoQualifiedNameRuleMessage" xml:space="preserve">
+    <value>Replace fully qualified '{0}' with the shared project-level global using style in this remote demo.</value>
+  </data>
+  <data name="RemoteDemoQualifiedNameRuleDescription" xml:space="preserve">
+    <value>Remote demos should use project-level LVGLSharp global usings so code can refer to forms, drawing, and runtime types without fully qualifying each name.</value>
+  </data>
 </root>

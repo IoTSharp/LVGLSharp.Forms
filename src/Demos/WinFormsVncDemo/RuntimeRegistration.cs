@@ -2,10 +2,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using LVGLSharp.Drawing;
-using LVGLSharp.Forms;
-using LVGLSharp.Runtime.Remote;
-using LVGLSharp.Runtime.Remote.Vnc;
 
 namespace WinFormsVncDemo;
 
@@ -31,7 +27,7 @@ internal static class RuntimeRegistration
             Width = options.Width,
             Height = options.Height,
         }));
-        Image.RegisterFactory(static _ => throw new NotSupportedException("WinFormsVncDemo 尚未配置图片加载运行时。"));
+        Image.RegisterFactory(static _ => throw new NotSupportedException("WinFormsVncDemo has not configured an image loading runtime yet."));
         WriteVncConsoleBanner();
     }
 

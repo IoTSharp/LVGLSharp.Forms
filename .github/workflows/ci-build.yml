@@ -1,0 +1,45 @@
+name: Build All Projects
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-all:
+    name: Build every .csproj
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build all managed projects
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem src,tests -Recurse -Filter *.csproj | Sort-Object FullName
+          Write-Host "Discovered $($projects.Count) projects."
+
+          foreach ($project in $projects) {
+            Write-Host "=== BUILD $($project.FullName) ==="
+            dotnet build $project.FullName `
+              -c Release `
+              --nologo `
+              -p:ContinuousIntegrationBuild=true `
+              /m:1
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Build failed for $($project.FullName)"
+            }
+          }

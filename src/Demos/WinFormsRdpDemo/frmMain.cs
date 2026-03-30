@@ -1,5 +1,3 @@
-using LVGLSharp.Drawing;
-
 namespace WinFormsRdpDemo;
 
 public partial class frmMain : Form
@@ -30,7 +28,7 @@ public partial class frmMain : Form
 
         var introLabel = new Label
         {
-            Text = "这个窗口正在通过 RdpView 运行时托管，为后续 RDP 协议实现预留 Demo 入口。",
+            Text = "This window currently runs through RdpView so the RDP path has a dedicated demo entry point.",
             Location = new Point(18, 18),
             Size = new Size(580, 42),
             ForeColor = new Color(255, 255, 255),
@@ -39,14 +37,14 @@ public partial class frmMain : Form
         _messageInput = new TextBox
         {
             Text = "hello from WinForms over RDP",
-            PlaceholderText = "输入一些文字，然后点右侧按钮",
+            PlaceholderText = "Type some text and then click the button on the right.",
             Location = new Point(18, 72),
             Size = new Size(420, 36),
         };
 
         var echoButton = new Button
         {
-            Text = "更新状态",
+            Text = "Update status",
             Location = new Point(456, 72),
             Size = new Size(140, 36),
         };
@@ -54,7 +52,7 @@ public partial class frmMain : Form
 
         _statusLabel = new Label
         {
-            Text = "状态：RDP transport 已接入生命周期，协议协商仍在实现中",
+            Text = "Status: the RDP transport is wired into the lifecycle and the protocol handshake is still in progress.",
             Location = new Point(18, 128),
             Size = new Size(578, 42),
             ForeColor = new Color(255, 255, 255),
@@ -62,7 +60,7 @@ public partial class frmMain : Form
 
         var hintLabel = new Label
         {
-            Text = "提示：这个 Demo 现在先用于验证 RdpView 注册、窗口承载和后续远程宿主接线点。",
+            Text = "Tip: this demo currently validates RdpView registration, window hosting, and the later remote-host integration path.",
             Location = new Point(18, 178),
             Size = new Size(578, 52),
             ForeColor = new Color(220, 220, 220),
@@ -85,6 +83,6 @@ public partial class frmMain : Form
         var value = string.IsNullOrWhiteSpace(_messageInput.Text)
             ? "<empty>"
             : _messageInput.Text;
-        _statusLabel.Text = $"状态：最近一次本地交互 -> {value}";
+        _statusLabel.Text = $"Status: latest local interaction -> {value}";
     }
 }

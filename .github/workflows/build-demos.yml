@@ -1,26 +1,6 @@
 name: Build Demo Assets
 
 'on':
-  push:
-    branches: [main, develop, master]
-    tags:
-      - "v*"
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'README_en.md'
-      - 'ROADMAP.md'
-      - 'CHANGELOG.md'
-      - '.github/workflows/docs-pages.yml'
-  pull_request:
-    branches: [main, develop, master]
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'README_en.md'
-      - 'ROADMAP.md'
-      - 'CHANGELOG.md'
-      - '.github/workflows/docs-pages.yml'
   workflow_dispatch:
     inputs:
       package_version:

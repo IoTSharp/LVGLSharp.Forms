@@ -13,14 +13,20 @@
     <PublishSingleFile>true</PublishSingleFile>
     <StripSymbols>true</StripSymbols>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseLVGLSharpForms)' == 'true'">
     <ProjectReference Include="..\..\LVGLSharp.WinForms\LVGLSharp.Forms.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Windows\LVGLSharp.Runtime.Windows.csproj" />
+    <ProjectReference Include="..\..\LVGLSharp.Runtime.Linux\LVGLSharp.Runtime.Linux.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Runtime.Remote\LVGLSharp.Runtime.Remote.csproj" />
     <ProjectReference Include="..\..\LVGLSharp.Native\LVGLSharp.Native.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Using Include="LVGLSharp.Forms" />
     <Using Include="LVGLSharp.Drawing" />
+    <Using Include="LVGLSharp.Runtime.Remote" />
+    <Using Include="LVGLSharp.Runtime.Remote.Vnc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\LVGLSharp.Analyzers\LVGLSharp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Import Project="..\..\LVGLSharp.Native\buildTransitive\LVGLSharp.Native.targets"
