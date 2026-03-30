@@ -15,12 +15,7 @@
 		<PackageTags>$(PackageTags);core;runtime;fonts</PackageTags>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <EmbeddedResource Include="Assets\Fonts\NotoSansSC-Regular.otf">
-	    <LogicalName>LVGLSharp.Runtime.Linux.Assets.Fonts.NotoSansSC-Regular.otf</LogicalName>
-	  </EmbeddedResource>
-	</ItemGroup>
-
+ 
 	<ItemGroup>
 		<PackageReference Include="SixLabors.Fonts" Version="2.1.3" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
@@ -30,9 +25,6 @@
  <ItemGroup>
 	  <ProjectReference Include="..\LVGLSharp.Interop\LVGLSharp.Interop.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\LVGLSharp.Runtime.Linux\Assets\Fonts\NOTICE.txt" Pack="true" PackagePath="THIRD-PARTY-NOTICES\LVGLSharp.Core\" Visible="false" />
-	</ItemGroup>
+ 
 
 </Project>
