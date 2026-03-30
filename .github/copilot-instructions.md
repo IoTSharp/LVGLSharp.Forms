@@ -1,5 +1,7 @@
 # Copilot Instructions
 
+- 跨代理共享的仓库级 AI 记忆以仓库根目录 `AGENTS.md` 为准；新增或修改此类规则时同步更新 `AGENTS.md`。
+
 ## Project Guidelines
 - 在该仓库中优先按 WinForms 标准生命周期/方法实现（如 Show、CreateHandle、Application.Run），避免暴露非标准 API（如 Form.Init）。
 - 该仓库后续实现要求全部基于 LVGL，不使用任何 Windows/Win32 相关实现或 API。
