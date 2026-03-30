@@ -154,11 +154,13 @@ public unsafe sealed class DrmView : ViewLifetimeBase
             _display = null;
         }
 
-        _fontManager?.Dispose();
-        _fontManager = null;
+        LinuxRuntimeFontHelper.ReleaseRuntimeFontDiagnostics(
+            ref _fallbackFont,
+            ref _fontManager,
+            ref _fontDiagnosticSummary,
+            ref _fontGlyphDiagnosticSummary,
+            ref _defaultFontStyle);
         _resolvedDevicePath = null;
-        _fontDiagnosticSummary = null;
-        _fontGlyphDiagnosticSummary = null;
         _root = null;
         _initialized = false;
     }

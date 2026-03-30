@@ -530,12 +530,13 @@ public unsafe partial class X11View : ViewLifetimeBase
             _display = IntPtr.Zero;
         }
 
-        LvglRuntimeFontRegistry.ClearActiveTextFont();
-        _fontManager?.Dispose();
-        _fontManager = null;
-        _resolvedSystemFontPath = null;
-        _fontDiagnosticSummary = null;
-        _fontGlyphDiagnosticSummary = null;
+        LinuxRuntimeFontHelper.ReleaseRuntimeFontFull(
+            ref _fallbackFont,
+            ref _fontManager,
+            ref _resolvedSystemFontPath,
+            ref _fontDiagnosticSummary,
+            ref _fontGlyphDiagnosticSummary,
+            ref _defaultFontStyle);
 
         RootObject = null;
         SendTextAreaFocusCallbackCore = null;

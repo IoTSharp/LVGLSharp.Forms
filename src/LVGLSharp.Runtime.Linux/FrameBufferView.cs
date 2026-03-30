@@ -128,8 +128,10 @@ public unsafe class FrameBufferView : ViewLifetimeBase
                 g_display = null;
             }
 
-            _fontManager?.Dispose();
-            _fontManager = null;
+            LinuxRuntimeFontHelper.ReleaseRuntimeFont(
+                ref _fallbackFont,
+                ref _fontManager,
+                ref _defaultFontStyle);
             RootObject = null;
             KeyInputGroupObject = null;
             SendTextAreaFocusCallbackCore = null;

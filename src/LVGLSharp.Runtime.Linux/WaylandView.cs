@@ -186,10 +186,12 @@ public unsafe sealed class WaylandView : ViewLifetimeBase
             _lvDisplay = null;
         }
 
-        _fontManager?.Dispose();
-        _fontManager = null;
-        _resolvedSystemFontPath = null;
-        _fontDiagnosticSummary = null;
+        LinuxRuntimeFontHelper.ReleaseRuntimeFontPathAndDiagnostic(
+            ref _fallbackFont,
+            ref _fontManager,
+            ref _resolvedSystemFontPath,
+            ref _fontDiagnosticSummary,
+            ref _defaultFontStyle);
 
         _root = null;
         _bufferPresenter.Dispose();

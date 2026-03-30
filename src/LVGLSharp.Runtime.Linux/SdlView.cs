@@ -172,11 +172,13 @@ public unsafe sealed partial class SdlView : ViewLifetimeBase
 
         _bufferPresenter.Dispose();
 
-        _fontManager?.Dispose();
-        _fontManager = null;
-        _resolvedSystemFontPath = null;
-        _fontDiagnosticSummary = null;
-        _fontGlyphDiagnosticSummary = null;
+        LinuxRuntimeFontHelper.ReleaseRuntimeFontFull(
+            ref _fallbackFont,
+            ref _fontManager,
+            ref _resolvedSystemFontPath,
+            ref _fontDiagnosticSummary,
+            ref _fontGlyphDiagnosticSummary,
+            ref _defaultFontStyle);
 
         _root = null;
         _keyInputGroup = null;

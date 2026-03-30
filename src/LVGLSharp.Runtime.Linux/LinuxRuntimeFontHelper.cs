@@ -140,4 +140,54 @@ internal static unsafe class LinuxRuntimeFontHelper
             out _,
             out defaultFontStyle);
     }
+
+    internal static void ReleaseRuntimeFont(
+        ref lv_font_t* fallbackFont,
+        ref SixLaborsFontManager? fontManager,
+        ref lv_style_t* defaultFontStyle)
+    {
+        LvglRuntimeFontRegistry.ClearActiveTextFont();
+        fontManager?.Dispose();
+        fontManager = null;
+        fallbackFont = null;
+        defaultFontStyle = null;
+    }
+
+    internal static void ReleaseRuntimeFontDiagnostics(
+        ref lv_font_t* fallbackFont,
+        ref SixLaborsFontManager? fontManager,
+        ref string? fontDiagnosticSummary,
+        ref string? glyphDiagnosticSummary,
+        ref lv_style_t* defaultFontStyle)
+    {
+        ReleaseRuntimeFont(ref fallbackFont, ref fontManager, ref defaultFontStyle);
+        fontDiagnosticSummary = null;
+        glyphDiagnosticSummary = null;
+    }
+
+    internal static void ReleaseRuntimeFontPathAndDiagnostic(
+        ref lv_font_t* fallbackFont,
+        ref SixLaborsFontManager? fontManager,
+        ref string? resolvedSystemFontPath,
+        ref string? fontDiagnosticSummary,
+        ref lv_style_t* defaultFontStyle)
+    {
+        ReleaseRuntimeFont(ref fallbackFont, ref fontManager, ref defaultFontStyle);
+        resolvedSystemFontPath = null;
+        fontDiagnosticSummary = null;
+    }
+
+    internal static void ReleaseRuntimeFontFull(
+        ref lv_font_t* fallbackFont,
+        ref SixLaborsFontManager? fontManager,
+        ref string? resolvedSystemFontPath,
+        ref string? fontDiagnosticSummary,
+        ref string? glyphDiagnosticSummary,
+        ref lv_style_t* defaultFontStyle)
+    {
+        ReleaseRuntimeFont(ref fallbackFont, ref fontManager, ref defaultFontStyle);
+        resolvedSystemFontPath = null;
+        fontDiagnosticSummary = null;
+        glyphDiagnosticSummary = null;
+    }
 }
