@@ -1,8 +1,20 @@
 ﻿<Window x:Class="WpfApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp"
+        mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <ComboBox Margin="0,160,0,0" Width="145" Height="40" />
+        <Button Content="Button" HorizontalAlignment="Left" Margin="61,30,0,0" VerticalAlignment="Top" Height="58" Width="120"/>
+        <CheckBox Content="CheckBox" HorizontalAlignment="Left" Margin="170,120,0,0" VerticalAlignment="Top" Width="170" Height="60"/>
+        <ComboBox HorizontalAlignment="Left" Margin="170,217,0,0" VerticalAlignment="Top" Width="145" Height="40"/>
+        <Label Content="Label" HorizontalAlignment="Left" Margin="390,120,0,0" VerticalAlignment="Top"/>
+        <RadioButton Content="RadioButton" HorizontalAlignment="Center" Margin="0,200,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="120,290,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="79" Width="122"/>
+        <TextBox HorizontalAlignment="Left" Margin="310,320,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="185" Height="70"/>
+        <Image HorizontalAlignment="Left" Height="157" Margin="558,50,0,0" VerticalAlignment="Top" Width="180" Source="/lvgl128x128.png"/>
+
     </Grid>
 </Window>

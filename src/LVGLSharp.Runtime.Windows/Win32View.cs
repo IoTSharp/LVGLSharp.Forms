@@ -585,7 +585,11 @@ namespace LVGLSharp.Runtime.Windows
             bool enableManagedFont = string.Equals(Environment.GetEnvironmentVariable("LVGLSHARP_ENABLE_MANAGED_FONT"), "1", StringComparison.OrdinalIgnoreCase);
             if (enableManagedFont)
             {
-                _fallbackFont = lv_obj_get_style_text_font(RootObject, lv_part_t.LV_PART_MAIN);
+                _fallbackFont = (lv_font_t*)lv_font_get_default();
+                if (_fallbackFont == null)
+                {
+                    _fallbackFont = lv_obj_get_style_text_font(RootObject, lv_part_t.LV_PART_MAIN);
+                }
 
                 _fontManager = new SixLaborsFontManager(SystemFonts.Get("Microsoft YaHei"), 12, GetDPI(), _fallbackFont, [
                     61441, 61448, 61451, 61452, 61453, 61457, 61459, 61461, 61465, 61468,
@@ -602,7 +606,12 @@ namespace LVGLSharp.Runtime.Windows
                 lv_style_init(_defaultFontStyle);
                 lv_style_set_text_font(_defaultFontStyle, _defaultFont);
 
+                LvglRuntimeFontRegistry.SetActiveTextFont(_defaultFont);
                 lv_obj_add_style(RootObject, _defaultFontStyle, 0);
+            }
+            else
+            {
+                LvglRuntimeFontRegistry.ClearActiveTextFont();
             }
             g_lvglReady = true;
         }
@@ -668,6 +677,7 @@ namespace LVGLSharp.Runtime.Windows
             }
 
             _fontManager?.Dispose();
+            LvglRuntimeFontRegistry.ClearActiveTextFont();
 
             if (g_hwnd != IntPtr.Zero)
             {

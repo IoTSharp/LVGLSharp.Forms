@@ -109,141 +109,197 @@ namespace LVGLSharp
         [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
         private static c_bool1 GetGlyphDsc(lv_font_t* font, lv_font_glyph_dsc_t* dsc_out, uint unicode_letter, uint unicode_letter_next)
         {
-            if (!TryGetManager(font, out var manager)) return false;
-
-            if (manager._fallbackFOntUnicodeLetterRange.Contains(unicode_letter))
-                return false;
-
-            if (manager._glyphCache.TryGetValue(unicode_letter, out var cacheItem))
+            try
             {
-                *dsc_out = cacheItem.Dsc;
+                if (!TryGetManager(font, out var manager))
+                {
+                    return false;
+                }
+
+                if (s_traceGlyphs)
+                {
+                    Console.Error.WriteLine(
+                        FormattableString.Invariant(
+                            $"glyph-req U+{unicode_letter:X4} '{FormatGlyph(unicode_letter)}' next=U+{unicode_letter_next:X4}"));
+                }
+
+                if (manager._fallbackFOntUnicodeLetterRange.Contains(unicode_letter))
+                {
+                    if (s_traceGlyphs)
+                    {
+                        Console.Error.WriteLine(FormattableString.Invariant($"glyph-fallback-range U+{unicode_letter:X4}"));
+                    }
+                    return false;
+                }
+
+                if (manager._glyphCache.TryGetValue(unicode_letter, out var cacheItem))
+                {
+                    *dsc_out = cacheItem.Dsc;
+                    if (s_traceGlyphs)
+                    {
+                        Console.Error.WriteLine(
+                            FormattableString.Invariant(
+                                $"glyph-cache U+{unicode_letter:X4} adv={cacheItem.Dsc.adv_w} box={cacheItem.Dsc.box_w}x{cacheItem.Dsc.box_h} ofs=({cacheItem.Dsc.ofs_x},{cacheItem.Dsc.ofs_y})"));
+                    }
+                    return true;
+                }
+
+                if (!Rune.TryCreate(unicode_letter, out _))
+                {
+                    if (s_traceGlyphs)
+                    {
+                        Console.Error.WriteLine(FormattableString.Invariant($"glyph-invalid-codepoint U+{unicode_letter:X4}"));
+                    }
+                    return false;
+                }
+
+                var slFont = manager._font;
+                if (!slFont.TryGetGlyphs(new CodePoint(unicode_letter), out var glyphs) || glyphs.Count == 0)
+                {
+                    if (s_traceGlyphs)
+                    {
+                        Console.Error.WriteLine(FormattableString.Invariant($"glyph-miss U+{unicode_letter:X4}"));
+                    }
+                    return false;
+                }
+
+                var glyph = glyphs[0];
+                var glyphMetrics = glyph.GlyphMetrics;
+                float scale = slFont.Size / slFont.FontMetrics.UnitsPerEm;
+                FontRectangle bbox = glyph.BoundingBox(GlyphLayoutMode.Horizontal, Vector2.Zero, manager._dpi);
+
+                int boxWidth = Math.Max(0, (int)Math.Ceiling(bbox.Width));
+                int boxHeight = Math.Max(0, (int)Math.Ceiling(bbox.Height));
+                int ofsX = (int)Math.Floor(bbox.Left);
+                int ofsY = boxHeight == 0 ? 0 : (int)Math.Round((-bbox.Top) - boxHeight);
+
+                int advanceWidth = (int)Math.Round(glyphMetrics.AdvanceWidth * scale * manager._dpi / 72f);
+                advanceWidth = Math.Clamp(advanceWidth, 0, ushort.MaxValue);
+
+                var dsc = new lv_font_glyph_dsc_t
+                {
+                    adv_w = (ushort)advanceWidth,
+                    box_w = (ushort)Math.Min(boxWidth, ushort.MaxValue),
+                    box_h = (ushort)Math.Min(boxHeight, ushort.MaxValue),
+                    ofs_x = (short)Math.Clamp(ofsX, short.MinValue, short.MaxValue),
+                    ofs_y = (short)Math.Clamp(ofsY, short.MinValue, short.MaxValue),
+                    stride = (ushort)lv_draw_buf_width_to_stride((uint)Math.Min(boxWidth, ushort.MaxValue), lv_color_format_t.LV_COLOR_FORMAT_A8),
+                    format = lv_font_glyph_format_t.LV_FONT_GLYPH_FORMAT_A8,
+                    is_placeholder = 0
+                };
+                dsc.gid.index = unicode_letter;
+
+                *dsc_out = dsc;
+                manager._glyphCache[unicode_letter] = new GlyphCacheItem
+                {
+                    Dsc = dsc,
+                    Bitmap = IntPtr.Zero,
+                    Bounds = bbox
+                };
+
+                if (s_traceGlyphs)
+                {
+                    Console.Error.WriteLine(
+                        FormattableString.Invariant(
+                            $"glyph U+{unicode_letter:X4} '{FormatGlyph(unicode_letter)}' adv={dsc.adv_w} box={dsc.box_w}x{dsc.box_h} ofs=({dsc.ofs_x},{dsc.ofs_y}) bbox=({bbox.Left:F2},{bbox.Top:F2},{bbox.Width:F2},{bbox.Height:F2})"));
+                }
+
                 return true;
             }
-
-            var slFont = manager._font;
-
-            if (!slFont.TryGetGlyphs(new CodePoint(unicode_letter), out var glyphs) || glyphs.Count == 0)
+            catch (Exception ex)
             {
+                if (s_traceGlyphs)
+                {
+                    Console.Error.WriteLine(
+                        FormattableString.Invariant(
+                            $"glyph-ex U+{unicode_letter:X4} '{FormatGlyph(unicode_letter)}' {ex.GetType().Name}: {ex.Message}"));
+                }
                 return false;
             }
-
-            var glyph = glyphs[0];
-            var glyphMetrics = glyph.GlyphMetrics;
-
-            float scale = slFont.Size / slFont.FontMetrics.UnitsPerEm;
-
-            FontRectangle bbox = glyph.BoundingBox(GlyphLayoutMode.Horizontal, Vector2.Zero, manager._dpi);
-
-            string characterToDraw = char.ConvertFromUtf32((int)unicode_letter);
-            var options = new TextOptions(slFont)
-            {
-                Dpi = manager._dpi,
-                Origin = new PointF(0, 0)
-            };
-            var paths = TextBuilder.GenerateGlyphs(characterToDraw, options);
-
-            var glyphPath = paths.First();
-            var bounds = glyphPath.Bounds;
-
-            var dsc = new lv_font_glyph_dsc_t();
-
-            dsc.adv_w = (ushort)Math.Round(glyphMetrics.AdvanceWidth * scale * manager._dpi / 72f);
-            dsc.box_w = (ushort)Math.Ceiling(bbox.Width + bounds.Left);
-            dsc.box_h = (ushort)Math.Round(bbox.Height + bounds.Top);
-            dsc.ofs_x = 0;
-            dsc.ofs_y = (short)Math.Round(manager._lineHeight - dsc.box_h);
-            dsc.stride = (ushort)lv_draw_buf_width_to_stride(dsc.box_w, lv_color_format_t.LV_COLOR_FORMAT_A8);
-            dsc.format = lv_font_glyph_format_t.LV_FONT_GLYPH_FORMAT_A8;
-            dsc.is_placeholder = 0;
-            dsc.gid.index = unicode_letter;
-
-            *dsc_out = dsc;
-            manager._glyphCache[unicode_letter] = new GlyphCacheItem
-            {
-                Dsc = dsc,
-                Bitmap = IntPtr.Zero,
-                Bounds = bbox
-            };
-
-            if (s_traceGlyphs)
-            {
-                Console.Error.WriteLine(
-                    FormattableString.Invariant(
-                        $"glyph U+{unicode_letter:X4} '{FormatGlyph(unicode_letter)}' adv={dsc.adv_w} box={dsc.box_w}x{dsc.box_h} ofs=({dsc.ofs_x},{dsc.ofs_y}) bbox=({bbox.Left:F2},{bbox.Top:F2},{bbox.Width:F2},{bbox.Height:F2}) bounds=({bounds.Left:F2},{bounds.Top:F2},{bounds.Width:F2},{bounds.Height:F2})"));
-            }
-
-            return true;
         }
 
         [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
         private static void* GetGlyphBitmap(lv_font_glyph_dsc_t* dsc, lv_draw_buf_t* draw_buf)
         {
-            if (dsc->resolved_font == null || dsc->box_w <= 0 || dsc->box_h <= 0) return null;
-            if (!TryGetManager(dsc->resolved_font, out var manager)) return null;
-
-            var unicodeCodePoint = dsc->gid.index;
-            var slFont = manager._font;
-
-            if (!manager._glyphCache.TryGetValue(unicodeCodePoint, out var cacheItem))
-                return null;
-
-            string characterToDraw = char.ConvertFromUtf32((int)unicodeCodePoint);
-
-            using var image = new Image<A8>(manager._configuration, dsc->box_w, dsc->box_h);
-            image.Mutate(x => x.DrawText(new RichTextOptions(slFont)
+            try
             {
-                Origin = new PointF(0, 0),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Dpi = manager._dpi
-            }, characterToDraw, Color.Black));
+                if (dsc->resolved_font == null || dsc->box_w <= 0 || dsc->box_h <= 0) return null;
+                if (!TryGetManager(dsc->resolved_font, out var manager)) return null;
 
-            if (draw_buf == null || draw_buf->data == null)
-            {
-                return null;
-            }
+                var unicodeCodePoint = dsc->gid.index;
+                var slFont = manager._font;
 
-            int rowStride = (int)draw_buf->header.stride;
-            if (rowStride <= 0)
-            {
-                rowStride = dsc->box_w;
-            }
+                if (!manager._glyphCache.TryGetValue(unicodeCodePoint, out var cacheItem))
+                    return null;
 
-            int requiredBufferSize = rowStride * dsc->box_h;
-            if (draw_buf->data_size < requiredBufferSize)
-            {
-                return null;
-            }
-
-            if (!image.DangerousTryGetSinglePixelMemory(out Memory<A8> sourcePixels))
-            {
-                return null;
-            }
-
-            var sourceBytes = MemoryMarshal.AsBytes(sourcePixels.Span);
-            var destinationBytes = new Span<byte>(draw_buf->data, requiredBufferSize);
-
-            for (int y = 0; y < dsc->box_h; y++)
-            {
-                int sourceOffset = y * dsc->box_w;
-                int destinationOffset = y * rowStride;
-                sourceBytes.Slice(sourceOffset, dsc->box_w).CopyTo(destinationBytes.Slice(destinationOffset, dsc->box_w));
-
-                // Clear the alignment padding bytes so stale alpha doesn't leak into the next glyph.
-                if (rowStride > dsc->box_w)
+                string characterToDraw = char.ConvertFromUtf32((int)unicodeCodePoint);
+                using var image = new Image<A8>(manager._configuration, dsc->box_w, dsc->box_h);
+                image.Mutate(x => x.DrawText(new RichTextOptions(slFont)
                 {
-                    destinationBytes.Slice(destinationOffset + dsc->box_w, rowStride - dsc->box_w).Clear();
+                    Origin = new PointF(-cacheItem.Bounds.Left, -cacheItem.Bounds.Top),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Dpi = manager._dpi
+                }, characterToDraw, Color.Black));
+
+                if (draw_buf == null || draw_buf->data == null)
+                {
+                    return null;
                 }
-            }
 
-            if (s_traceGlyphs)
+                int rowStride = (int)draw_buf->header.stride;
+                if (rowStride <= 0)
+                {
+                    rowStride = dsc->box_w;
+                }
+
+                int requiredBufferSize = rowStride * dsc->box_h;
+                if (draw_buf->data_size < requiredBufferSize)
+                {
+                    return null;
+                }
+
+                if (!image.DangerousTryGetSinglePixelMemory(out Memory<A8> sourcePixels))
+                {
+                    return null;
+                }
+
+                var sourceBytes = MemoryMarshal.AsBytes(sourcePixels.Span);
+                var destinationBytes = new Span<byte>(draw_buf->data, requiredBufferSize);
+
+                for (int y = 0; y < dsc->box_h; y++)
+                {
+                    int sourceOffset = y * dsc->box_w;
+                    int destinationOffset = y * rowStride;
+                    sourceBytes.Slice(sourceOffset, dsc->box_w).CopyTo(destinationBytes.Slice(destinationOffset, dsc->box_w));
+
+                    // Clear the alignment padding bytes so stale alpha does not leak into the next glyph.
+                    if (rowStride > dsc->box_w)
+                    {
+                        destinationBytes.Slice(destinationOffset + dsc->box_w, rowStride - dsc->box_w).Clear();
+                    }
+                }
+
+                if (s_traceGlyphs)
+                {
+                    Console.Error.WriteLine(
+                        FormattableString.Invariant(
+                            $"bitmap U+{unicodeCodePoint:X4} '{FormatGlyph(unicodeCodePoint)}' req={dsc->box_w}x{dsc->box_h} stride={dsc->stride} draw_buf=({draw_buf->header.w}x{draw_buf->header.h} stride={draw_buf->header.stride} cf={draw_buf->header.cf} size={draw_buf->data_size})"));
+                }
+
+                return draw_buf;
+            }
+            catch (Exception ex)
             {
-                Console.Error.WriteLine(
-                    FormattableString.Invariant(
-                        $"bitmap U+{unicodeCodePoint:X4} '{FormatGlyph(unicodeCodePoint)}' req={dsc->box_w}x{dsc->box_h} stride={dsc->stride} draw_buf=({draw_buf->header.w}x{draw_buf->header.h} stride={draw_buf->header.stride} cf={draw_buf->header.cf} size={draw_buf->data_size})"));
-            }
+                if (s_traceGlyphs)
+                {
+                    Console.Error.WriteLine(
+                        FormattableString.Invariant(
+                            $"bitmap-ex U+{dsc->gid.index:X4} '{FormatGlyph(dsc->gid.index)}' {ex.GetType().Name}: {ex.Message}"));
+                }
 
-            return draw_buf;
+                return null;
+            }
         }
 
         [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -264,10 +320,23 @@ namespace LVGLSharp
 
         private static bool TryGetManager(lv_font_t* font, out SixLaborsFontManager manager)
         {
+            if (font == null)
+            {
+                manager = null!;
+                return false;
+            }
+
             lock (s_lock)
             {
-                return s_fontManagers.TryGetValue((IntPtr)font->dsc, out manager);
+                if (s_fontManagers.TryGetValue((IntPtr)font->dsc, out var found))
+                {
+                    manager = found;
+                    return true;
+                }
             }
+
+            manager = null!;
+            return false;
         }
 
         private static string FormatGlyph(uint unicodeLetter)
