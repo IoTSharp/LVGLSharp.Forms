@@ -13,6 +13,9 @@ sections:
     variant: quick-links
     columns: 1
     items:
+      - title: "WPF 布局兼容更新：Grid 星号权重 + StackPanel 流式 + 启动稳定性修复"
+        description: "记录 WPF 侧与 LVGL 布局语义对齐的关键改动，包含 Grid `*` 权重分配、StackPanel 类 FlowLayout 调整、Image 资源加载与启动崩溃修复。"
+        url: "/zh/news/wpf-layout-parity-and-stability-update.html"
       - title: "LVGLSharp 全志 T113-S3 成功移植案例（.NET 10 + Tina Linux）"
         description: "这篇案例记录了 LVGLSharp 在全志 T113-S3、128MB 内存与 Tina Linux 5.0 环境中的真实落地结果，包括 1024x600 渲染、触摸和中文显示验证。"
         url: "/zh/news/allwinner-t113-s3-tina-linux-case.html"

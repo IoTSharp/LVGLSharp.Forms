@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WpfApp (Standard WPF)": {
+      "commandName": "Project",
+      "targetFramework": "net10.0-windows"
+    },
+    "WpfApp (LVGL WPF)": {
+      "commandName": "Project",
+      "targetFramework": "net10.0"
+    }
+  }
+}
